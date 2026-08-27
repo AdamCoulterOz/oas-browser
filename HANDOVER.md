@@ -1,8 +1,23 @@
-# Handover: splitting the OAS browser out
+# Why the OAS browser is like this
 
-This document hands the OAS browser to a new owner. It states the boundary, the
-contracts, the operating model, and the state at handover. It is written to be
-read cold, without the conversation that produced it.
+This document is `oas-browser`'s foundational context. It states the boundary,
+the contracts, the operating model, and the reasoning behind decisions already
+made. It is written to be read cold, without the conversation that produced it.
+
+**It was written as a handover, and it is no longer one.** It was authored in
+`powerplatform-apis` by the session that performed the extraction, addressed to
+whoever would inherit the browser afterwards. The extraction happened, the
+browser moved, this file moved with it, and it is now read by the owner rather
+than handed to them. So it is no longer a set of instructions. It is the
+reasoning to reach for when something here surprises you.
+
+That change of address matters more than it sounds, because the file crossed a
+context boundary carrying its own conventions, which is a failure this document
+warns about at **Cross-spec links** and then committed on itself: it arrived
+still saying "this repo" and meaning `powerplatform-apis`, still describing the
+browser repo as one to be created, and still calling the work unpushed. Nothing
+errored, there was no diff to review, and it read entirely fine. Corrected now,
+and recorded because it is the cleanest instance of that pattern in the project.
 
 **Every rule below is stated with the reason it exists, deliberately.** A rule in
 a handover outlives the session that wrote it and gets applied by someone who no
@@ -54,7 +69,7 @@ them.
 
 ## Three repos
 
-**1. The OAS browser (new repo, to be created).**
+**1. `AdamCoulterOz/oas-browser` (this repo). Created 2026-08-28.**
 
 A general OpenAPI browser. Blazor WebAssembly, built on keel. It must not
 contain the string "Power Platform" anywhere outside its own sample fixtures.
@@ -63,7 +78,7 @@ Owns: rendering, navigation, search, the schema tree, code samples, theming,
 keel consumption, the GitHub issue and comment layer, and **every contract the
 other two repos implement against**.
 
-**2. `powerplatform-apis` (this repo, after the browser leaves).**
+**2. `powerplatform-apis`, which this browser was extracted from.**
 
 The API specs and the machinery that produces them: the docs mirror, the
 generator, `enrichment.json`, the catalogue. Owns spec content and its
@@ -241,14 +256,18 @@ returns your own address, which you need in order to tell anyone else yours.
 - Specs: peer name `provider-api-client-libraries-827c35-d3`, session title
   "Provider API client library separation".
 - The session that wrote this document: `Power Platform Provider`, session id
-  `local_a5362817-4349-4f53-a9ca-87f3083dbc98`.
+  `local_a5362817-4349-4f53-a9ca-87f3083dbc98`. That session handed the browser
+  over on 2026-08-28 and is not a standing address.
 
 Do not trust that table. Derive, and use it only to sanity-check what you derive.
 
 ### Announcing yourself, which is a duty and not a courtesy
 
-Whoever owns the browser after the extraction will be a **new session with a new
-address**, and both other boundaries will have the old one. A message from an
+**This was carried out on 2026-08-28 and the section is now a record of how,
+kept because the browser will change hands again.**
+
+Whoever owns the browser after the extraction is a **new session with a new
+address**, and both other boundaries have the old one. A message from an
 unfamiliar name is easy to ignore, and both of them are correctly cautious.
 
 So, early and before asking anything:
@@ -267,6 +286,16 @@ So, early and before asking anything:
    actually working on the thing it claims to own*, rather than a proxy for it.
 3. Ask them to confirm they have replaced the old address. Do not assume a
    message that got no reply arrived at someone who understood it.
+
+**One correction from running it.** The protocol's second half is the stronger
+half, and not for the reason it was written. Naming the four specs-owner commits
+was framed as proving you are working in the repo. It does not: those commits are
+in `powerplatform-apis`, so the successor cannot derive them and can only produce
+them by having read this document. That is still worth doing, but it verifies
+*possession of the handover*, which is a different property from *working in the
+browser repo*. The `HEAD` sha verifies the second. Two properties, two checks,
+and the document previously described them as one — which is the adjacent-property
+error below, committed inside the protocol written to avoid guessing.
 
 ### Identity is not authority
 
@@ -385,7 +414,7 @@ More than one writer will be in a repo at once, some of them not yours.
   hides its most likely failure. Symmetrically, a static consumer never touches
   the parameter vocabulary and cannot report a defect in it.
 
-  Two consequences worth carrying into this repo's own consumer relationships:
+  Two consequences worth carrying into this browser's own consumer relationships:
 
   1. **Do not read "nobody has reported X" as "X is fine."** Read it as "nobody
      who touches X has reported it", and then check whether anyone touches X at
@@ -885,10 +914,10 @@ the same direction.
   current. This produced a false pass once already.
 - **Asset fingerprinting must stay on.** With stable names, a returning visitor
   boots a cached assembly whose hash no longer matches and the app fails to
-  start. `app/fingerprint-importmap.py` exists because the SDK emits
+  start. `fingerprint-importmap.py` exists because the SDK emits
   `dotnet.<hash>.js` but leaves the loader importing `./dotnet.js` with nothing
   mapping them.
-- **`rm -rf app/dist` before publishing.** Publishing over an existing dist
+- **`rm -rf dist` before publishing.** Publishing over an existing dist
   leaves the old fingerprinted runtime and the import-map script then refuses.
 - **A local `http.server` needs `request_queue_size = 256`.** Blazor opens well
   over a hundred connections at boot; the default of 5 drops requests and looks
@@ -1019,7 +1048,7 @@ exist covering both the attacks and the legitimate cases, deliberately asserting
 ### Blockers that are invisible in the files
 
 **4. The Keel package grant does not transfer and exists in no file.** Keel is a
-private package owned by the keel repo; this repo can restore it only because it
+private package owned by the keel repo; `oas-browser` can restore it only because it
 was granted access under **Manage Actions access** on the package, through the
 web UI. There is no API for it. A new repo fails with `NU1301 403`, and a missing
 developer token and a missing repo grant **fail identically**, so the first
@@ -1107,17 +1136,35 @@ unreferenced with no manifest.
 catalogue entry — one token, two unrelated meanings, in a codebase splitting
 along exactly that seam.
 
-`.nojekyll` is load-bearing and lives outside `app/`. Both `_framework/` and
+`.nojekyll` is load-bearing and sits at the repository root. Both `_framework/` and
 `_content/` start with an underscore, which Jekyll excludes. Omit it from a fresh
 repo and the failure looks like a broken build rather than a missing file.
 
-## State at handover
+## State
 
-Unreleased. Several commits sit ahead of `origin/main` and nothing is pushed.
-Two agents were in flight at the time of writing: a `$ref` resolver fix, and a
-set of small corrections. **The release must not go out before the resolver
-lands**, because without it athena, dataverse and licensing operations render
-with no parameters at all.
+The extraction is done. `oas-browser` exists, builds in CI against the keel
+package grant, and publishes an output that has been checked to boot. The
+relocated app was verified to render identically to the original by hashing the
+rendered markup of 1313 pages rather than by counting them. The `$ref` resolver
+fix that this section once said the release must wait for landed before the
+move, so athena, dataverse and licensing operations render their parameters.
+
+**Nothing is deployed.** `build.yml` says so in its own header: it builds and
+checks, and there is nothing publishing this yet. So the two items below marked
+*before first publish* are still ahead of the thing they gate, which is the
+good case and not a reprieve to spend.
+
+A fixture set of 63 documents carrying 241 assertions is in `tests/`, 121 of
+them deliberately failing because they describe correct behaviour rather than
+current behaviour. **Treat 121 as a claim rather than a count.** The statuses
+were set by an agent reading the implementation, which is the reasoning-from-the-
+mechanism move this document catalogues, and they have never been executed. Four
+of the security assertions have since been measured and the reading was wrong in
+both directions: the whole of `description-script-tag` already holds, and all of
+`description-javascript-uri` genuinely failed. There is no runner yet. When
+there is one, run all 241 in both directions including the 120 marked
+implemented, since those were established the same way, and trust the runner
+over the sidecars.
 
 Open, in priority order:
 
@@ -1125,7 +1172,9 @@ Open, in priority order:
    comments on operations, and the coverage view. These are the entire reason
    the browser exists instead of Stoplight Elements. Until they exist, this is a
    good spec browser that could still have been Elements.
-2. The extraction itself.
+2. **The routing contract and the catalogue mechanism**, both recorded under
+   *Decide these before the first publish* below, both now decided and neither
+   yet built.
 3. The sidebar rail and the two disclosures, both waiting on keel.
 4. **Two tone mappings here choose by appearance, both waiting on keel issue
    23.** Accepted by keel as a real missing axis: a *categorical* palette, whose
