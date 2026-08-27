@@ -1,0 +1,24 @@
+{
+  "fixture": "ref-siblings-ignored.json",
+  "exercises": "keys written beside a $ref, which OAS 3.0 requires to be ignored",
+  "validates": true,
+  "note": "The expected behaviour is also stated inside the document, in the x-fixture-expectation key beside the $ref. That key is itself a sibling, so it is ignored too, which is the point. OAS 3.1 changes this rule for `description` and `summary`; this fixture is 3.0 and asserts the 3.0 rule.",
+  "expected": [
+    {
+      "assert": "The response body renders as Book with the description 'A catalogue record for one book.'",
+      "status": "implemented"
+    },
+    {
+      "assert": "Neither the sibling title nor the sibling description appears anywhere.",
+      "status": "implemented"
+    },
+    {
+      "assert": "The node is not treated as nullable: the sibling nullable:true is ignored along with the rest.",
+      "status": "implemented"
+    },
+    {
+      "assert": "The referenced schema replaces the node. It is not merged with the siblings.",
+      "status": "implemented"
+    }
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "fixture": "ref-pointer-escape-slash.json",
+  "exercises": "a pointer whose token contains a slash, escaped as ~1 per RFC 6901",
+  "validates": true,
+  "expected": [
+    {
+      "assert": "listRecentlyReturnedBooks shows a 200 with the description 'Matching books.' and an array-of-Book body.",
+      "status": "implemented"
+    },
+    {
+      "assert": "The pointer token `~1books` is unescaped to `/books` before the lookup. Splitting the pointer on `/` without unescaping first would look for a path named `~1books` and find nothing.",
+      "status": "implemented"
+    },
+    {
+      "assert": "A pointer may target any node, not only a components bucket. Resolution must be a generic pointer walk, not a set of per-bucket prefix matches.",
+      "status": "implemented"
+    }
+  ]
+}

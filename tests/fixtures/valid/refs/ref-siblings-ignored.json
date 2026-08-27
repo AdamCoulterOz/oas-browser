@@ -1,0 +1,56 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Riverside Library: sibling keys beside a $ref",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/books/{bookId}": {
+      "get": {
+        "operationId": "getBook",
+        "parameters": [
+          {
+            "name": "bookId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The book.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Book",
+                  "x-fixture-expectation": "OpenAPI 3.0 gives $ref no siblings. Every key beside it here (title, description, nullable, and this key) must be ignored, and the referenced schema must replace this node outright rather than merging into it. Correct rendering shows the description 'A catalogue record for one book.' from the component, never 'This sibling text must not appear.'",
+                  "title": "This sibling title must not appear",
+                  "description": "This sibling text must not appear.",
+                  "nullable": true
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Book": {
+        "type": "object",
+        "description": "A catalogue record for one book.",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}

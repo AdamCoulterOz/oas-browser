@@ -1,0 +1,19 @@
+{
+  "fixture": "ref-responses.json",
+  "exercises": "$ref from a response entry into components/responses",
+  "validates": true,
+  "expected": [
+    {
+      "assert": "The 404 renders with the component's description, not blank and not the pointer text.",
+      "status": "implemented"
+    },
+    {
+      "assert": "The 404 carries the component's application/json body schema.",
+      "status": "implemented"
+    },
+    {
+      "assert": "The 200 and the 404 both appear, in status order.",
+      "status": "implemented"
+    }
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "fixture": "ref-cycle-two-step.json",
+  "exercises": "Author -> Book -> Author, a cycle that closes on the second hop rather than the first",
+  "validates": true,
+  "expected": [
+    {
+      "assert": "Author expands to Book, and Book expands to Author, at which point expansion stops.",
+      "status": "implemented"
+    },
+    {
+      "assert": "Neither schema is dropped: both Author and Book are reachable as named components.",
+      "status": "implemented"
+    },
+    {
+      "assert": "A cycle detector keyed on the whole path, not just the immediate parent, is required. Comparing a node only against its parent would miss this shape.",
+      "status": "implemented"
+    }
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "fixture": "ref-examples.json",
+  "exercises": "$ref from a media type's examples map into components/examples",
+  "validates": true,
+  "pending": true,
+  "doNotChangeFixture": "Assertions marked pending describe correct behaviour the browser does not have yet. A failure on one of them is a backlog item, not a fixture defect. Do not edit this fixture or its expectations to match what the app currently does.",
+  "expected": [
+    {
+      "assert": "Both named examples render, labelled `paperback` and `audiobook`.",
+      "status": "pending",
+      "why": "The model exposes no example at all: the schema node's Example property is hardcoded to null and media-type `examples` is never read."
+    },
+    {
+      "assert": "The `paperback` entry resolves through the $ref and shows the component's summary, description and value.",
+      "status": "pending",
+      "why": "Examples are not read, so the reference is never followed."
+    }
+  ]
+}

@@ -1,0 +1,62 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Riverside Library: a two-step reference cycle",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/authors/{authorId}": {
+      "get": {
+        "operationId": "getAuthor",
+        "parameters": [
+          {
+            "name": "authorId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The author.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Author"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Author": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "bestKnownFor": {
+            "$ref": "#/components/schemas/Book"
+          }
+        }
+      },
+      "Book": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string"
+          },
+          "writtenBy": {
+            "$ref": "#/components/schemas/Author"
+          }
+        }
+      }
+    }
+  }
+}

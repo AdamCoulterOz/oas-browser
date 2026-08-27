@@ -1,0 +1,44 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Riverside Library: $ref into components/parameters",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/books": {
+      "get": {
+        "operationId": "listBooks",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/BranchFilter"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Matching books."
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "parameters": {
+      "BranchFilter": {
+        "name": "branch",
+        "in": "query",
+        "required": false,
+        "description": "Restrict results to one branch's holdings.",
+        "schema": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

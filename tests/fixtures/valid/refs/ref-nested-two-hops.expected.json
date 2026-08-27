@@ -1,0 +1,27 @@
+{
+  "fixture": "ref-nested-two-hops.json",
+  "exercises": "two-hop resolution: operation parameter -> components/parameters -> components/schemas, with keys on the inner target that must survive both hops",
+  "validates": true,
+  "expected": [
+    {
+      "assert": "The parameter renders as `shelfMark` in query, with the component's description.",
+      "status": "implemented"
+    },
+    {
+      "assert": "Its type reads as the named schema ShelfMark, resolved through the second hop.",
+      "status": "implemented"
+    },
+    {
+      "assert": "The pattern constraint from the inner schema is shown on the parameter row.",
+      "status": "implemented"
+    },
+    {
+      "assert": "The x-notes entry declared on the inner schema renders. This is the observable proof that keys on the far end of the chain survive both hops rather than being lost when the outer reference is followed.",
+      "status": "implemented"
+    },
+    {
+      "assert": "x-riverside-classification is carried through untouched. The browser need not display it, but must not drop, rename or rewrite it: resolution returns the node as written, never a rebuilt copy.",
+      "status": "implemented"
+    }
+  ]
+}

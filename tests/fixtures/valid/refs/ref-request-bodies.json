@@ -1,0 +1,53 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Riverside Library: $ref into components/requestBodies",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/loans": {
+      "post": {
+        "operationId": "createLoan",
+        "requestBody": {
+          "$ref": "#/components/requestBodies/NewLoan"
+        },
+        "responses": {
+          "201": {
+            "description": "Loan created."
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "requestBodies": {
+      "NewLoan": {
+        "required": true,
+        "description": "The item to lend and the member borrowing it.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "required": [
+                "itemId",
+                "memberId"
+              ],
+              "properties": {
+                "itemId": {
+                  "type": "string"
+                },
+                "memberId": {
+                  "type": "string"
+                },
+                "dueOn": {
+                  "type": "string",
+                  "format": "date"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

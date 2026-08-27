@@ -1,0 +1,19 @@
+{
+  "fixture": "ref-self-recursive.json",
+  "exercises": "a schema whose property refers back to the schema itself",
+  "validates": true,
+  "expected": [
+    {
+      "assert": "Shelf renders with two properties, and children reads as Shelf[].",
+      "status": "implemented"
+    },
+    {
+      "assert": "Expanding children shows Shelf once more and then stops. The browser must not expand forever, hang, or overflow the stack.",
+      "status": "implemented"
+    },
+    {
+      "assert": "The repeat is shown as a reference back to a schema already on the path, not silently truncated with no explanation.",
+      "status": "implemented"
+    }
+  ]
+}

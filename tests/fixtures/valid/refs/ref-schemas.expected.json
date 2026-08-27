@@ -1,0 +1,19 @@
+{
+  "fixture": "ref-schemas.json",
+  "exercises": "$ref from a response media type into components/schemas",
+  "validates": true,
+  "expected": [
+    {
+      "assert": "The 200 response body renders as the named schema Book, not as the literal string $ref.",
+      "status": "implemented"
+    },
+    {
+      "assert": "Book's three properties render, with id and title marked required and shelfMark not.",
+      "status": "implemented"
+    },
+    {
+      "assert": "The schema is reachable as a named component in its own right, not only inline under the response.",
+      "status": "implemented"
+    }
+  ]
+}

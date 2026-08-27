@@ -1,0 +1,46 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Riverside Library: a $ref'd parameter whose schema is itself a $ref",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/books": {
+      "get": {
+        "operationId": "listBooks",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/ShelfMarkFilter"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Matching books."
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "parameters": {
+      "ShelfMarkFilter": {
+        "name": "shelfMark",
+        "in": "query",
+        "description": "Restrict results to one shelf mark.",
+        "schema": {
+          "$ref": "#/components/schemas/ShelfMark"
+        }
+      }
+    },
+    "schemas": {
+      "ShelfMark": {
+        "type": "string",
+        "pattern": "^[A-Z]{2}-[0-9]{3}$",
+        "x-riverside-classification": "dewey",
+        "x-notes": [
+          "Shelf marks are unique per branch, not across the whole service."
+        ]
+      }
+    }
+  }
+}

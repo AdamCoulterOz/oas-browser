@@ -1,0 +1,19 @@
+{
+  "fixture": "ref-parameters.json",
+  "exercises": "$ref from an operation's parameter list into components/parameters",
+  "validates": true,
+  "expected": [
+    {
+      "assert": "listBooks shows two parameters: branch then limit, in that order.",
+      "status": "implemented"
+    },
+    {
+      "assert": "The referenced parameter renders under its own name `branch`, not under the component key `BranchFilter`.",
+      "status": "implemented"
+    },
+    {
+      "assert": "Its description, `in` value and schema all come from the component.",
+      "status": "implemented"
+    }
+  ]
+}

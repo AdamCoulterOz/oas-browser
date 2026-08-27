@@ -1,0 +1,33 @@
+{
+  "fixture": "ref-path-item.json",
+  "exercises": "a path item that is a $ref to another path item, which OAS 3.0 allows",
+  "validates": true,
+  "note": "The path item $ref is the one place in OAS 3.0 where a whole path item, rather than a component, is referenced. The referenced operation deliberately carries no operationId: once the reference resolves there are two operations with that id, and openapi-spec-validator rejects the document for a duplicate. That is a property of the construct, not of this fixture, and it means the browser cannot rely on an operationId being present to identify an operation reached this way.",
+  "pending": true,
+  "doNotChangeFixture": "Assertions marked pending describe correct behaviour the browser does not have yet. A failure on one of them is a backlog item, not a fixture defect. Do not edit this fixture or its expectations to match what the app currently does.",
+  "expected": [
+    {
+      "assert": "/titles renders with the same single GET operation as /books, including its limit parameter.",
+      "status": "pending",
+      "why": "The model walks each path item's keys and keeps only the HTTP method names, so a path item whose only key is $ref yields no operations and the path disappears."
+    },
+    {
+      "assert": "The operation reached through /titles is presented under the path /titles, not under /books.",
+      "status": "pending",
+      "why": "Follows from the above: the path item is never resolved, so there is nothing to present."
+    },
+    {
+      "assert": "Nothing crashes: a path item the browser cannot interpret must not take the rest of the document with it.",
+      "status": "implemented"
+    },
+    {
+      "assert": "/books still renders its GET even though the operation has no operationId. An operation is identified by method plus path when no id is declared.",
+      "status": "implemented"
+    },
+    {
+      "assert": "/books and /titles are separately addressable, even though they resolve to the same operation node with no operationId to tell them apart.",
+      "status": "pending",
+      "why": "Identity currently comes from the operationId or, failing that, method plus path. That fallback is correct here, but the path item is never resolved, so /titles produces no operation to address."
+    }
+  ]
+}

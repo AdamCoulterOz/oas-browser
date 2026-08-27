@@ -1,0 +1,15 @@
+{
+  "fixture": "ref-request-bodies.json",
+  "exercises": "$ref from an operation's requestBody into components/requestBodies",
+  "validates": true,
+  "expected": [
+    {
+      "assert": "createLoan shows a request body marked required, with the component's description.",
+      "status": "implemented"
+    },
+    {
+      "assert": "The body's media type reads application/json and its schema's three properties render.",
+      "status": "implemented"
+    }
+  ]
+}

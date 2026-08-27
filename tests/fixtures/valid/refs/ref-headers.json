@@ -1,0 +1,42 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Riverside Library: $ref into components/headers",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/books": {
+      "get": {
+        "operationId": "listBooks",
+        "responses": {
+          "200": {
+            "description": "Matching books.",
+            "headers": {
+              "X-Total-Count": {
+                "$ref": "#/components/headers/TotalCount"
+              },
+              "X-Catalogue-Generated": {
+                "description": "When this page of results was assembled.",
+                "schema": {
+                  "type": "string",
+                  "format": "date-time"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "headers": {
+      "TotalCount": {
+        "description": "How many records matched, ignoring paging.",
+        "schema": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    }
+  }
+}

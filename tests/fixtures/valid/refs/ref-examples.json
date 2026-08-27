@@ -1,0 +1,78 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Riverside Library: $ref into components/examples",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/books/{bookId}": {
+      "get": {
+        "operationId": "getBook",
+        "parameters": [
+          {
+            "name": "bookId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The book.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Book"
+                },
+                "examples": {
+                  "paperback": {
+                    "$ref": "#/components/examples/PaperbackBook"
+                  },
+                  "audiobook": {
+                    "summary": "An audio edition",
+                    "value": {
+                      "id": "bk-4417",
+                      "title": "Tidewater",
+                      "format": "audio"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Book": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "format": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "examples": {
+      "PaperbackBook": {
+        "summary": "A paperback edition",
+        "description": "The shape returned for a physical lending copy.",
+        "value": {
+          "id": "bk-1902",
+          "title": "The Long Weir",
+          "format": "paperback"
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "fixture": "ref-headers.json",
+  "exercises": "$ref from a response header into components/headers",
+  "validates": true,
+  "expected": [
+    {
+      "assert": "Both response headers render, keyed by their map names X-Total-Count and X-Catalogue-Generated.",
+      "status": "implemented"
+    },
+    {
+      "assert": "X-Total-Count takes its description and integer schema from the component, and is not named `TotalCount`.",
+      "status": "implemented"
+    }
+  ]
+}
