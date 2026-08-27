@@ -1151,6 +1151,23 @@ invariants all assert properties of one corpus at one moment. A corpus that
 quietly loses half its notes between two publishes satisfies every one of them.
 The fixture assertions have the same shape and the same blind spot.
 
+**What to diff, when it gets built.** Do not guess the invariants — ask the
+producer, because they know which numbers their own failures move. The first
+coverage producer named three unprompted, and their reasoning is the whole
+argument in one sentence: *my four extraction defects today all moved the
+full-versus-partial split, and none of them moved it enough to look wrong.*
+
+- total rows
+- `uncatalogued` count
+- the full-versus-partial split
+- item count, added after a fifth defect emitted 58 items where there were 60
+
+**The property they share is that a wrong value is a plausible value.** None of
+those five defects produced an error, a malformed file or an implausible number.
+That is what makes single-state checking blind to them and what makes the diff
+worth building: not that the numbers are important, but that nothing else can
+tell you when one has drifted.
+
 **An equality assertion is the wrong half of the pair when the risk is undue
 sameness.** `tools/contrast_pairs.py` had a bug where the dark theme resolved to
 the light declarations, so it printed light figures under a dark heading: every
@@ -1226,6 +1243,28 @@ that silently drops `readOnly`; the original `$ref` resolver handled exactly one
 target bucket; and the fifth is inside the checker built to prevent the other
 four. Nobody is careless five times about the same thing, which is what makes it
 structural.
+
+**A field argued redundant is being argued about from one sample, and that
+sample is the one that cannot show you the case needing it.**
+
+The coverage format carries both an opaque `id` and a display `name`. A reviewer
+called them redundant, correctly observing they were identical in the worked
+example. The producer whose data made them look identical is the one who then
+needed them apart: two of their artifacts existed twice over, once in each of
+two kinds, sharing a display name and differing only in kind. Keying on the name
+collapsed each pair and **silently emitted 58 items where there were 60**.
+
+The general form, and it is not "keep every field just in case": **a redundancy
+argument is made from the arguer's current data, and current data is precisely
+the sample that cannot contain the counter-example.** So the question to ask of
+a field that looks surplus is not "is it used" but "what would have to be true
+for it to matter, and would I see that from here". Where the answer is a
+composite identity, a second producer, or a corpus you do not hold, you are not
+in a position to call it.
+
+The counterpart to *near-uniformity is evidence of an unstated rule*: uniformity
+in one sample is not evidence about the population, and the exception is
+somewhere you are not looking.
 
 **Duplication is a liability for correctness and an asset for detection, and
 this document leans hard on only the first half.** Worth stating because the two
