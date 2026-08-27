@@ -154,6 +154,30 @@ Decisions already settled, do not relitigate:
 - Stacking is rare and load-bearing: measured across the migrated specs, 50 of
   52 note-carrying entities have one grade, 2 have two, none have three. Do not
   pre-solve it. Remeasure after the remaining specs land.
+- **The induced order ranks evidential weight, not informativeness, and those
+  come apart.** The order exists because a wire observation really is stronger
+  evidence that a claim holds than a third party's model of the API. That stays
+  true. But a third-party client answers a question the wire cannot, and the
+  distinction earned itself in practice.
+
+  Seven operations were added to a corpus on the evidence of a provider's call
+  sites alone, graded `provider` because a working client is real evidence about
+  what *exists* and none about what the service *returns*. Reading them off the
+  call sites rather than inferring them is what made the details right: creation
+  is a `PUT` to a client-chosen id with no `POST` to a collection, so `201`
+  against `200` is the only thing separating a create from a replace; delete
+  answers `200` rather than `204`; every call carries a `$filter` naming an
+  environment the host has already identified.
+
+  Every one of those would have been guessed wrong. **Probing asks what the
+  service will answer. A vendor SDK says what the vendor models. A working
+  third-party client is the only source that says what an operation looks like
+  when somebody uses it in anger** — including which of several plausible shapes
+  is the one that works, and which redundant parameter is nonetheless required.
+
+  So do not read the lowest grade as the least useful source. It is the weakest
+  warrant for *this claim is true* and sometimes the only witness to *this is how
+  it is actually done*.
 - Grade the finding, not the entity. Node-level markers are a fallback for when
   the note's own text does not say where it came from.
 
