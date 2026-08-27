@@ -1457,6 +1457,20 @@ pair of claims waiting to drift, and the drift is silent. If you find yourself
 keeping a second description, the question is not whether to delete it but
 whether anything would notice if it stopped agreeing.
 
+**And when two records of one fact do drift, the human-readable one is the
+expensive one to leave stale.** A corpus re-derived a set of claims from a newer
+tool build and updated the machine-readable provenance that records which build
+they came from. The README, which still named the old one, was not touched. The
+corpus owner's own summary: *machine-readable provenance corrected and
+human-readable provenance left stale is a bad way round, since the README is
+what a person reads.*
+
+The instinct runs the other way, because the structured field feels like the
+real record and the prose feels like commentary. It is backwards for the same
+reason a check's failure message carries its reliability: **the least informed
+reader meets the informal surface, and they are the one with no way to tell it
+is wrong.**
+
 **A sixth, and it is the one that shows the shape is not about lists.** A
 mapping producer bound query parameters *positionally*, on the assumption that
 the call adding them appears after the URL they belong to. Three real spellings
