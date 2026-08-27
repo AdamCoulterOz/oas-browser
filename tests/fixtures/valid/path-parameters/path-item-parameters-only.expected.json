@@ -1,0 +1,24 @@
+{
+  "fixture": "path-item-parameters-only.json",
+  "exercises": "paths.<path>.parameters with no operation-level parameters at all",
+  "validates": true,
+  "pending": true,
+  "doNotChangeFixture": "Assertions marked pending describe correct behaviour the browser does not have yet. A failure on one of them is a backlog item, not a fixture defect. Do not edit this fixture or its expectations to match what the app currently does.",
+  "expected": [
+    {
+      "assert": "getBranch shows two parameters, branchId (path, required) and lang (query, optional).",
+      "status": "pending",
+      "why": "Operation parameters are read only from the operation node. The path item's own parameters array is never looked at, so every parameter declared there is lost."
+    },
+    {
+      "assert": "closeBranch shows the same two parameters. Path item parameters apply to every operation on the path, not just the first.",
+      "status": "pending",
+      "why": "Operation parameters are read only from the operation node. The path item's own parameters array is never looked at, so every parameter declared there is lost."
+    },
+    {
+      "assert": "The path template variable {branchId} is documented. Today both operations render as having no parameters at all, so the reader cannot tell what to put in the URL.",
+      "status": "pending",
+      "why": "Operation parameters are read only from the operation node. The path item's own parameters array is never looked at, so every parameter declared there is lost."
+    }
+  ]
+}

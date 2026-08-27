@@ -1,0 +1,58 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Riverside Library: three security schemes and a document-level requirement",
+    "version": "1.0.0"
+  },
+  "security": [
+    {
+      "catalogueOAuth": [
+        "catalogue.read"
+      ]
+    }
+  ],
+  "paths": {
+    "/books": {
+      "get": {
+        "operationId": "listBooks",
+        "responses": {
+          "200": {
+            "description": "Matching books."
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "catalogueOAuth": {
+        "type": "oauth2",
+        "description": "Reader and staff access to the catalogue.",
+        "flows": {
+          "authorizationCode": {
+            "authorizationUrl": "https://auth.riverside.example/authorize",
+            "tokenUrl": "https://auth.riverside.example/token",
+            "refreshUrl": "https://auth.riverside.example/refresh",
+            "scopes": {
+              "catalogue.read": "Read catalogue records.",
+              "catalogue.write": "Create and amend catalogue records.",
+              "loans.write": "Issue, renew and close loans."
+            }
+          }
+        }
+      },
+      "staffApiKey": {
+        "type": "apiKey",
+        "description": "Issued per service desk. Header only.",
+        "in": "header",
+        "name": "X-Library-Key"
+      },
+      "readerToken": {
+        "type": "http",
+        "description": "A reader's short-lived bearer token.",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    }
+  }
+}

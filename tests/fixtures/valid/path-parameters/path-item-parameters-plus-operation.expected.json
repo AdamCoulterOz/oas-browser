@@ -1,0 +1,23 @@
+{
+  "fixture": "path-item-parameters-plus-operation.json",
+  "exercises": "the union of path item parameters and operation parameters, with no name collision between them",
+  "validates": true,
+  "pending": true,
+  "doNotChangeFixture": "Assertions marked pending describe correct behaviour the browser does not have yet. A failure on one of them is a backlog item, not a fixture defect. Do not edit this fixture or its expectations to match what the app currently does.",
+  "expected": [
+    {
+      "assert": "listHoldings shows three parameters: branchId, onLoan and limit.",
+      "status": "pending",
+      "why": "Operation parameters are read only from the operation node. The path item's own parameters array is never looked at, so every parameter declared there is lost."
+    },
+    {
+      "assert": "branchId appears first. Path item parameters come before operation parameters, because that is the order a reader builds the request in.",
+      "status": "pending",
+      "why": "Operation parameters are read only from the operation node. The path item's own parameters array is never looked at, so every parameter declared there is lost."
+    },
+    {
+      "assert": "The two operation-level parameters render with their descriptions and constraints.",
+      "status": "implemented"
+    }
+  ]
+}

@@ -1,0 +1,51 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Riverside Library: parameters declared only on the path item",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/branches/{branchId}": {
+      "summary": "One branch of the library.",
+      "parameters": [
+        {
+          "name": "branchId",
+          "in": "path",
+          "required": true,
+          "description": "Branch identifier.",
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "lang",
+          "in": "query",
+          "required": false,
+          "description": "Language for human-readable fields.",
+          "schema": {
+            "type": "string",
+            "default": "en"
+          }
+        }
+      ],
+      "get": {
+        "operationId": "getBranch",
+        "summary": "Fetch one branch",
+        "responses": {
+          "200": {
+            "description": "The branch."
+          }
+        }
+      },
+      "delete": {
+        "operationId": "closeBranch",
+        "summary": "Close one branch",
+        "responses": {
+          "204": {
+            "description": "Branch closed."
+          }
+        }
+      }
+    }
+  }
+}

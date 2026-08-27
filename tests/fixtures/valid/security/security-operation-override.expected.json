@@ -1,0 +1,25 @@
+{
+  "fixture": "security-operation-override.json",
+  "exercises": "an operation-level security requirement replacing the document-level one",
+  "validates": true,
+  "note": "An operation-level `security` replaces the document-level requirement outright. It does not add to it.",
+  "pending": true,
+  "doNotChangeFixture": "Assertions marked pending describe correct behaviour the browser does not have yet. A failure on one of them is a backlog item, not a fixture defect. Do not edit this fixture or its expectations to match what the app currently does.",
+  "expected": [
+    {
+      "assert": "listBooks shows catalogueOAuth with catalogue.read, inherited from the document.",
+      "status": "pending",
+      "why": "Neither components.securitySchemes nor any security requirement is read by the model. The whole area is absent."
+    },
+    {
+      "assert": "addBook shows staffApiKey only.",
+      "status": "pending",
+      "why": "Neither components.securitySchemes nor any security requirement is read by the model. The whole area is absent."
+    },
+    {
+      "assert": "addBook does not show catalogueOAuth. The override replaces the document requirement rather than adding to it.",
+      "status": "pending",
+      "why": "Neither components.securitySchemes nor any security requirement is read by the model. The whole area is absent."
+    }
+  ]
+}

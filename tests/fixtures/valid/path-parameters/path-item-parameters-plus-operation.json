@@ -1,0 +1,50 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Riverside Library: path item parameters plus operation parameters",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/branches/{branchId}/holdings": {
+      "parameters": [
+        {
+          "name": "branchId",
+          "in": "path",
+          "required": true,
+          "description": "Branch identifier.",
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "get": {
+        "operationId": "listHoldings",
+        "parameters": [
+          {
+            "name": "onLoan",
+            "in": "query",
+            "description": "Include items currently on loan.",
+            "schema": {
+              "type": "boolean",
+              "default": false
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 200
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Holdings at that branch."
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,34 @@
+{
+  "fixture": "security-schemes.json",
+  "exercises": "an OAuth2 authorizationCode flow, an apiKey scheme and an HTTP bearer scheme, with a document-level security requirement",
+  "validates": true,
+  "pending": true,
+  "doNotChangeFixture": "Assertions marked pending describe correct behaviour the browser does not have yet. A failure on one of them is a backlog item, not a fixture defect. Do not edit this fixture or its expectations to match what the app currently does.",
+  "expected": [
+    {
+      "assert": "All three schemes are listed, each labelled with its type.",
+      "status": "pending",
+      "why": "Neither components.securitySchemes nor any security requirement is read by the model. The whole area is absent."
+    },
+    {
+      "assert": "catalogueOAuth shows its flow type, its authorization, token and refresh URLs, and its three scopes with their descriptions.",
+      "status": "pending",
+      "why": "Neither components.securitySchemes nor any security requirement is read by the model. The whole area is absent."
+    },
+    {
+      "assert": "staffApiKey shows that it is carried in the header X-Library-Key.",
+      "status": "pending",
+      "why": "Neither components.securitySchemes nor any security requirement is read by the model. The whole area is absent."
+    },
+    {
+      "assert": "readerToken shows scheme bearer and bearerFormat JWT.",
+      "status": "pending",
+      "why": "Neither components.securitySchemes nor any security requirement is read by the model. The whole area is absent."
+    },
+    {
+      "assert": "listBooks shows that it requires catalogueOAuth with the catalogue.read scope, inherited from the document-level requirement.",
+      "status": "pending",
+      "why": "Neither components.securitySchemes nor any security requirement is read by the model. The whole area is absent."
+    }
+  ]
+}

@@ -1,0 +1,33 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Riverside Library: several servers",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "https://api.riverside.example/v1",
+      "description": "Production."
+    },
+    {
+      "url": "https://staging.riverside.example/v1",
+      "description": "Staging. Holdings are a nightly copy."
+    },
+    {
+      "url": "http://localhost:8080/v1",
+      "description": "A local reading-room mirror."
+    }
+  ],
+  "paths": {
+    "/books": {
+      "get": {
+        "operationId": "listBooks",
+        "responses": {
+          "200": {
+            "description": "Matching books."
+          }
+        }
+      }
+    }
+  }
+}

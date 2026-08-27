@@ -1,0 +1,72 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Riverside Library: an operation overriding a path item parameter",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/branches/{branchId}": {
+      "parameters": [
+        {
+          "name": "branchId",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        },
+        {
+          "name": "lang",
+          "in": "query",
+          "description": "PATH ITEM VERSION. If this text renders on getBranch, the override did not happen.",
+          "schema": {
+            "type": "string",
+            "default": "en"
+          }
+        }
+      ],
+      "get": {
+        "operationId": "getBranch",
+        "parameters": [
+          {
+            "name": "lang",
+            "in": "query",
+            "required": true,
+            "description": "OPERATION VERSION. This is the text that must render on getBranch.",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "en",
+                "fr",
+                "zh"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The branch."
+          }
+        }
+      },
+      "delete": {
+        "operationId": "closeBranch",
+        "parameters": [
+          {
+            "name": "lang",
+            "in": "header",
+            "description": "HEADER VERSION. Same name, different `in`, so this does not override anything.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Branch closed."
+          }
+        }
+      }
+    }
+  }
+}

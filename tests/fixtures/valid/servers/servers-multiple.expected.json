@@ -1,0 +1,22 @@
+{
+  "fixture": "servers-multiple.json",
+  "exercises": "a document declaring three servers",
+  "validates": true,
+  "pending": true,
+  "doNotChangeFixture": "Assertions marked pending describe correct behaviour the browser does not have yet. A failure on one of them is a backlog item, not a fixture defect. Do not edit this fixture or its expectations to match what the app currently does.",
+  "expected": [
+    {
+      "assert": "All three servers are listed, in document order, and none is silently treated as the only one.",
+      "status": "implemented"
+    },
+    {
+      "assert": "Each server's description is shown beside its URL.",
+      "status": "pending",
+      "why": "Only the url string is kept at parse time; the description is dropped."
+    },
+    {
+      "assert": "The third server's plain http scheme and port render as written, and are not rewritten to https.",
+      "status": "implemented"
+    }
+  ]
+}

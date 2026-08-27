@@ -1,0 +1,34 @@
+{
+  "fixture": "server-variables.json",
+  "exercises": "server variables carrying a default, an enum and a description",
+  "validates": true,
+  "pending": true,
+  "doNotChangeFixture": "Assertions marked pending describe correct behaviour the browser does not have yet. A failure on one of them is a backlog item, not a fixture defect. Do not edit this fixture or its expectations to match what the app currently does.",
+  "expected": [
+    {
+      "assert": "The server renders as the template https://{branch}.riverside.example/v1, with {branch} marked as a variable rather than as literal text.",
+      "status": "pending",
+      "why": "Servers are reduced to a list of url strings at parse time. The variables object is dropped before anything can render it."
+    },
+    {
+      "assert": "The variable's default `central` is shown, so a reader can see what the URL resolves to with nothing chosen.",
+      "status": "pending",
+      "why": "The variables object is dropped at parse time."
+    },
+    {
+      "assert": "The three enum values are listed as the permitted substitutions.",
+      "status": "pending",
+      "why": "The variables object is dropped at parse time."
+    },
+    {
+      "assert": "The variable's description is shown.",
+      "status": "pending",
+      "why": "The variables object is dropped at parse time."
+    },
+    {
+      "assert": "The server's own description is shown.",
+      "status": "pending",
+      "why": "Only the url string is kept; the server object's description is dropped with the rest."
+    }
+  ]
+}

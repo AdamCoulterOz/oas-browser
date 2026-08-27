@@ -1,0 +1,47 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Riverside Library: a templated server URL with three variables",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "https://{branch}.riverside.example/{basePath}/{version}",
+      "description": "Every segment after the host is substitutable.",
+      "variables": {
+        "branch": {
+          "default": "central",
+          "enum": [
+            "central",
+            "riverside",
+            "hillcrest"
+          ],
+          "description": "Branch subdomain."
+        },
+        "basePath": {
+          "default": "catalogue",
+          "description": "Mount point. Set to `staff` for the staff-facing surface."
+        },
+        "version": {
+          "default": "v1",
+          "enum": [
+            "v1",
+            "v2"
+          ]
+        }
+      }
+    }
+  ],
+  "paths": {
+    "/books": {
+      "get": {
+        "operationId": "listBooks",
+        "responses": {
+          "200": {
+            "description": "Matching books."
+          }
+        }
+      }
+    }
+  }
+}

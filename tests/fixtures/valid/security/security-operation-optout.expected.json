@@ -1,0 +1,25 @@
+{
+  "fixture": "security-operation-optout.json",
+  "exercises": "an operation with `security: []`, which opts out of the document-level requirement entirely",
+  "validates": true,
+  "note": "An empty array is meaningfully different from an absent key. Absent means inherit; empty means no authentication is required. An implementation that treats a falsy or empty value as absent will get this exactly backwards and show the public operation as protected.",
+  "pending": true,
+  "doNotChangeFixture": "Assertions marked pending describe correct behaviour the browser does not have yet. A failure on one of them is a backlog item, not a fixture defect. Do not edit this fixture or its expectations to match what the app currently does.",
+  "expected": [
+    {
+      "assert": "listBooks shows catalogueOAuth with catalogue.read.",
+      "status": "pending",
+      "why": "Neither components.securitySchemes nor any security requirement is read by the model. The whole area is absent."
+    },
+    {
+      "assert": "getOpeningHours is shown as requiring no authentication, in positive terms, not as a blank space where a requirement would be.",
+      "status": "pending",
+      "why": "Neither components.securitySchemes nor any security requirement is read by the model. The whole area is absent."
+    },
+    {
+      "assert": "getOpeningHours does not inherit the document-level requirement.",
+      "status": "pending",
+      "why": "Neither components.securitySchemes nor any security requirement is read by the model. The whole area is absent."
+    }
+  ]
+}

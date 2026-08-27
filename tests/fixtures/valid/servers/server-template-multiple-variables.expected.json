@@ -1,0 +1,30 @@
+{
+  "fixture": "server-template-multiple-variables.json",
+  "exercises": "more than one variable in a single server URL, including one with no enum and one with no description",
+  "validates": true,
+  "note": "The three variables differ deliberately: branch has both enum and description, basePath has a description and no enum, version has an enum and no description. An implementation that assumes both keys are present will fail on two of the three.",
+  "pending": true,
+  "doNotChangeFixture": "Assertions marked pending describe correct behaviour the browser does not have yet. A failure on one of them is a backlog item, not a fixture defect. Do not edit this fixture or its expectations to match what the app currently does.",
+  "expected": [
+    {
+      "assert": "All three variables are picked out of the URL template and listed.",
+      "status": "pending",
+      "why": "Servers are reduced to a list of url strings at parse time."
+    },
+    {
+      "assert": "basePath renders with its description and no enum list, rather than an empty list or a blank row.",
+      "status": "pending",
+      "why": "The variables object is dropped at parse time."
+    },
+    {
+      "assert": "version renders with its enum and no description, rather than a blank description row.",
+      "status": "pending",
+      "why": "The variables object is dropped at parse time."
+    },
+    {
+      "assert": "Substituting every default gives https://central.riverside.example/catalogue/v1, and that resolved URL is what a reader is shown by default.",
+      "status": "pending",
+      "why": "The variables object is dropped at parse time, so no substitution is possible."
+    }
+  ]
+}

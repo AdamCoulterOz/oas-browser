@@ -1,0 +1,28 @@
+{
+  "fixture": "multi-verb-differing-parameter-counts.json",
+  "exercises": "four operations on one path whose parameter counts differ and do not increase monotonically",
+  "validates": true,
+  "note": "This shape is the guard for a measurement bug: anything that sizes or lays out a parameter list by reading the rendered DOM must re-read it after switching verbs. Counts here go 3, 2, 1, 4 so that a stale read is visibly wrong in both directions, and so that no single count can be right for two adjacent verbs. Navigate between all four in both directions when checking this.",
+  "expected": [
+    {
+      "assert": "getLoan shows 3 parameters, replaceLoan 2, renewLoan 1, returnLoan 4.",
+      "status": "implemented"
+    },
+    {
+      "assert": "Switching from returnLoan to renewLoan leaves exactly one parameter row visible, with no leftovers from the 4-parameter view.",
+      "status": "implemented"
+    },
+    {
+      "assert": "Switching from renewLoan to returnLoan shows all 4 rows, with nothing clipped by a container still sized for 1.",
+      "status": "implemented"
+    },
+    {
+      "assert": "Only replaceLoan shows a request body. The other three show none.",
+      "status": "implemented"
+    },
+    {
+      "assert": "All four operations remain listed under the single path /loans/{loanId}.",
+      "status": "implemented"
+    }
+  ]
+}

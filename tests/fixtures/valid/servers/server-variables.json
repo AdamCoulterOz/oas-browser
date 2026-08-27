@@ -1,0 +1,36 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Riverside Library: a server with variables",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "https://{branch}.riverside.example/v1",
+      "description": "Branch-local catalogue endpoint.",
+      "variables": {
+        "branch": {
+          "default": "central",
+          "enum": [
+            "central",
+            "riverside",
+            "hillcrest"
+          ],
+          "description": "Which branch's catalogue to read. Each branch serves only its own holdings."
+        }
+      }
+    }
+  ],
+  "paths": {
+    "/books": {
+      "get": {
+        "operationId": "listBooks",
+        "responses": {
+          "200": {
+            "description": "Matching books."
+          }
+        }
+      }
+    }
+  }
+}

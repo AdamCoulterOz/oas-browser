@@ -1,0 +1,25 @@
+{
+  "fixture": "path-item-parameters-overridden.json",
+  "exercises": "an operation parameter overriding a path item parameter by matching name and in, and a same-name parameter in a different location that must not override",
+  "validates": true,
+  "note": "The override rule keys on the pair (name, in), not on name alone. The delete operation is here to catch an implementation that matches on name only: it would wrongly drop the path item's query `lang` and leave closeBranch with two parameters instead of three.",
+  "pending": true,
+  "doNotChangeFixture": "Assertions marked pending describe correct behaviour the browser does not have yet. A failure on one of them is a backlog item, not a fixture defect. Do not edit this fixture or its expectations to match what the app currently does.",
+  "expected": [
+    {
+      "assert": "getBranch shows exactly two parameters: branchId, and one lang. Not three, and not two langs.",
+      "status": "pending",
+      "why": "Operation parameters are read only from the operation node. The path item's own parameters array is never looked at, so every parameter declared there is lost."
+    },
+    {
+      "assert": "The surviving lang on getBranch is the operation's: required, with the enum, and the description beginning OPERATION VERSION.",
+      "status": "pending",
+      "why": "Operation parameters are read only from the operation node. The path item's own parameters array is never looked at, so every parameter declared there is lost."
+    },
+    {
+      "assert": "closeBranch shows three parameters: branchId, the path item's lang in query, and the operation's lang in header. The two langs differ in `in`, so neither overrides the other.",
+      "status": "pending",
+      "why": "Operation parameters are read only from the operation node. The path item's own parameters array is never looked at, so every parameter declared there is lost."
+    }
+  ]
+}
