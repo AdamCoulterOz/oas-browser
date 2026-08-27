@@ -287,15 +287,48 @@ So, early and before asking anything:
 3. Ask them to confirm they have replaced the old address. Do not assume a
    message that got no reply arrived at someone who understood it.
 
-**One correction from running it.** The protocol's second half is the stronger
-half, and not for the reason it was written. Naming the four specs-owner commits
-was framed as proving you are working in the repo. It does not: those commits are
-in `powerplatform-apis`, so the successor cannot derive them and can only produce
-them by having read this document. That is still worth doing, but it verifies
-*possession of the handover*, which is a different property from *working in the
-browser repo*. The `HEAD` sha verifies the second. Two properties, two checks,
-and the document previously described them as one — which is the adjacent-property
-error below, committed inside the protocol written to avoid guessing.
+**This protocol is weaker than it was written, and the correction went through
+two rounds. Both are kept, because the second is the one that matters.**
+
+*First round, and wrong.* I read the two checks as testing two different
+properties, and said the sha proves you are working in the browser repo while
+the commits prove you hold this document.
+
+*Second round.* The sha proves neither. **`oas-browser` is public.** Both
+boundaries read `HEAD` themselves with `gh` and no special access, so quoting it
+demonstrates only that your view is *current*. That is worth something and it is
+not what was claimed. The four `powerplatform-apis` commits are the load-bearing
+half: they cannot be derived from anything public and can only be produced by
+someone holding this document.
+
+So the honest decomposition, which came from the specs owner: **a currency check
+and a knowledge check. Neither is a possession check.**
+
+*And it leaked in use.* The introducing session put the expected sha into both
+introductions, so what each boundary actually checked was whether two
+recitations of a public fact agreed. Pre-announcing felt like helpfulness and
+was disclosure. A challenge value stops being one the moment the challenger
+says it first.
+
+**The transferable part is underneath all of that.** `cwd` is a bad role
+identifier and a *better* authenticity signal, and those are two properties of
+one value. It fails as a role identifier for the reason proved above — it
+derives where a session started, not what it works on. But as authentication it
+beats a sha, because it is a property of an environment rather than a value
+anyone can repeat once it has been said aloud.
+
+There are two questions here — *which boundary is this* and *is this really
+them* — and one protocol was written that answers neither well. That is the same
+shape as the field list being right for absence and wrong for presence, in a
+third material. See the adjacent-property section below, which this is an
+instance of: the protocol was structurally sound and tested a property next to
+the one it needed.
+
+**None of this is urgent, because identification grants nothing.** A failed
+check means treating someone as an unknown consumer, which is where all three of
+these relationships started. It is written down so the next holder does not lean
+on the sha harder than it will bear, including you, in six weeks, having
+forgotten how it works.
 
 ### Identity is not authority
 
@@ -1022,28 +1055,66 @@ absolute URI override the base — but the catalogue itself has no way to be
 pointed elsewhere. Decided contract: **entries resolve relative to the
 catalogue's own URL, and the catalogue URL is configuration.**
 
-**4. Spec descriptions are rendered as unsanitised HTML, and the split turns that
-from tolerable into a vulnerability.**
+**4. Descriptions could emit two kinds of dangerous link, and the split turned
+that from unreachable into a vulnerability. Fixed in `2e00241`.**
 
-The browser renders `description` fields by passing markdown output into a
-`MarkupString`, which injects raw HTML into the DOM with no escaping.
+**This item was wrong when it was written, and the correction is worth more than
+the item.** It said descriptions render as unsanitised HTML, and named three
+vectors: a `<script>` tag, a `javascript:` link href, an `onerror` on an image.
+Two of those three had never worked.
 
-Today that is defensible: the corpus is first-party content in a repo the same
-person controls, so the input is trusted. **A general browser loads a catalogue
-from a URL.** Spec content becomes arbitrary third-party input rendering as raw
-HTML on the browser's own origin, which is a straightforward XSS vector — a
-`<script>` tag, a `javascript:` link href, an `onerror` on an image.
+`Rendering/Markdown.cs` escapes `&`, `<` and `>` across the whole string
+*before* it does anything else, and only then runs three patterns that emit
+`<code>`, `<strong>` and `<a>`. So the only HTML that can exist in the output is
+HTML that file wrote. No tag from a description has ever reached the DOM.
+Measured, in a browser, on the fixture payloads: the `<script>` fixture produces
+zero script elements and renders as visible text, and the `onerror` fixture is
+inert.
 
-The important property: **nobody introduces this.** It arrives silently as a
-consequence of the split, because the code does not change and the trust model
-does. That makes it exactly the kind of thing that ships, since there is no diff
-to review and no moment where someone decides to accept the risk.
+What was actually broken was the link branch, in two ways:
 
-Decide before the first publish that can load an arbitrary catalogue. Note the
-answer is not simply "escape everything": `<code>` and `<em>` in a description are
-legitimate and wanted, so the real question is where the line sits. Fixtures
-exist covering both the attacks and the legitimate cases, deliberately asserting
-*safe* behaviour rather than current behaviour.
+- **No allow-list on the scheme**, so `[x](javascript:...)` emitted a working
+  `javascript:` href. `data:` and `vbscript:` likewise.
+- **The quote was not escaped** when the target was interpolated into the
+  attribute, so a quote in a link target closed the href and turned the rest of
+  the target into attributes of the anchor. This one was confirmed executing a
+  real event handler before the fix, and confirmed not to afterwards.
+
+The important property is unchanged and is the reason the item was right to
+exist: **nobody introduces this.** It arrives as a consequence of the split,
+because the code does not change and the trust model does. There is no diff to
+review and no moment where anyone decides to accept the risk.
+
+**Two things to carry from having got it wrong.**
+
+First, the diagnosis was reasoned from the mechanism — `MarkupString`, therefore
+raw HTML, therefore XSS — rather than from the rendered page. That is the same
+move as the `$ref` impact estimates under *A delta claim needs a
+before-measurement*, which ran the other way and understated twice. Here it
+overstated. **Overstating a security item is the safer error and it is not a
+free one:** it turned two lines into an open design question, and open design
+questions get scheduled while two lines get fixed.
+
+Second, and the substantive part: the item asserted a tension that did not
+exist. "The answer is not simply escape everything, because `<code>` and `<em>`
+are legitimate and wanted" describes a world where raw HTML from a description
+renders. It does not. `<code>` in a description renders today as the visible
+text `&lt;code&gt;`; the legitimate cases are served by markdown, not by HTML.
+So there was no line to draw, and **the rendering question governs the security
+question rather than the reverse.** A sanitiser is needed only if someone first
+decides raw inline HTML should render at all, and nobody has asked that. It is
+still unasked, and `Markdown.cs` flags the adjacent gap in its own doc comment:
+the inline subset was measured over one corpus and renders headings and lists
+literally.
+
+The fixtures were written deliberately without looking at current behaviour,
+which was right, and it means they had never been run in either direction. Four
+have now been measured. `description-script-tag`'s three security assertions
+already held. `description-javascript-uri`'s three genuinely failed.
+`description-image-onerror` is the best-written of them: its raw-HTML half held,
+and the clause "or from generated markup" is the half that failed, via the link
+path rather than the img path. An assertion written to cover both is why it
+caught a defect its own fixture does not contain.
 
 ### Blockers that are invisible in the files
 
