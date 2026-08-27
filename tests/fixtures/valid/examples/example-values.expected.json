@@ -9,27 +9,27 @@
     {
       "assert": "The shelfMark parameter shows its example FI-204.",
       "status": "pending",
-      "why": "Example values are not read at all: the schema model's example accessor returns null unconditionally, and no caller reads `example` or `examples` from a parameter, schema or media type."
+      "why": "Example values are not read at all: the model exposes no example accessor, and nothing reads `example` or `examples` from a parameter, schema or media type. The sample a schema page shows is synthesised from property types, never taken from the document."
     },
     {
       "assert": "The limit parameter shows the example 25, taken from inside its schema rather than from the parameter object.",
       "status": "pending",
-      "why": "Example values are not read at all: the schema model's example accessor returns null unconditionally, and no caller reads `example` or `examples` from a parameter, schema or media type."
+      "why": "Example values are not read at all: the model exposes no example accessor, and nothing reads `example` or `examples` from a parameter, schema or media type. The sample a schema page shows is synthesised from property types, never taken from the document."
     },
     {
       "assert": "The Book schema shows its whole-object example, and that example is preferred over one synthesised from the property types.",
       "status": "pending",
-      "why": "Example values are not read at all: the schema model's example accessor returns null unconditionally, and no caller reads `example` or `examples` from a parameter, schema or media type."
+      "why": "Example values are not read at all: the model exposes no example accessor, and nothing reads `example` or `examples` from a parameter, schema or media type. The sample a schema page shows is synthesised from property types, never taken from the document."
     },
     {
       "assert": "Each property shows its own example.",
       "status": "pending",
-      "why": "Example values are not read at all: the schema model's example accessor returns null unconditionally, and no caller reads `example` or `examples` from a parameter, schema or media type."
+      "why": "Example values are not read at all: the model exposes no example accessor, and nothing reads `example` or `examples` from a parameter, schema or media type. The sample a schema page shows is synthesised from property types, never taken from the document."
     },
     {
       "assert": "The numeric example 25 renders as a number, not quoted as a string.",
       "status": "pending",
-      "why": "Example values are not read at all: the schema model's example accessor returns null unconditionally, and no caller reads `example` or `examples` from a parameter, schema or media type."
+      "why": "Example values are not read at all: the model exposes no example accessor, and nothing reads `example` or `examples` from a parameter, schema or media type. The sample a schema page shows is synthesised from property types, never taken from the document."
     }
   ]
 }
