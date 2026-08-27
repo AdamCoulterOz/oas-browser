@@ -1,0 +1,20 @@
+[
+  {
+    "id": "catalogue",
+    "title": "Riverside Catalogue API",
+    "url": "catalogue-api.json",
+    "repo": "https://example.invalid/riverside/catalogue"
+  },
+  {
+    "id": "lending",
+    "title": "Riverside Lending API",
+    "url": "lending-api.json",
+    "repo": "https://example.invalid/riverside/lending"
+  },
+  {
+    "id": "branches",
+    "title": "Riverside Branches API",
+    "url": "branches-api.json",
+    "repo": "https://example.invalid/riverside/branches"
+  }
+]

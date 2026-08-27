@@ -1,0 +1,71 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Riverside Lending API",
+    "version": "1.0.0",
+    "description": "What is out on loan. Second entry in specs.json."
+  },
+  "paths": {
+    "/items/{itemId}": {
+      "get": {
+        "operationId": "getItem",
+        "summary": "Fetch the lending status of one item",
+        "tags": [
+          "Lending"
+        ],
+        "parameters": [
+          {
+            "name": "itemId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "includeHistory",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The lending status.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Item"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Item": {
+        "type": "object",
+        "description": "A lending record. Same component name as the catalogue spec's Item, different content.",
+        "properties": {
+          "itemId": {
+            "type": "string"
+          },
+          "onLoan": {
+            "type": "boolean"
+          },
+          "dueOn": {
+            "type": "string",
+            "format": "date"
+          },
+          "memberId": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}

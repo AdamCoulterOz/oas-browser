@@ -1,0 +1,57 @@
+{
+  "fixture": "specs.json",
+  "exercises": "a catalogue of three specs, deliberately sharing operation ids and component names, so that a deep link that cannot name a spec resolves against the wrong one",
+  "validates": true,
+  "subject": [
+    "specs.json",
+    "catalogue-api.json",
+    "lending-api.json",
+    "branches-api.json"
+  ],
+  "note": "This is the fixture for the known deep-linking defect, so it is built to make the defect visible rather than to look realistic.\n\ngetItem exists in both the catalogue and the lending spec with different parameters and different response shapes, and Item exists in both with different properties. A link that cannot name a spec silently opens the wrong one, and it looks like it worked, which is the worst failure mode.\n\ngetBranch and Branch exist only in the third entry. A link to either resolves against the first entry, finds nothing, and lands the reader somewhere other than where the link pointed.\n\nOrdering matters here: catalogue is first in specs.json and is what a spec-less link resolves against. Do not reorder the entries.",
+  "pending": true,
+  "doNotChangeFixture": "Assertions marked pending describe correct behaviour the browser does not have yet. A failure on one of them is a backlog item, not a fixture defect. Do not edit this fixture or its expectations to match what the app currently does.",
+  "expected": [
+    {
+      "assert": "All three specs load from specs.json and appear as separately selectable specs, in catalogue order.",
+      "status": "implemented"
+    },
+    {
+      "assert": "Each spec's own title and description render when it is selected.",
+      "status": "implemented"
+    },
+    {
+      "assert": "Selecting the lending spec shows its getItem with two parameters and its own Item schema. Selecting the catalogue spec shows a different getItem and a different Item.",
+      "status": "implemented"
+    },
+    {
+      "assert": "The two Item schemas never merge. Component names are scoped to their own document, not to the catalogue.",
+      "status": "implemented"
+    },
+    {
+      "assert": "A deep link can name which spec it means. A link to the lending spec's getItem opens the lending spec's getItem, not the catalogue spec's.",
+      "status": "pending",
+      "why": "The route carries a kind and an identifier and nothing else: #/operations/{operationId}, #/schemas/{name}, #/resources/{path}. There is no place in it to say which spec, so an identifier is resolved against whichever spec is loaded, which on a cold load is the first entry in specs.json."
+    },
+    {
+      "assert": "A deep link to getBranch opens the branches spec. Today that identifier exists only in the third entry, so the link resolves against the first, finds nothing, and falls back to the overview.",
+      "status": "pending",
+      "why": "The route carries a kind and an identifier and nothing else: #/operations/{operationId}, #/schemas/{name}, #/resources/{path}. There is no place in it to say which spec, so an identifier is resolved against whichever spec is loaded, which on a cold load is the first entry in specs.json."
+    },
+    {
+      "assert": "A deep link to the branches spec's Branch schema opens it. The same failure as above, in the schemas route.",
+      "status": "pending",
+      "why": "The route carries a kind and an identifier and nothing else: #/operations/{operationId}, #/schemas/{name}, #/resources/{path}. There is no place in it to say which spec, so an identifier is resolved against whichever spec is loaded, which on a cold load is the first entry in specs.json."
+    },
+    {
+      "assert": "Switching spec updates the URL, so the link a reader copies from the address bar reproduces what they are looking at.",
+      "status": "pending",
+      "why": "The route carries a kind and an identifier and nothing else: #/operations/{operationId}, #/schemas/{name}, #/resources/{path}. There is no place in it to say which spec, so an identifier is resolved against whichever spec is loaded, which on a cold load is the first entry in specs.json."
+    },
+    {
+      "assert": "Links published under the older, spec-less scheme still resolve, against the first entry, so that fixing this does not break what is already published.",
+      "status": "pending",
+      "why": "There is only one scheme today, so there is nothing yet to keep working. This assertion constrains how the fix is made rather than describing a current failure."
+    }
+  ]
+}

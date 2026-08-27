@@ -1,6 +1,6 @@
 {
   "fixture": "path-item-parameters-only.json",
-  "exercises": "paths.<path>.parameters with no operation-level parameters at all",
+  "exercises": "parameters declared on the path item, with no operation-level parameters anywhere on the path",
   "validates": true,
   "pending": true,
   "doNotChangeFixture": "Assertions marked pending describe correct behaviour the browser does not have yet. A failure on one of them is a backlog item, not a fixture defect. Do not edit this fixture or its expectations to match what the app currently does.",
