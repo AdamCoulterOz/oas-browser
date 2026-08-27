@@ -36,6 +36,16 @@ jobs:
           dotnet-version: '11.0.x'
           dotnet-quality: preview
 
+      - name: Test the routing contract
+        # Ahead of the keel feed, because this is the check that must not
+        # depend on it. The test project compiles Route.cs in directly instead
+        # of referencing the app, so it restores from nuget.org alone and needs
+        # no credentials. Run after the authenticate step and a lapsed package
+        # grant would fail the job before the router was ever checked, which
+        # hides a routing regression behind the repository's most fragile
+        # external dependency.
+        run: dotnet test tests/OasBrowser.Tests
+
       - name: Authenticate the keel feed
         # The run's own GITHUB_TOKEN, no PAT. It carries packages:read from the
         # permissions block above, and the package grants this repository access.
