@@ -1127,6 +1127,23 @@ never failed is indistinguishable from a check that cannot fail*. Both are green
 and no observation separates them except making one fail deliberately. It is the
 pattern in this document applied to the test instead of the page.
 
+**And the other half of that, which arrived from a producer about to run a
+checker for the first time: when you know in advance what should fail, a pass is
+the finding.** Their file contained 21 rows they knew could not resolve — seven
+naming operations a corpus had not published yet, two spelling a path the way
+their code wrongly spells it, and others. Their own account:
+
+> I would be more worried by a green run than by those findings. A green run
+> would mean either the corpus had quietly grown seven operations nobody has
+> added, or my resolver had started matching things it should not.
+
+So a first run gets a real pass condition instead of a vacuous one. Not *does it
+come back clean*, but *does it come back with exactly the failures I named, and
+are they the ones I named*. More is a defect in the checker or the format; fewer
+means something resolved that should not have. **Write the expected set down
+before running, so the run cannot talk you into a number** — a count you read
+first is very hard to disagree with afterwards.
+
 **A static check cannot see "worse than it was", and some defects have no other
 symptom.** This came from keel, from the 0.4.3 contrast work, and it is a
 distinct claim from the delta rule below rather than a restatement of it. That
