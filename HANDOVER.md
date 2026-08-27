@@ -245,15 +245,73 @@ about the text will signal that.
   An allow-list silently drops every extension added later, and the symptom is
   invisible.
 
-### The coverage mapping (not yet designed)
+### The coverage mapping
 
-The contract that prompted the split. The browser must define a format for
-"this external artifact maps to these operations", render it as a coverage
-view, and know nothing about Terraform or Power Platform in doing so.
+The contract that prompted the split. The browser defines a format for "this
+external artifact maps to these operations", renders it as a coverage view, and
+knows nothing about Terraform or Power Platform in doing so.
 
-Design it as a contract first, publish it, then let the provider fork populate
-it. Do not let the first implementation define the format by accident, which is
-how the browser ended up with Power Platform in it the first time.
+Designed as a contract first, before any producer serialised anything. The
+counterpart is a live session owning the mapping *content* for a fork of
+`terraform-provider-power-platform`.
+
+```json
+{
+  "artifacts": { "kind": "provider component",
+                 "kinds": { "resource": "Resource", "datasource": "Data source" } },
+  "grades": [ { "id": "observed", "title": "...", "caveat": "...",
+                "order": 0, "observed": true } ],
+  "items": [
+    { "id": "<opaque, stable>", "kind": "<key of artifacts.kinds>",
+      "name": "<for display>", "source": { "path": "<repo-relative>", "line": 412 },
+      "calls": [ { "spec": "ppapi", "operation": "<operationId>",
+                   "coverage": "full", "grade": "observed", "note": "..." } ] } ]
+}
+```
+
+Four decisions in that shape, each of which was a live alternative:
+
+- **`{spec, operation}`, structured, not an `operationId` alone and not a
+  `spec:` URI string.** Operation identity is unique only *within* a spec: the
+  corpus has four operationIds appearing in more than one spec, so a mapping
+  keyed on the id alone silently merges them. Structured rather than the URI
+  because a data file wants a pair it can validate and index without parsing or
+  unescaping, and ids can contain characters a URL must escape. It is the same
+  address space the router now carries, so there is one addressing vocabulary
+  rather than two.
+- **Coverage is an ordered pair, `full` and `partial`, plus free text.** The
+  producer named three kinds of partiality: conditional code paths, a subset of
+  the request body, one direction only. Those are three *reasons*, not three
+  degrees, and flattening an unordered set onto an ordered axis is the mistake
+  already recorded under the evidence grades. Watch the free text: if it
+  converges on recurring phrasings, that is an unstated axis asking to exist and
+  it should be declared rather than left to calcify.
+- **Grades are the same contract with a separately declared vocabulary.** Not a
+  shared enum with the spec corpus. Theirs are provenances of a claim about an
+  API's behaviour; these are provenances of a claim about what a codebase calls.
+  Same mechanism, same reader-facing meaning, different sets. One enum spanning
+  both would be the Power Platform mistake in a new place.
+- **The inverse view is derived, not materialised.** "Which operations does
+  nothing call" is a join the browser can compute from the catalogue and the
+  mapping, and a derived answer stays true when either side changes. A
+  materialised one is a claim about the spec living in the producer's repo,
+  going stale the day an operation is added.
+
+**And one thing the producer was told not to build, which is the more useful
+half.** The output they most want is "which operations are called only via this
+spec when another spec also offers them". That is *not derivable*: it needs a
+cross-spec sameness relation asserting that two specs describe the same logical
+operation, and identical operationIds are not evidence of it, precisely because
+those collisions exist. So it is a third contract, and it is a claim about what
+the specs describe rather than about what code calls, which puts it with the
+corpus rather than with the mapping.
+
+The path of least resistance was for them to encode it in their file as a column
+or a naming convention. That would have turned "an external artifact calls these
+operations" into "these operations are equivalent" — a different claim, in the
+wrong repo, that no validator here would catch. **A consumer's question quietly
+redefining what a producer records is the same seam as everything else in this
+document, arriving before either party has written a line.**
 
 ## Reaching the other boundaries, and being reachable
 
@@ -887,6 +945,29 @@ A check that cannot tell the failure from the fix is measuring the wrong thing,
 and its error direction is then **arbitrary rather than unknown** — which is why
 observing that it fires tells you nothing about whether it works. Ask what a pass
 and a fail actually look like to your check before trusting either.
+
+**And there is a fourth state, worse than arbitrary: a check whose error is
+*anti-correlated* with the truth.** It does not merely fail unpredictably. It
+passes most reliably in exactly the case it exists to catch.
+
+The instance is the post-deploy check in *Practical gotchas*. Pages sets a short
+`max-age` on `index.html`, so a check that fetches it without a cache bust reads
+the *previous* build. If the deploy worked, the cache may have expired and the
+check is right by luck. **If the deploy did not take, the previous build is
+still current and still cached, so the check confidently confirms the thing it
+was written to detect the absence of.** The worse the failure, the more reliably
+it reports success.
+
+The framing came from the specs owner and it is worth carrying: that is not a
+flaky check, and calling it flaky invites someone to retry it. It has to be
+fixed, and **the fix has to carry its reason where it is read**, because a
+cache-buster with no comment looks like superstition and gets tidied away by the
+next person. Anything that survives only while everyone remembers why is a
+hand-maintained list wearing a different costume.
+
+The general question to ask of a check: not only *which way does it fail*, but
+*is the case it fails on the same case it exists for*. Those come apart more
+often than they sound like they would.
 
 **Prove each invariant by making it fail.** Every check in the first version was
 run against a synthetic violation and required to go red, including the real
