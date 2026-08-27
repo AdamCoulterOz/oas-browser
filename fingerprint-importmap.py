@@ -21,6 +21,40 @@ import pathlib
 import re
 import sys
 
+# An import map ELEMENT, which is the thing this script cares about, rather
+# than the word "importmap" anywhere in the file. The check this replaces was a
+# substring test over the whole document, so any mention satisfied it: a
+# comment in index.html naming this script by its own file name was enough to
+# switch it off, and a skipped run publishes a site that never boots, behind a
+# green build and a zero exit code.
+#
+# `<script` must be followed by whitespace or `>` so `<scriptish` is not a tag,
+# and `type` must be preceded by whitespace so `data-type="importmap"` is not
+# the type attribute. The value is matched exactly, so `type="importmap-shim"`
+# is a different element and does not count as this one.
+IMPORT_MAP_ELEMENT = re.compile(
+    r'<script(?=[\s>])[^>]*?\stype\s*=\s*'
+    r'''(?:"importmap"|'importmap'|importmap(?=[\s/>]))''',
+    re.IGNORECASE,
+)
+
+HTML_COMMENT = re.compile(r"<!--.*?-->", re.DOTALL)
+
+
+def visible_html(html: str) -> str:
+    """The document with comment bodies blanked out, offsets preserved.
+
+    Commented-out markup is a mention, not an element, so neither the "already
+    ran" test nor the search for the loader may see inside a comment. Comments
+    are replaced by an equal run of spaces rather than deleted, so an index
+    into the result is still an index into the original.
+
+    The remaining error direction is the safe one: at worst this injects a map
+    where one was only ever mentioned, which is visible on the very next load.
+    Not injecting is the failure that ships.
+    """
+    return HTML_COMMENT.sub(lambda m: " " * len(m.group(0)), html)
+
 
 def main(wwwroot: pathlib.Path) -> int:
     framework = wwwroot / "_framework"
@@ -44,13 +78,15 @@ def main(wwwroot: pathlib.Path) -> int:
         return 1
 
     html = index.read_text()
-    if "importmap" in html:
+    visible = visible_html(html)
+
+    if IMPORT_MAP_ELEMENT.search(visible):
         print("index.html already carries an import map; leaving it alone")
         return 0
 
     # Import map keys are resolved specifiers, so they need the same base the
     # loader resolves against, which is the app's base href.
-    base_match = re.search(r'<base href="([^"]+)"', html)
+    base_match = re.search(r'<base href="([^"]+)"', visible)
     base = base_match.group(1) if base_match else "/"
 
     import_map = (
@@ -64,7 +100,7 @@ def main(wwwroot: pathlib.Path) -> int:
     )
 
     # must come before the loader that performs the import
-    anchor = re.search(r'[ \t]*<script src="_framework/blazor\.webassembly[^"]*"></script>', html)
+    anchor = re.search(r'[ \t]*<script src="_framework/blazor\.webassembly[^"]*"></script>', visible)
     if not anchor:
         print("could not find the blazor loader script tag in index.html", file=sys.stderr)
         return 1

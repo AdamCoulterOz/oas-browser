@@ -23,6 +23,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Test the post-publish loader fix
+        # Runs before the build because it is the cheap check on the step whose
+        # failure is the quietest: when the import map step wrongly decides it
+        # has already run, it skips, and the publish below still goes green
+        # while producing a site that cannot boot. Standard library only, so
+        # there is nothing to install.
+        run: python3 -m unittest discover -s tests -v
+
       - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '11.0.x'

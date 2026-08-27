@@ -7,13 +7,17 @@
     <meta name="description" content="Browsable OpenAPI reference for the Power Platform admin APIs, reverse-engineered from Microsoft's own documentation and client code." />
     <!-- Where this app is published: GitHub Pages serves this repository under
          /oas-browser/. Every path the app resolves hangs off this, and so does
-         the module map the post-publish fingerprint script writes, because
-         module-map keys are resolved specifiers and one keyed on anything else
+         the import map fingerprint-importmap.py writes after publish, because
+         import map keys are resolved specifiers and one keyed on anything else
          will not resolve. The build workflow asserts this value, since the
          publish path belongs to the repository and not to the app.
 
-         Do not write the fingerprint script's own file name in this file: it
-         decides whether it has already run by looking for that word here. -->
+         Do not hand-write an import map here. That script adds one to the
+         published copy, keyed on this base href and pointing at the runtime
+         hash of the build it just ran against, and it leaves a document that
+         already has one alone. A map written here would therefore survive into
+         every later publish still naming a runtime that build did not
+         produce, and the site would 404 on its first import. -->
     <base href="/oas-browser/" />
     <link rel="icon" href="favicon.png" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
