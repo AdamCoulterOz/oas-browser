@@ -1340,6 +1340,54 @@ appeared only when they were held together, in the seam, made in sequence by one
 party — which is the ownership-boundary failure with both sides of the boundary
 inside one head.
 
+**The index format, settled against measured data rather than guessed.**
+
+```json
+{ "operations": { "environments_get": ["bapi", "powerapps"] },
+  "schemas":    { "Organization": ["bapi", "licensing"] },
+  "resources":  { "environments": ["ppapi"] } }
+```
+
+Id to a **list** of spec ids, per kind, fetched only on a bare-link miss. A list
+of length one is the common case and stays a list.
+
+Resolution order: a qualified link resolves directly and never consults the
+index; a bare link tries the declared default, then the index, then reports
+unresolved. Several candidates gives a disambiguation page.
+
+**Default-first is not a tiebreak**, and it is worth being exact because the
+numbers make it look like one. The bare form *means* "resolve against the
+default", by definition, so the index exists only for ids the default has no
+answer for. There is no case where two candidates compete and the default
+quietly wins.
+
+I would have specified scalar values. The specs owner measured the corpus in two
+minutes and found 14 genuinely ambiguous ids out of 1249, including four
+operations — so `{id: specId}` is not a total function and scalars would have
+shipped, then failed on a reader's link.
+
+**The asymmetry in that measurement is the part worth keeping.** Resolving
+against the default first settles every tag collision and two thirds of schema
+collisions, and **none** of the operation collisions, because `ppapi` namespaces
+its operationIds (`environmentmanagement_getSupportedLocations`) while the other
+nine use bare `noun_verb`, so `ppapi` never competes for those names and cannot
+resolve them. Operations are the realistic deep-link target, so the
+disambiguation path is real rather than theoretical.
+
+**Lists for all three kinds, not only operations.** Making operations lists and
+the rest scalars would encode this corpus's collision profile as of today into
+the format. Tags never colliding is a fact about ten specs, not about OpenAPI,
+and a corpus sharing a tag vocabulary would collide immediately with no way to
+say so. Remembered-versus-derived applied to a schema instead of a check: the
+shape that happens to fit today's data is the one that goes stale invisibly.
+
+**A latent trap in the same data, recorded because nothing depends on it yet.**
+Two operationId conventions coexist in that corpus. Any future feature that
+reads structure *out of* an operationId — grouping, sorting, deriving a display
+name — would work on nine specs and behave differently on the largest. It is a
+near-uniformity with an unstated rule behind it, and the exception is the member
+that matters most.
+
 **2. The base href is a build-time literal in three places that must agree.**
 `index.html`, `fingerprint-importmap.py` (which reads it to key the import map,
 since import-map keys are resolved specifiers), and a `pages.yml` grep asserting
