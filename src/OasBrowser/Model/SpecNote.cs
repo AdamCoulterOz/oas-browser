@@ -15,7 +15,13 @@ namespace OasBrowser.Model;
 /// client, which is a third party's model of the API and is attested by
 /// neither the wire nor Microsoft.
 ///
-/// The shape is an array of `{"note", "source"}` objects.
+/// The shape is an array of `{"note", "source"}` objects. A bare string is also
+/// accepted and read as `live`: it is the shorthand form, and a spec written
+/// before the grades were structured renders unchanged. That is not dead
+/// back-compat. The fixture set in this repository writes notes both ways and
+/// asserts the bare form renders (tests/fixtures/valid/notes/notes-single.json),
+/// so it is part of the contract even though the corpus this app was first
+/// built for happens to use the object form throughout.
 /// </summary>
 public sealed record SpecNote(string Text, string Source)
 {
@@ -33,6 +39,7 @@ public sealed record SpecNote(string Text, string Source)
         {
             var note = n.ValueKind switch
             {
+                JsonValueKind.String => new SpecNote(n.GetString()!, Live),
                 JsonValueKind.Object when OpenApiSpec.Str(n, "note") is { } t
                     => new SpecNote(t, OpenApiSpec.Str(n, "source") ?? Live),
                 _ => null,
