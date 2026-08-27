@@ -13,12 +13,15 @@
     <PackageReference Include="xunit.runner.visualstudio" Version="2.8.2" />
   </ItemGroup>
 
-  <!-- The routing contract is pure logic with no Blazor in it, so it is
-       compiled in directly rather than by referencing the app. Referencing the
-       app would drag in Keel, which needs a private feed, and would make a test
-       run that proves nothing about Keel fail when a token expires. -->
+  <!-- The routing contract and the description renderer are pure logic with no
+       Blazor in them, so they are compiled in directly rather than by
+       referencing the app. Referencing the app would drag in Keel, which needs
+       a private feed, and would make a test run that proves nothing about Keel
+       fail when a token expires. Markdown.cs adds no dependency beyond Route.cs
+       and System.Text, so this project still restores from nuget.org alone. -->
   <ItemGroup>
     <Compile Include="../../src/OasBrowser/Services/Route.cs" />
+    <Compile Include="../../src/OasBrowser/Rendering/Markdown.cs" />
   </ItemGroup>
 
 </Project>
