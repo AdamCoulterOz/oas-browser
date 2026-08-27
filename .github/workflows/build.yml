@@ -1,0 +1,59 @@
+name: build
+
+# Restores and builds the app.
+#
+# It is also the only way to prove that the Keel package grant works. Keel is a
+# private package owned by the keel repository, so a workflow here can only
+# restore it because oas-browser has been granted access to the package under
+# Manage Actions access. There is no API for that grant on a user-owned
+# package, so a green run is the check.
+
+on:
+  push:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '11.0.x'
+          dotnet-quality: preview
+
+      - name: Authenticate the keel feed
+        # The run's own GITHUB_TOKEN, no PAT. It carries packages:read from the
+        # permissions block above, and the package grants this repository access.
+        run: >
+          dotnet nuget update source keel
+          --username AdamCoulterOz
+          --password "${{ secrets.GITHUB_TOKEN }}"
+          --store-password-in-clear-text
+
+      - name: Restore
+        # Normal verbosity so the Keel version actually appears in the log. At
+        # the default verbosity a successful restore says nothing, and this run
+        # exists to be read.
+        run: dotnet restore src/OasBrowser --verbosity normal
+
+      - name: Build
+        run: dotnet build src/OasBrowser -c Release --no-restore
+
+      - name: Publish
+        run: dotnet publish src/OasBrowser -c Release -o dist --no-restore
+
+      - name: Check that Keel reached the output
+        # Restoring a package and shipping it are different things, so assert
+        # the assembly is in the published payload rather than assume it.
+        # The name is Keel.wasm unfingerprinted and Keel.<hash>.wasm when
+        # fingerprinting is on, so match both rather than the current setting.
+        run: |
+          ls dist/wwwroot/_framework/ | grep -qE '^Keel(\..+)?\.wasm$' \
+            || { echo 'Keel assembly missing'; exit 1; }
+          echo "published $(find dist/wwwroot/_framework -name '*.wasm' | wc -l) assemblies"
