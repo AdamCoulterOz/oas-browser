@@ -102,6 +102,23 @@ has to become a declared contract that a corpus fills in.
 `specs.json` already does this: the list of specs the browser loads. It is close
 to general already. It needs a place for a corpus to declare the things below.
 
+**Shape, decided and given to the specs owner.** It becomes an object, because
+there is nowhere in a bare array to put the grade declaration, the docs
+provider, the grouping label or branding, and introducing the object once beats
+adding `default` to the array and moving it later.
+
+```json
+{ "default": "ppapi", "index": "index.json", "specs": [ { "id": "...", ... } ] }
+```
+
+`default` names the spec a bare link resolves against. `index` is optional; see
+the routing decision for what it costs to omit.
+
+**No version field and no flag day.** A top-level array is the legacy form and
+behaves exactly as today, first entry as default. Detecting the shape is derived
+where a version field would be remembered, and it makes the legacy path
+*precisely* today's behaviour rather than approximately.
+
 ### Evidence grades — do this first
 
 Take this before the rest of the extraction, not as part of it. The conformance
@@ -162,9 +179,29 @@ spec:<specId>#/schemas/<name>        a schema within it
 spec:<specId>#/operations/<id>       an operation within it
 ```
 
-`<specId>` is the `id` from the catalogue. The fragment is the browser's own
-route shape, so a deep link is expressible without the corpus knowing the
-browser's URL structure, and it survives the browser being redeployed anywhere.
+`<specId>` is the `id` from the catalogue.
+
+**The fragment vocabulary is a stable contract the browser owns and translates.
+It is not the browser's route shape, and an earlier version of this section said
+it was.** That wording was wrong in the way that matters: it couples a corpus's
+files to the browser's internal URL format, so the routing change decided below
+would have silently broken every `spec:` link in every corpus. The whole purpose
+of the scheme is that the corpus says *what it means* and the browser decides
+what URL that is. That the vocabulary currently resembles the route shape is a
+coincidence, not a promise, and the two are now free to diverge.
+
+Found by the specs owner asking whether the vocabulary was moving, because they
+had already shipped a checker that enforces it. Nobody would have found it from
+this side: the coupling is invisible while the two happen to agree.
+
+**And a gap that follows from it, which is the browser's.** A corpus-side
+conformance check validates that a fragment resolves against *the corpus*. It
+cannot detect that the *browser* stopped honouring the vocabulary — it stays
+green while every link 404s. The browser therefore owes a test that every
+fragment form still resolves, and until that exists a corpus's green says
+something about its data and nothing about the links working. This is the
+consumer-can-only-see-its-own-layer rule, arriving as a hole in a check that
+already existed.
 
 This replaced ten relative markdown links that were **broken in production and
 had never worked**. They were written for GitHub's file view, where `../bapi`
