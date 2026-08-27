@@ -297,6 +297,47 @@ Four decisions in that shape, each of which was a live alternative:
   materialised one is a claim about the spec living in the producer's repo,
   going stale the day an operation is added.
 
+**Two extensions the first producer asked for, both accepted, and the reason
+they were accepted rather than resisted.**
+
+The rule was that the format must be expressible generally: *an external artifact
+maps to these operations*. Both of these pass that test, and both reuse the
+pattern already in the format rather than adding a concept.
+
+- **`entrypoints`.** An artifact may invoke different operations depending on
+  which of its named entrypoints ran. Declared in `artifacts.entrypoints` as
+  id-to-label, optional `entrypoint` on a call. The producer's natural unit was
+  `(artifact, entrypoint, operation)`, and collapsing it is lossy in a way
+  nothing downstream can undo: one component reached one operation from three
+  lifecycle entrypoints plus another component's delete path, where the useful
+  fact is *which phase* and whether that phase always does. Refusing would have
+  pushed the axis into synthetic ids, where nothing can read it.
+- **`uncatalogued`.** Calls an artifact makes that no catalogue operation names,
+  as a sibling of `calls`, with a producer-declared `reason` vocabulary. Around
+  a fifth of the first producer's call sites have no operation identity at all
+  and it is not extraction failure: a URL returned in a `Location` header and
+  polled, a URL supplied by the user in configuration, a path whose segments are
+  runtime values.
+
+  **This one is not a convenience, it is the failure pattern.** A coverage view
+  that silently omits a fifth of what an artifact does looks exactly like a
+  complete one. Nothing is missing on screen; the page quietly asserts more than
+  the data earned. Leaving it out would have been the browser making a
+  completeness claim on a producer's behalf.
+
+**And an axis that was asked for and should not be added, because a different
+decision dissolved it.** The producer proposed a declared vocabulary for *why*
+coverage is partial, having found three reasons in their extractor rather than in
+prose, which is a stronger case than the usual convergence warning. But set the
+three against `uncatalogued`: two of them are calls with no operation identity
+and belong there, not in `calls`. Once they move, `partial` has one meaning left,
+and **a declared enum with one member is a vocabulary pretending to be a choice.**
+The free-text note then carries the specific condition, which is genuinely
+per-row, rather than a category spelled out longhand.
+
+Worth keeping as a shape: when a producer asks for two things, check whether one
+of them removes the need for the other before building both.
+
 **And one thing the producer was told not to build, which is the more useful
 half.** The output they most want is "which operations are called only via this
 spec when another spec also offers them". That is *not derivable*: it needs a
