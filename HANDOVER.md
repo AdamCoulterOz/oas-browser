@@ -1203,6 +1203,37 @@ The general question to ask of a check: not only *which way does it fail*, but
 *is the case it fails on the same case it exists for*. Those come apart more
 often than they sound like they would.
 
+**A test environment can be built so the bug is unreachable, and that green is
+worse than an untested case.**
+
+The browser shows the origin its catalogue was fetched from, so a catalogue
+cannot lie about where it came from. It was verified locally against a second
+origin on a different port, in a browser, and it worked. Loading a real corpus
+through its real redirect showed the marker reading the same origin for two
+different corpora, because they are two paths on one host, and the whole URL is
+the only thing that separates them.
+
+**A second origin on a different port is the one arrangement where "which
+origin" and "which catalogue" never come apart.** The environment was
+constructed so that the defect could not appear. Nothing was skipped and the
+verification was real; it measured a configuration in which the question could
+not arise.
+
+That is worse than not testing, because an untested case looks untested. This
+one produced a green that felt like coverage, in a browser, against a live page.
+
+**And the general form, which is the more useful half: one is the number at
+which cross-thing mistakes cannot occur.** Every check this repo has about the
+relationship between two files — the catalogue a mapping declares against the
+one loaded, the origin display, spec ids colliding with route segments — is
+exercised against a single corpus and a single mapping. Single is the
+configuration in which a cross-corpus error is unreachable by construction.
+
+So the fixtures want a second catalogue, not because anyone needs two corpora
+but because **one is the count at which these checks cannot fail.** The same
+argument as proving an invariant by making it fail, applied to the shape of the
+fixture set rather than to the assertion.
+
 **Prove each invariant by making it fail.** Every check in the first version was
 run against a synthetic violation and required to go red, including the real
 `x-source` collision reverted on purpose. This matters because *a check that has
