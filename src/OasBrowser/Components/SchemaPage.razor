@@ -29,10 +29,10 @@
                         @foreach (var op in UsedBy)
                         {
                             <div class="prop">
-                                <button class="prop__head" style="background:none;border:0;padding:0;cursor:pointer;text-align:left"
+                                <button class="prop__head used-by"
                                         @onclick="() => OnNavigate.InvokeAsync(new Route(RouteKind.Operation, op.OperationId))">
                                     <KeelChip Emphasis="Emphasis.Filled" Mono="true" Tone="@MethodTone.For(op.Method)">@op.Method</KeelChip>
-                                    <span class="prop__name" style="color:var(--accent)">@op.Summary</span>
+                                    <span class="prop__name">@op.Summary</span>
                                 </button>
                             </div>
                         }

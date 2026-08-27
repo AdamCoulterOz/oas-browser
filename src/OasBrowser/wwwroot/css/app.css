@@ -127,7 +127,7 @@ html, body {
   border: 0;
   cursor: pointer;
 }
-.rail__group-toggle:hover .rail__chev { color: var(--accent); }
+.rail__group-toggle:hover .rail__chev { color: var(--accent-text); }
 .rail__group-toggle[aria-expanded="true"] .rail__chev { transform: rotate(90deg); }
 
 .rail__group-btn {
@@ -146,7 +146,7 @@ html, body {
   cursor: pointer;
 }
 .rail__group-btn:hover { background: var(--surface-sunken); }
-.rail__group-btn[aria-current="true"] { color: var(--accent); }
+.rail__group-btn[aria-current="true"] { color: var(--accent-text); }
 
 /* KEEL GAP #7: disclosure. This chevron and its rotate-on-aria-expanded is the
    same control as the one in the property tree below, written twice. */
@@ -347,6 +347,25 @@ html, body {
   color: var(--text-tertiary);
 }
 .prop__type { font-family: var(--font-mono); color: var(--text-secondary); }
+
+/* A type label is a link only when the schema it names exists to navigate to,
+   and the same class carries both cases. So this is scoped to the anchor: a
+   plain type label must not be coloured as a link, which would be the inverse
+   of a link that looks like one and does nothing. --text-link is keel's, and
+   keel has asked for it to be used. */
+a.prop__type { color: var(--text-link); }
+
+/* The "Used by" rows on a schema page are navigation controls that happen to be
+   buttons, so they take link ink. The button reset lives here rather than
+   inline, where it was. */
+.used-by {
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  text-align: left;
+}
+.used-by .prop__name { color: var(--text-link); }
 .prop__sep { opacity: .5; }
 /* Required takes no state colour. keel's tones report what a thing IS right
    now, and being required is not a state the property is in: it is a permanent
@@ -389,7 +408,7 @@ html, body {
   transition: transform var(--dur-fast) var(--ease-out);
 }
 .prop--expandable > .prop__row[aria-expanded="true"] .prop__chev { transform: rotate(90deg); }
-.prop--expandable > .prop__row:hover .prop__chev { color: var(--accent); }
+.prop--expandable > .prop__row:hover .prop__chev { color: var(--accent-text); }
 
 /* non-expandable rows align with expandable ones so names form a column */
 .prop--leaf > .prop__row { padding-left: calc(18px + var(--space-2)); }

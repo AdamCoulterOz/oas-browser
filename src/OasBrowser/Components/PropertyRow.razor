@@ -62,8 +62,7 @@
                 {
                     <a class="prop__type" href="#/schemas/@rn"
                        @onclick:preventDefault
-                       @onclick="() => OnNavigate.InvokeAsync(new Route(RouteKind.Schema, rn))"
-                       style="color:var(--accent)">@Node.TypeLabel</a>
+                       @onclick="() => OnNavigate.InvokeAsync(new Route(RouteKind.Schema, rn))">@Node.TypeLabel</a>
                 }
                 else
                 {
