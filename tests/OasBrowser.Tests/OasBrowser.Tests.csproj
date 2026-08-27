@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net11.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.11.1" />
+    <PackageReference Include="xunit" Version="2.9.3" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.8.2" />
+  </ItemGroup>
+
+  <!-- The routing contract is pure logic with no Blazor in it, so it is
+       compiled in directly rather than by referencing the app. Referencing the
+       app would drag in Keel, which needs a private feed, and would make a test
+       run that proves nothing about Keel fail when a token expires. -->
+  <ItemGroup>
+    <Compile Include="../../src/OasBrowser/Services/Route.cs" />
+  </ItemGroup>
+
+</Project>

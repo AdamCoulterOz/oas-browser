@@ -1,5 +1,6 @@
 using System.Text;
 using System.Text.RegularExpressions;
+using OasBrowser.Services;
 
 namespace OasBrowser.Rendering;
 
@@ -45,17 +46,18 @@ public static partial class Markdown
             var href = m.Groups[2].Value;
 
             // A cross-spec reference is a browser contract, not a web scheme, so
-            // it is neither followable nor refused. Saying "refused" here would
-            // tell a reader the link was rejected as unsafe when the truth is
-            // that this browser cannot resolve it yet.
-            //
-            // TEMPORARY. Resolution needs the catalogue and a URL with a spec
-            // dimension in it, and the second does not exist yet. When routing
-            // gains that dimension this branch becomes the fallback for a
-            // reference that genuinely does not resolve, rather than the only
-            // behaviour. Delete this comment then, not the branch.
+            // the safety allow-list has no opinion on it. The corpus says which
+            // spec it means; deciding what URL that is belongs here.
+            if (CrossSpecRoute(href) is { } route)
+                return $"<a href=\"{Attr(route)}\">{label}</a>";
+
+            // A reference this browser cannot turn into a route: today that is
+            // the fragment forms, which no corpus uses yet. Saying "refused"
+            // would tell a reader the link was rejected as unsafe when the truth
+            // is that the browser cannot resolve it, and that invites them to
+            // conclude the corpus did something wrong.
             if (IsCrossSpecReference(href))
-                return $"<span class=\"link-unresolved\" title=\"Cross-spec reference to {Attr(href)}, which this browser cannot resolve yet.\">{label} [unresolved reference]</span>";
+                return $"<span class=\"link-unresolved\" title=\"Cross-spec reference to {Attr(href)}, which this browser cannot resolve.\">{label} [unresolved reference]</span>";
 
             if (!IsFollowable(href, out var refused))
                 return $"<span class=\"link-refused\" title=\"Refused: this browser does not follow {refused} links.\">{label} [refused link]</span>";
@@ -99,6 +101,37 @@ public static partial class Markdown
     /// </summary>
     private static bool IsCrossSpecReference(string href) =>
         href.StartsWith("spec:", StringComparison.OrdinalIgnoreCase);
+
+    /// <summary>
+    /// The in-app route a cross-spec reference names, or null when this browser
+    /// cannot express it.
+    ///
+    /// <para>
+    /// Only the bare <c>spec:&lt;id&gt;</c> form is translated, which is every
+    /// reference any corpus writes today. The fragment forms
+    /// (<c>spec:&lt;id&gt;#/operations/&lt;id&gt;</c> and its siblings) are a
+    /// documented part of the contract with no live consumer, so translating
+    /// them now would ship an untested surface whose first test is the first
+    /// link somebody writes. They fall through to the unresolved marker until
+    /// something needs them.
+    /// </para>
+    ///
+    /// <para>
+    /// Whether the spec exists is not decided here. This file has no catalogue
+    /// and should not acquire one to answer a question the shell already
+    /// answers better: a route naming an absent spec renders as a named error
+    /// rather than as a silent substitution.
+    /// </para>
+    /// </summary>
+    private static string? CrossSpecRoute(string href)
+    {
+        if (!IsCrossSpecReference(href)) return null;
+
+        var id = href["spec:".Length..];
+        if (id.Length == 0 || id.Contains('#') || id.Contains('/')) return null;
+
+        return new Route(RouteKind.Overview, null, id).ToHash();
+    }
 
     /// <summary>
     /// Whether a link target may be emitted as an href, and if not, what to

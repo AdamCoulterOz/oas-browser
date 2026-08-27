@@ -2,3 +2,7 @@ bin/
 obj/
 dist/
 __pycache__/
+
+# test project build output
+tests/OasBrowser.Tests/bin/
+tests/OasBrowser.Tests/obj/

@@ -117,9 +117,7 @@
         {
             _catalogue = (await Store.LoadCatalogueAsync()).ToList();
             await Router.InitialiseAsync();
-            _route = Router.Current;
-            _current = _catalogue.FirstOrDefault();
-            if (_current is not null) _spec = await Store.LoadSpecAsync(_current);
+            await ApplyRouteAsync(Router.Current);
         }
         catch (Exception ex)
         {
@@ -127,40 +125,73 @@
         }
     }
 
-    private void OnRouteChanged(Route route)
+    private async void OnRouteChanged(Route route)
+    {
+        // Back and forward can move between specs, so the route decides which
+        // spec is loaded rather than only which page of it is shown.
+        await ApplyRouteAsync(route);
+        StateHasChanged();
+    }
+
+    /// <summary>
+    /// Makes the app match a route, loading a different spec if the route names
+    /// one. The route is the source of truth for which spec is on screen; it
+    /// was the catalogue's first entry, unconditionally, which is why nine of
+    /// ten specs could not be linked to.
+    /// </summary>
+    private async Task ApplyRouteAsync(Route route)
     {
         _route = route;
+
+        var wanted = Store.Resolve(route.SpecId);
+        if (wanted is null)
+        {
+            // A route naming a spec the catalogue does not have. Say so rather
+            // than quietly showing a different one: the reader asked for
+            // something specific and a substitution is indistinguishable from
+            // having got what they asked for.
+            _error = route.SpecId is { } missing
+                ? $"No spec called \"{missing}\" in this catalogue."
+                : "This catalogue has no specs in it.";
+            _spec = null;
+            return;
+        }
+
+        if (wanted.Id == _current?.Id && _spec is not null) return;
+
+        _current = wanted;
+        _spec = null;
+        _error = null;
         StateHasChanged();
+
+        try { _spec = await Store.LoadSpecAsync(wanted); }
+        catch (Exception ex) { _error = ex.Message; }
     }
 
     private async Task NavigateAsync(Route route)
     {
-        await Router.GoAsync(route);
-        _route = route;
+        // In-page navigation means "this, in the spec I am looking at", so the
+        // shell is what attaches the spec. A nav-tree click does not have to
+        // know where it is, and the URL still names the spec, which is the
+        // whole point of the change.
+        var qualified = route.SpecId is null ? route with { SpecId = _current?.Id } : route;
+
+        await ApplyRouteAsync(qualified);
+        await Router.GoAsync(qualified);
         _navOpen = false;
         await Router.ScrollTopAsync();
         StateHasChanged();
     }
 
-    private Task GoOverview() => NavigateAsync(Route.Overview);
+    private Task GoOverview() => NavigateAsync(new Route(RouteKind.Overview, null, _current?.Id));
 
-    private async Task OnSpecChanged(string? id)
-    {
-        var entry = _catalogue.FirstOrDefault(x => x.Id == id);
-        if (entry is null || entry.Id == _current?.Id) return;
-
-        // Clearing _spec puts the loading state on screen. No StateHasChanged
-        // is needed: Blazor renders when an async handler yields at its first
-        // await, which is the load below.
-        _current = entry;
-        _spec = null;
-        _error = null;
-
-        try { _spec = await Store.LoadSpecAsync(entry); }
-        catch (Exception ex) { _error = ex.Message; }
-
-        await NavigateAsync(Route.Overview);
-    }
+    private Task OnSpecChanged(string? id) =>
+        id is null || id == _current?.Id
+            ? Task.CompletedTask
+            // Switching spec is a navigation, so it goes through the router and
+            // changes the URL. It used to change what rendered and not the URL,
+            // so reloading or sharing sent the reader back to spec zero.
+            : NavigateAsync(new Route(RouteKind.Overview, null, id));
 
     private Operation? FindOperation(string? id) =>
         id is null ? null : _spec?.Operations.FirstOrDefault(o => o.OperationId == id);
