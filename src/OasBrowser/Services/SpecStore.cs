@@ -17,6 +17,18 @@ public sealed class CatalogueDocument
     [JsonPropertyName("default")] public string? Default { get; set; }
     [JsonPropertyName("index")] public string? Index { get; set; }
     [JsonPropertyName("brand")] public CatalogueBrand? Brand { get; set; }
+
+    /// <summary>
+    /// Where the coverage mapping for this corpus lives, if it has one.
+    ///
+    /// Declared by the catalogue rather than configured into the app, for the
+    /// same reason the specs are: a general browser that has to be told about a
+    /// corpus before it can show one is not general. Optional, because coverage
+    /// is a claim some other repository makes about this corpus and most corpora
+    /// have nobody making it.
+    /// </summary>
+    [JsonPropertyName("coverage")] public string? Coverage { get; set; }
+
     [JsonPropertyName("specs")] public List<SpecEntry> Specs { get; set; } = [];
 }
 
@@ -101,6 +113,17 @@ public sealed class SpecStore(HttpClient http, NavigationManager nav)
     public string? DefaultSpecId { get; private set; }
 
     /// <summary>
+    /// The coverage mapping this catalogue declares, as written and unresolved,
+    /// or null when it declares none.
+    ///
+    /// Unresolved because resolving it is <c>CoverageStore</c>'s job and it has
+    /// a second source to consider first. Left as the catalogue wrote it so that
+    /// there is one place a relative value is turned into a location, rather
+    /// than a half-resolved value travelling between the two.
+    /// </summary>
+    public string? DeclaredCoverageUrl { get; private set; }
+
+    /// <summary>
     /// Where the catalogue lives. specs.json beside index.html by default, which
     /// is what every deploy has done so far and stays exactly today's behaviour,
     /// overridden by ?catalogue=&lt;url&gt; so one published copy of the browser
@@ -111,8 +134,20 @@ public sealed class SpecStore(HttpClient http, NavigationManager nav)
     /// is not general. Cross-origin values are allowed and need CORS from
     /// whoever serves them, which is a fact about that host and not something
     /// this app can arrange.
+    ///
+    /// <para>
+    /// Public, and it throws when the url was refused. The two display
+    /// properties below guard it because they are read while the error page
+    /// renders; a caller reached during a load that has already succeeded is
+    /// past that. It is the <see cref="Uri"/> and not <see cref="CatalogueUrl"/>
+    /// that <c>CoverageStore</c> needs, on both counts that matter to it: a
+    /// relative coverage url resolves against this the way a spec entry's does,
+    /// and the mismatch check compares URLs part by part rather than as strings.
+    /// Handing it the string would make it parse this value a second time,
+    /// which is a second place for the parse to differ.
+    /// </para>
     /// </summary>
-    private Uri CatalogueUri => _catalogueUri ??= ResolveCatalogueUri();
+    public Uri CatalogueUri => _catalogueUri ??= ResolveCatalogueUri();
 
     /// <summary>
     /// The origin the catalogue was actually fetched from, as
@@ -153,6 +188,32 @@ public sealed class SpecStore(HttpClient http, NavigationManager nav)
         get
         {
             try { return CatalogueUri.GetLeftPart(UriPartial.Authority); }
+            catch (Exception e) when (e is InvalidOperationException or UriFormatException) { return null; }
+        }
+    }
+
+    /// <summary>
+    /// The whole catalogue URL, for the supplementary text beside the origin.
+    ///
+    /// The origin answers the trust question, because it is the security
+    /// boundary and it is what a lookalike host cannot forge. It does not
+    /// answer *which catalogue this is*: two corpora published from one account
+    /// share an origin and differ only in path, which is exactly the case here,
+    /// where the demo corpus and the Power Platform corpus both read
+    /// "adamcoulteroz.github.io" and nothing on screen separates them.
+    ///
+    /// Found by loading the real corpus through the redirect rather than by
+    /// testing against a second local origin, which is the only arrangement
+    /// where the two questions come apart.
+    ///
+    /// Same source as the origin, the resolved <see cref="Uri"/>, so it is
+    /// equally beyond anything a catalogue can declare about itself.
+    /// </summary>
+    public string? CatalogueUrl
+    {
+        get
+        {
+            try { return CatalogueUri.ToString(); }
             catch (Exception e) when (e is InvalidOperationException or UriFormatException) { return null; }
         }
     }
@@ -213,6 +274,15 @@ public sealed class SpecStore(HttpClient http, NavigationManager nav)
             var read = doc.RootElement.Deserialize<CatalogueDocument>() ?? new CatalogueDocument();
             Catalogue = read.Specs;
             Brand = Branding.From(read.Brand);
+
+            // An array has nowhere to declare this either, so the legacy shape
+            // gets coverage only from ?coverage=. Same argument as the brand: a
+            // form that says nothing about coverage must not have an answer
+            // invented on its behalf.
+            DeclaredCoverageUrl = read.Coverage is { Length: > 0 } declaredCoverage
+                ? declaredCoverage
+                : null;
+
             DefaultSpecId = read.Default is { Length: > 0 } declared
                             && Catalogue.Any(s => s.Id == declared)
                 ? declared

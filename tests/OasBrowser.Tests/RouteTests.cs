@@ -150,11 +150,16 @@ public class RouteTests
     [Fact]
     public void Reserved_ids_are_derived_from_the_kinds_that_exist()
     {
-        // A corpus conformance check reads this rather than restating the three
+        // A corpus conformance check reads this rather than restating the
         // words. If a kind is ever added and this list does not grow with it,
         // that check silently stops protecting the new segment.
+        //
+        // "coverage" joined them when the coverage view got a route, and this
+        // assertion is what said so: it went red on the segment table changing,
+        // which is exactly the notice a corpus needs that an id it was allowed
+        // to use yesterday is spoken for today.
         Assert.Equal(
-            new[] { "operations", "schemas", "resources" }.OrderBy(x => x),
+            new[] { "operations", "schemas", "resources", "coverage" }.OrderBy(x => x),
             Route.ReservedIds.OrderBy(x => x));
     }
 
@@ -162,6 +167,7 @@ public class RouteTests
     [InlineData("operations")]
     [InlineData("schemas")]
     [InlineData("resources")]
+    [InlineData("coverage")]
     public void A_spec_id_colliding_with_a_kind_is_unreachable(string reserved)
     {
         // Demonstrates why the reserved set has to be enforced on a corpus

@@ -40,6 +40,7 @@ public readonly record struct Route(RouteKind Kind, string? Id, string? SpecId =
         (RouteKind.Operation, "operations"),
         (RouteKind.Schema, "schemas"),
         (RouteKind.Resource, "resources"),
+        (RouteKind.Coverage, "coverage"),
     ];
 
     /// <summary>
@@ -64,8 +65,8 @@ public readonly record struct Route(RouteKind Kind, string? Id, string? SpecId =
     /// </code>
     ///
     /// The first segment is a spec id unless it names a kind, which is why a
-    /// spec may not be called <c>operations</c>, <c>schemas</c> or
-    /// <c>resources</c>.
+    /// spec may not be called <c>operations</c>, <c>schemas</c>,
+    /// <c>resources</c> or <c>coverage</c>.
     /// </summary>
     public static Route Parse(string? hash)
     {
@@ -115,4 +116,4 @@ public readonly record struct Route(RouteKind Kind, string? Id, string? SpecId =
     }
 }
 
-public enum RouteKind { Overview, Operation, Schema, Resource }
+public enum RouteKind { Overview, Operation, Schema, Resource, Coverage }
