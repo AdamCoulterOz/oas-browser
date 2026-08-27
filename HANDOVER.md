@@ -295,15 +295,26 @@ and the answer was a real rule nobody had stated.
 
 ```json
 {
+  "catalogue": "https://example.invalid/specs.json",
+  "grades": { "observed": "observed",
+              "vocabulary": [ { "id": "observed", "title": "...", "caveat": "...",
+                                "tone": "<keel tone, optional>" },
+                              { "id": "derived", "title": "...", "caveat": "..." } ] },
   "artifacts": { "kind": "provider component",
-                 "kinds": { "resource": "Resource", "datasource": "Data source" } },
-  "grades": [ { "id": "observed", "title": "...", "caveat": "...",
-                "order": 0, "observed": true } ],
+                 "kinds": { "resource": "Resource", "datasource": "Data source" },
+                 "entrypoints": { "Create": "Create", "Read": "Read" } },
+  "uncatalogued": { "async-continuation": "Async continuation" },
   "items": [
     { "id": "<opaque, stable>", "kind": "<key of artifacts.kinds>",
-      "name": "<for display>", "source": { "path": "<repo-relative>", "line": 412 },
+      "name": "<for display, defaults to id>",
+      "source": { "path": "<repo-relative>", "line": 412 },
       "calls": [ { "spec": "ppapi", "operation": "<operationId>",
-                   "coverage": "full", "grade": "observed", "note": "..." } ] } ]
+                   "coverage": "full", "grade": "observed",
+                   "entrypoint": "<key of artifacts.entrypoints>",
+                   "apiVersion": "<only where the caller pins one>",
+                   "approximate": false, "note": "..." } ],
+      "uncatalogued": [ { "reason": "<key of the uncatalogued map>",
+                          "count": 4, "note": "..." } ] } ]
 }
 ```
 
@@ -1470,6 +1481,15 @@ real record and the prose feels like commentary. It is backwards for the same
 reason a check's failure message carries its reliability: **the least informed
 reader meets the informal surface, and they are the one with no way to tell it
 is wrong.**
+
+**This document did the same thing within the hour.** The coverage format
+changed in six places; the prose describing it was updated and the JSON sketch
+beside it was not, so it still showed a `grades` array with a retired `order`
+key and no `catalogue` field. An agent implementing from this file found it, and
+would have implemented the wrong shape from the example if the validator had not
+disagreed. **A code block is the part of a specification a reader copies**, so
+it is the informal surface here, whatever it looks like — and prose and example
+drifting apart is a two-record drift with nothing comparing them.
 
 **A sixth, and it is the one that shows the shape is not about lists.** A
 mapping producer bound query parameters *positionally*, on the assumption that

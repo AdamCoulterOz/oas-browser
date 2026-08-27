@@ -59,8 +59,15 @@
                    text and never the only place this appears. *@
                 @if (Store.CatalogueOrigin is { } origin)
                 {
+                    @* The chip shows the origin, which is the security boundary
+                       and the thing a lookalike host cannot forge. The tooltip
+                       carries the whole URL, because two corpora published from
+                       one account share an origin and differ only in path, and
+                       the chip alone then cannot say which of them is loaded.
+                       Repeating the origin there, as this did, answered the
+                       question the chip had already answered. *@
                     <KeelChip class="brand-origin" Emphasis="Emphasis.Quiet" Mono="true"
-                              title="@($"Catalogue fetched from {origin}")">@origin</KeelChip>
+                              title="@($"Catalogue fetched from {Store.CatalogueUrl ?? origin}")">@origin</KeelChip>
                 }
 
                 @if (_catalogue.Count > 1)
