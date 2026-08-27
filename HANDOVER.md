@@ -412,6 +412,22 @@ pattern already in the format rather than adding a concept.
   **Ambiguity in a shared contract is worse than a strict rule somebody
   disagrees with, because it produces disagreement nobody can adjudicate.**
 
+  **And a second implementation is how you find out the rule was ambiguous.**
+  The sentence was *"a templated segment in the spec matches any single literal
+  segment in the call"*. The producer implemented it over whole segments; the
+  checker here also handled a templated part *within* a segment, so
+  `{entitySetName}({recordId})` matched `systemusers({id})` in one and not the
+  other. Neither party knew the sentence had two readings until the two
+  implementations disagreed on four rows.
+
+  So: **a written contract with one implementation is untested, and the second
+  implementation is the test.** This is the two-instruments argument from
+  *Reporting across a boundary*, which was about consumers on different paths,
+  applied to implementations of one specification. Rereading the sentence
+  produces the reading it produced the first time; only running two of them
+  produces the disagreement. Where a contract matters, a second implementation
+  is not duplicated effort to be consolidated away.
+
 **And an axis that was asked for and should not be added, because a different
 decision dissolved it.** The producer proposed a declared vocabulary for *why*
 coverage is partial, having found three reasons in their extractor rather than in
