@@ -325,6 +325,28 @@ pattern already in the format rather than adding a concept.
   the data earned. Leaving it out would have been the browser making a
   completeness claim on a producer's behalf.
 
+  **The line between `calls` and `uncatalogued` is which segment varies, and it
+  is the contract owner's to draw.** A parameterised path is not automatically
+  one operation. Compare, from the first producer's real data:
+
+      /api/data/v9.2/EntityDefinitions(LogicalName='{}')   one operation, keyed
+      /api/data/v9.2/{}({})                                no operation at all
+
+  Both have `{}` in them and they are different kinds of thing. In the first the
+  variable is a **key** into a named collection, so an operation exists and the
+  variable is its parameter. In the second the variable is the **collection**,
+  supplied by the user at run time, so the request is one of an unbounded family
+  and no catalogue operation could name it — not because the corpus is missing
+  one but because there is nothing to name.
+
+  Thirteen rows arrived looking alike. Three were operations a corpus might be
+  missing; ten were `uncatalogued`. Forwarding all thirteen would have turned a
+  producer's inability to name an operation into a claim that the corpus lacked
+  thirteen, which is the *do not forward an observation as a claim* rule at
+  scale. The receiving party cannot make this distinction from the path alone,
+  and the producer has no reason to think it matters, so **it lands on whoever
+  owns the format.**
+
 **And an axis that was asked for and should not be added, because a different
 decision dissolved it.** The producer proposed a declared vocabulary for *why*
 coverage is partial, having found three reasons in their extractor rather than in
