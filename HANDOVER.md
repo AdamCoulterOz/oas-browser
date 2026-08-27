@@ -325,27 +325,42 @@ pattern already in the format rather than adding a concept.
   the data earned. Leaving it out would have been the browser making a
   completeness claim on a producer's behalf.
 
-  **The line between `calls` and `uncatalogued` is which segment varies, and it
-  is the contract owner's to draw.** A parameterised path is not automatically
-  one operation. Compare, from the first producer's real data:
+  **What belongs in `uncatalogued` is decided by the corpus, not by the call.
+  I got this wrong, ruled on it, and was corrected. The wrong version is kept
+  because the mistake is more useful than the rule.**
 
-      /api/data/v9.2/EntityDefinitions(LogicalName='{}')   one operation, keyed
-      /api/data/v9.2/{}({})                                no operation at all
+  Thirteen rows arrived with a placeholder in the path, reported as operations
+  the corpus lacked. I split them on **which segment varies**: where the
+  variable was a *key* into a named collection
+  (`/api/data/v9.2/EntityDefinitions(LogicalName='{}')`) an operation exists and
+  the variable is its parameter; where the variable was the *collection itself*
+  (`/api/data/v9.2/{}({})`), supplied by the user at run time, the request is one
+  of an unbounded family and no operation could name it. Three forwarded, ten
+  ruled `uncatalogued`.
 
-  Both have `{}` in them and they are different kinds of thing. In the first the
-  variable is a **key** into a named collection, so an operation exists and the
-  variable is its parameter. In the second the variable is the **collection**,
-  supplied by the user at run time, so the request is one of an unbounded family
-  and no catalogue operation could name it — not because the corpus is missing
-  one but because there is nothing to name.
+  **Ten of them resolve.** The corpus does not enumerate one operation per
+  table; it documents the generic OData surface once, with the entity set as a
+  path parameter. So "query an arbitrary entity set" is exactly one named
+  operation — `records_query` — and the provider calls it. Twelve dataverse
+  operations were about to be recorded as absent or uncatalogued while being
+  both called and documented.
 
-  Thirteen rows arrived looking alike. Three were operations a corpus might be
-  missing; ten were `uncatalogued`. Forwarding all thirteen would have turned a
-  producer's inability to name an operation into a claim that the corpus lacked
-  thirteen, which is the *do not forward an observation as a claim* rule at
-  scale. The receiving party cannot make this distinction from the path alone,
-  and the producer has no reason to think it matters, so **it lands on whoever
-  owns the format.**
+  The premise was true and the conclusion did not follow: a runtime entity-set
+  name really is unbounded, and *that is a fact about the set, not about the
+  operation*. **A spec can template a name as readily as an id.**
+
+  So the distinction is real and answers a different question than I asked it.
+  Which segment varies tells you whether the *caller* knows the name before it
+  runs. Whether an operation exists tells you what the *corpus* documents. I
+  measured a property of the call to decide a property of the corpus — the
+  adjacent-question failure, committed while writing the section that names it,
+  in a ruling that overrode a producer who had it right.
+
+  The rule that survives: **`uncatalogued` is for calls no operation names, and
+  only the corpus can say that.** Resolve against the catalogue first; what
+  fails to resolve is a candidate, and a runtime-varying segment is a property
+  worth carrying but not the test. That producer's `uncatalogued` ended up
+  holding three rows rather than thirteen, and the field is still right.
 
 - **Path matching absorbs a spelling convention and surfaces a defect, and the
   rule has to tell them apart.** A call naming `{method, path}` matches a spec
@@ -364,6 +379,24 @@ pattern already in the format rather than adding a concept.
   So: a templated segment matching a literal is a convention to absorb; a case
   difference is a defect to surface. Prefer `operation` by id anyway, which
   sidesteps the whole question.
+
+  **And the rule needs a tiebreak, which is not optional.** A corpus that
+  documents a catch-all alongside specific paths makes the rule ambiguous:
+
+      GET /api/data/{apiVersion}/{entitySetName}   records_query
+      GET /api/data/{apiVersion}/publishers        publishers_list
+
+  A call to `/api/data/v9.2/publishers` matches both, legitimately, and nothing
+  above chooses. On the first real run this made 25 rows ambiguous, every
+  specific operation shadowed by the catch-all. So: **rank candidates by how
+  many segments they match literally, most specific wins, and a genuine tie is
+  reported rather than resolved.**
+
+  It belongs in the contract rather than in each implementation because two
+  consumers ranking differently would resolve the same row to different
+  operations and neither would be wrong by the rule as first written.
+  **Ambiguity in a shared contract is worse than a strict rule somebody
+  disagrees with, because it produces disagreement nobody can adjudicate.**
 
 **And an axis that was asked for and should not be added, because a different
 decision dissolved it.** The producer proposed a declared vocabulary for *why*
