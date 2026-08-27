@@ -882,6 +882,36 @@ invariants all assert properties of one corpus at one moment. A corpus that
 quietly loses half its notes between two publishes satisfies every one of them.
 The fixture assertions have the same shape and the same blind spot.
 
+**An equality assertion is the wrong half of the pair when the risk is undue
+sameness.** `tools/contrast_pairs.py` had a bug where the dark theme resolved to
+the light declarations, so it printed light figures under a dark heading: every
+number correct, the whole table answering a different question from its own
+column header. keel checked their own apparatus and did not have it, but found
+something better in the checking.
+
+Their suite asserts that Light equals KeelLight and Dark equals KeelDark. It
+never asserts that the two groups *differ*. So a broken resolver satisfies every
+assertion that exists and violates only the one that does not: primary comes
+back near-black, the ground comes back white, the pair reads 15:1, and the dark
+half of the suite silently becomes a duplicate of the light half while staying
+green.
+
+The general form, which is the adjacent-question pattern inside a test suite:
+**when a resolver can fail by collapsing two things into one, checking that each
+thing is internally consistent is the check it would pass.** The assertion has to
+be that they are not the same. A canary comparing one token across the two
+themes is enough, and it is the only assertion in the file whose failure means
+"the apparatus is broken" rather than "the values are wrong".
+
+**And keep the hand-computed result after the tool exists.** The tool's bug was
+caught only because a set of numbers computed by hand, before the rewrite,
+existed to reconcile against. Written tool-first it would have been
+self-consistent and wrong, and nothing in its output would have said so. The
+instinct after building a tool is to delete the manual working as superseded.
+That working is the only independent thing that can contradict the tool, so
+deleting it removes the sole means of falsifying it, at exactly the moment the
+tool starts being trusted.
+
 **Known limitation, and the fix that is NOT the answer.** The root-collision
 check compares key *names*, not meanings, so a key legitimately used at both
 levels with the *same* meaning would be a false positive. None exists today, and
