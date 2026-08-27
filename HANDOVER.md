@@ -940,6 +940,69 @@ asserts the operation takes no parameters. "Loses a mandatory header" was really
 "renders zero parameters including both path variables". Both corrections ran
 the same direction.
 
+That section, and several above it, are instances of something larger, which is
+next.
+
+### The adjacent question, which is the head of most of this document
+
+This arrived from keel, as the collapse of four findings that had looked
+separate:
+
+> **An artefact answers one question well and an adjacent question badly, and
+> the failure is using it for the second.**
+
+In every instance the artefact was correct. The question asked of it was not the
+one it answers. That is why none of these look like mistakes at the time and why
+none of them error.
+
+The instances, across three repositories and four materials:
+
+| Artefact | Answers | Was used to answer |
+|---|---|---|
+| `cwd` | where a session started | what it works on |
+| A HEAD sha on a public repo | is your view current | do you hold the handover |
+| keel's `classes.json` | this name exists | this class does something |
+| keel's `components.md` | everything it covers | what a consumer needed next |
+| A field list of things to ignore | did anything else move | did I find them all |
+| A population count | how many exist | how many changed |
+| Ink measured against the ground | is this legible on the page | is this legible against that ink |
+| Adjacent rungs of a ramp | do neighbours separate | does what the layout pairs separate |
+
+`classes.json` published a class that styled nothing. The field list missed nine
+of ten broken links because they were in descriptions. The population count made
+38 and 10 out of a real figure of 7. The ink pair nobody measured lost 45%.
+
+**Three levels, and they are not three candidates for the same slot.**
+
+1. **The head, above.** It covers artefacts that neither derive nor measure
+   anything: `components.md` is a document and `classes.json` is an inventory,
+   and both fail this way.
+2. **The sharpest instance, which keeps a property the head does not have.**
+   *Adjacency is a property of the ramp; what a layout puts side by side is not.*
+   A ramp author checks neighbours, because neighbours are what a ramp has. A
+   consumer puts whatever two things the content requires next to each other,
+   and the design system has no view on which.
+3. **The form it takes for derivations**, which is where this document first
+   reached it, in the addressing section and by a completely different route:
+   *a derivation is only better than a memory if it derives the property you
+   actually need.*
+
+That the same principle was reached twice, independently, from colour ramps and
+from how to address a peer session, is the evidence that it is structural rather
+than a good phrasing.
+
+**The part worth the most is that it predicts.** Everything else in this
+document explains what already happened. Level 2 says where to look: **the pairs
+most at risk are the ones the structure gives no reason to look at.** Generalised
+to the head, and this is the sentence to carry: *the question an artefact is
+worst at is the one adjacent to what it is for.*
+
+Which is also why writing more rules does not defend against it, the same
+conclusion the seam argument reaches by another road. Nobody misuses an artefact
+they distrust. These failures happen with the artefacts people rely on most,
+because reliability in one direction is what makes the adjacent direction feel
+already answered.
+
 ## Practical gotchas, all learned the hard way
 
 - **Verify a deploy with a cache bust.** GitHub Pages sets a short max-age on
