@@ -44,23 +44,42 @@ public static partial class Markdown
             var label = m.Groups[1].Value;
             var href = m.Groups[2].Value;
 
+            // A cross-spec reference is a browser contract, not a web scheme, so
+            // it is neither followable nor refused. Saying "refused" here would
+            // tell a reader the link was rejected as unsafe when the truth is
+            // that this browser cannot resolve it yet.
+            //
+            // TEMPORARY. Resolution needs the catalogue and a URL with a spec
+            // dimension in it, and the second does not exist yet. When routing
+            // gains that dimension this branch becomes the fallback for a
+            // reference that genuinely does not resolve, rather than the only
+            // behaviour. Delete this comment then, not the branch.
+            if (IsCrossSpecReference(href))
+                return $"<span class=\"link-unresolved\" title=\"Cross-spec reference to {Attr(href)}, which this browser cannot resolve yet.\">{label} [unresolved reference]</span>";
+
             if (!IsFollowable(href, out var refused))
                 return $"<span class=\"link-refused\" title=\"Refused: this browser does not follow {refused} links.\">{label} [refused link]</span>";
 
-            // The escape pass above covers & < >, and the href group cannot
-            // contain whitespace or a closing bracket. It can contain a quote,
-            // which would close the attribute and turn the rest of the target
-            // into attributes of this element, so the attribute context needs
-            // its own escape.
-            var target = href.Replace("\"", "&quot;");
-
             // in-app hash links stay in the SPA; anything else opens away from it
             return href.StartsWith('#')
-                ? $"<a href=\"{target}\">{label}</a>"
-                : $"<a href=\"{target}\" target=\"_blank\" rel=\"noopener\">{label}</a>";
+                ? $"<a href=\"{Attr(href)}\">{label}</a>"
+                : $"<a href=\"{Attr(href)}\" target=\"_blank\" rel=\"noopener\">{label}</a>";
         });
         return html;
     }
+
+    /// <summary>
+    /// Escapes a value for an HTML attribute.
+    ///
+    /// The escape pass at the top of <see cref="ToHtml"/> covers &amp; &lt; and
+    /// &gt; across the whole string, and the link pattern's target group cannot
+    /// contain whitespace or a closing bracket. It can contain a quote, which
+    /// closes the attribute and turns everything after it into attributes of
+    /// the element. Every attribute this file writes from spec content must go
+    /// through here: there is one such value today per branch, and the second
+    /// branch reintroduced the bug the first one had just been fixed for.
+    /// </summary>
+    private static string Attr(string value) => value.Replace("\"", "&quot;");
 
     /// <summary>
     /// Schemes a link in a description may use. An allow-list, because a
@@ -71,6 +90,15 @@ public static partial class Markdown
         new(StringComparer.Ordinal) { "http", "https", "mailto" };
 
     [GeneratedRegex(@"^[a-z][a-z0-9+.-]*$")] private static partial Regex SchemeShape();
+
+    /// <summary>
+    /// Whether a link target is a `spec:` cross-spec reference. That scheme is
+    /// this browser's own contract for a corpus to name something in another
+    /// spec without knowing the browser's URL structure, so it is not a web
+    /// scheme and the safety allow-list has no opinion on it.
+    /// </summary>
+    private static bool IsCrossSpecReference(string href) =>
+        href.StartsWith("spec:", StringComparison.OrdinalIgnoreCase);
 
     /// <summary>
     /// Whether a link target may be emitted as an href, and if not, what to
