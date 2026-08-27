@@ -1003,6 +1003,37 @@ they distrust. These failures happen with the artefacts people rely on most,
 because reliability in one direction is what makes the adjacent direction feel
 already answered.
 
+### Two ways a decision stalls while looking like it is being handled
+
+Both from keel, both worth having because the responsible-sounding move is the
+failure in each.
+
+**When the missing measurement is the subject, more evidence is not
+forthcoming.** keel's categorical-palette issue has thin evidence because the
+axis has no measurement, and it has no measurement because both places it was
+already load-bearing carried it as a human judgement: *tell the two callouts
+apart at a glance*, and *survive losing a hue channel*. People looking do not
+leave numbers behind. So nothing accumulated and there is nothing to reason
+from.
+
+"We need more evidence before deciding" is always the responsible-sounding
+answer and is sometimes a way of never starting. **The tell is whether anything
+in the system is currently generating the evidence you are waiting for.** If
+nothing is, waiting is not a plan: build the measurement, run it against what
+exists, and argue the threshold from that.
+
+Two open items here are this exact shape. The ink-against-ink pairs in this app,
+and the callout criterion that has to be stated as *you must be able to tell them
+apart at a glance* because there is no number for it. Both load-bearing, both
+carried by someone looking, neither accumulating anything.
+
+**Acknowledging a limit feels like handling it.** This is why an accepted caveat
+stops being a retained one: the acknowledgement does the conversational work and
+none of the design work, and it feels like both. keel's version is a comment on
+the line above the value being edited, read as scenery. The agreement form is the
+more dangerous of the two, because a comment is inert and an agreement feels like
+an action.
+
 ## Practical gotchas, all learned the hard way
 
 - **Verify a deploy with a cache bust.** GitHub Pages sets a short max-age on
@@ -1105,18 +1136,101 @@ no privileged first member, so it becomes wrong immediately. Fix it *before*
 publication: it is a URL-format change, and hash routing exists here precisely so
 URLs stay stable.
 
+**Decided: `#/<specId>/<kind>/<id>`, with the bare form resolving against a
+catalogue-declared default.**
+
+`HashRouter`'s own doc comment argues the opposite, and should be read as
+superseded rather than as a constraint. It says the bare shape is a commitment
+because deep links were already published by the site this browser was built
+for. Two things about that. It is an inherited claim about the outside world
+that nobody verified, which is the shape this document distrusts everywhere
+else. And it is answered by the defect: those links resolved for `ppapi` and for
+nothing else, so the only compatibility surface that exists is deep links into
+spec zero, and those keep working when the declared default is `ppapi`. **You
+cannot break what never worked, and fidelity to broken behaviour is not
+compatibility.**
+
+Three decisions beyond the bare shape, each of which is a rule from elsewhere in
+this document applied:
+
+- **The default is catalogue-declared, not `catalogue[0]`.** Positional default
+  is an unstated rule of exactly the near-uniformity kind: it holds only because
+  `ppapi` happens to be first and largest, and reordering the catalogue would
+  silently change what every bare link in the world means. A declared field says
+  out loud what is currently a coincidence.
+- **A spec id may not collide with the kind vocabulary.** Parsing
+  `#/<specId>/operations/X` means the first segment is a spec id unless it is
+  `operations`, `schemas` or `resources`. That vocabulary is the browser's, so a
+  corpus declaring a spec with one of those ids makes the URL ambiguous. This is
+  the `ppapi` one-token-two-meanings collision again, and it belongs in the
+  conformance checker with the reserved set **computed from the route kinds**
+  rather than written out as a literal that can rot.
+- **A bare link that misses does not land on the overview.** Today an id absent
+  from spec zero silently falls back there, which is the confident-wrong failure:
+  the reader asked for an operation and got a page that looks fine. The `spec:`
+  scheme already set the precedent that visibly missing beats silently wrong.
+
+**Cross-catalogue resolution requires a corpus-published id index, and is not
+offered without one.** This is a correction to a first version of the decision,
+and the correction is the interesting part.
+
+The first version resolved a bare miss by searching the catalogue: try the
+default, then fetch the other specs and look. The cost was weighed as latency on
+a miss. Under a *runtime* catalogue it is not latency, it is an amplification
+primitive: a crafted link makes a reader's browser fetch every spec the
+catalogue names, from wherever it names them, and with `?catalogue=` an attacker
+controls the link and the catalogue both. No XSS required.
+
+A bound would be arbitrary and ordering-dependent, which is `catalogue[0]`'s
+defect again. So instead the catalogue declares which ids live in which spec. A
+bare link then costs zero spec fetches, because the answer is in a file already
+loaded. No index, no cross-catalogue search, and a bare miss reports unresolved.
+That removes the primitive rather than bounding it, and puts the cost on the
+corpus that wants the feature rather than on every reader who clicks a link.
+
+**Note where that defect lived.** Both decisions were right in isolation. It
+appeared only when they were held together, in the seam, made in sequence by one
+party — which is the ownership-boundary failure with both sides of the boundary
+inside one head.
+
 **2. The base href is a build-time literal in three places that must agree.**
 `index.html`, `fingerprint-importmap.py` (which reads it to key the import map,
 since import-map keys are resolved specifiers), and a `pages.yml` grep asserting
 the exact string. A general browser will be hosted at a repo path, at a user-site
 root, and at localhost. Make it a publish parameter with one source.
 
-**3. Where the catalogue lives.** `SpecStore` fetches `specs.json` relative, with
-`SiteRoot = ""` and a comment stating the app *is* the site. Individual spec
-`url`s would already work cross-origin unchanged, because `HttpClient` lets an
-absolute URI override the base — but the catalogue itself has no way to be
-pointed elsewhere. Decided contract: **entries resolve relative to the
-catalogue's own URL, and the catalogue URL is configuration.**
+**3. Where the catalogue lives. Decided: the catalogue URL is a runtime input,
+with a default baked in at build.**
+
+`SpecStore` fetches `specs.json` relative, with `SiteRoot = ""` and a comment
+stating the app *is* the site. Individual spec `url`s would already work
+cross-origin unchanged, because `HttpClient` lets an absolute URI override the
+base — but the catalogue itself has no way to be pointed elsewhere. Entries
+resolve relative to the catalogue's own URL, not to the app's base.
+
+**An earlier version of this item said "the catalogue URL is configuration" and
+claimed multi-catalogue support as a benefit falling out for free. Those are not
+consistent.** Configuration implies build time. Loading any catalogue implies
+runtime. The second was asserted as an advantage while the first was imagined,
+and the gap survived because the item was arguing against a different option at
+the time. It was an unmade decision written as a made one.
+
+Made now, and runtime, for a reason stronger than eventual convenience: **a
+build-time catalogue makes the generality nominal.** The browser's own Pages
+deployment would bake in exactly one corpus, and every other corpus would need
+its own build and deployment of the browser. That reintroduces precisely the
+coupling the split existed to remove. Runtime catalogues are not a future
+nicety, they are what the split is for.
+
+A default is still baked in, so that the redirect from the specs site's old
+address lands somewhere useful with no query string. The override is what sets
+the trust model.
+
+**This decision is what makes item 4 below a gate rather than housekeeping**, and
+it is why the two must be read together rather than in sequence. Deciding runtime
+means spec content is arbitrary third-party input on this origin. Fixing item 4
+first and then deciding runtime would have been the same two facts in an order
+where neither forced the other.
 
 **4. Descriptions could emit two kinds of dangerous link, and the split turned
 that from unreachable into a vulnerability. Fixed in `2e00241`.**
