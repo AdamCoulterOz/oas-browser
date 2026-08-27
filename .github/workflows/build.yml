@@ -1,6 +1,7 @@
 name: build
 
-# Restores and builds the app.
+# Restores, builds and publishes the app, then checks the published output can
+# actually boot. It does not deploy: there is nothing to publish this at yet.
 #
 # It is also the only way to prove that the Keel package grant works. Keel is a
 # private package owned by the keel repository, so a workflow here can only
@@ -48,12 +49,50 @@ jobs:
       - name: Publish
         run: dotnet publish src/OasBrowser -c Release -o dist --no-restore
 
-      - name: Check that Keel reached the output
-        # Restoring a package and shipping it are different things, so assert
-        # the assembly is in the published payload rather than assume it.
-        # The name is Keel.wasm unfingerprinted and Keel.<hash>.wasm when
-        # fingerprinting is on, so match both rather than the current setting.
+      - name: Point the loader at the fingerprinted runtime
+        # Assets are fingerprinted, and this SDK emits _framework/dotnet.<hash>.js
+        # while leaving the loader importing ./dotnet.js with nothing mapping
+        # them. Without this step the published site 404s on its first import.
+        run: python3 fingerprint-importmap.py dist/wwwroot
+
+      - name: Check the published output can boot
+        # A publish can succeed and still produce a site that cannot start, and
+        # every one of these failures looks like a broken build rather than a
+        # missing file. So check the payload rather than assume it.
         run: |
+          set -e
+          for f in dist/wwwroot/index.html dist/wwwroot/_framework/blazor.webassembly.js; do
+            [ -f "$f" ] || { echo "missing: $f"; exit 1; }
+          done
+
+          # Restoring a package and shipping it are different things. Assemblies
+          # carry a content hash, so check by pattern rather than by a fixed name.
           ls dist/wwwroot/_framework/ | grep -qE '^Keel(\..+)?\.wasm$' \
             || { echo 'Keel assembly missing'; exit 1; }
-          echo "published $(find dist/wwwroot/_framework -name '*.wasm' | wc -l) assemblies"
+
+          # The app's own assembly, named after the project file and nothing else.
+          ls dist/wwwroot/_framework/ | grep -qE '^OasBrowser(\..+)?\.wasm$' \
+            || { echo 'OasBrowser assembly missing'; exit 1; }
+
+          # Fingerprinting only helps if the loader is actually pointed at this
+          # build's runtime, so check the mapping resolves to a deployed file.
+          runtime=$(grep -oE '_framework/dotnet\.[a-z0-9]+\.js' dist/wwwroot/index.html | tail -1)
+          [ -n "$runtime" ] || { echo 'index.html does not map the fingerprinted runtime'; exit 1; }
+          [ -f "dist/wwwroot/$runtime" ] || { echo "index.html points at $runtime, which is not deployed"; exit 1; }
+          echo "loader mapped to $runtime"
+
+          # index.html holds the publish path, and this is the one other place
+          # that names it, because the path is a property of the repository
+          # rather than of the app: Pages serves this repository at
+          # /oas-browser/ and nothing in the app can know that.
+          base=$(grep -oE '<base href="[^"]+"' dist/wwwroot/index.html | sed -E 's/.*"(.*)"/\1/')
+          [ "$base" = "/oas-browser/" ] \
+            || { echo "base href is $base, but this repository publishes to /oas-browser/"; exit 1; }
+
+          # Everything downstream is then derived rather than repeated. Module
+          # map keys are resolved specifiers, so a map keyed on anything but the
+          # base href will not resolve, and the page dies on its first import.
+          grep -q "\"${base}_framework/dotnet.js\"" dist/wwwroot/index.html \
+            || { echo 'the module map is not keyed on the base href, so it will not resolve'; exit 1; }
+
+          echo "published $(find dist/wwwroot/_framework -name '*.wasm' | wc -l) assemblies, $(du -sh dist/wwwroot | cut -f1)"
