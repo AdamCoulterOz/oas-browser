@@ -1,0 +1,65 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Riverside Library: legitimate inline HTML in descriptions",
+    "version": "1.0.0"
+  },
+  "tags": [
+    {
+      "name": "Catalogue",
+      "description": "A catalogue record.\n\nShelf marks look like <code>FI-204</code>, where <em>FI</em> is the collection and <strong>204</strong> is the bay.\n\nPress <kbd>Enter</kbd> to search. The <abbr title=\"International Standard Book Number\">ISBN</abbr> is optional for periodicals.\n\nMarkdown equivalents of the same things: `FI-204`, *FI*, **204**.\n\nA list, which markdown produces as raw markup too:\n\n- hardback\n- paperback\n- audio\n\nAnd a link that must keep working: [the lending policy](https://example.invalid/policy)."
+    }
+  ],
+  "paths": {
+    "/books/{bookId}": {
+      "get": {
+        "operationId": "getBook",
+        "summary": "Fetch one book",
+        "description": "A catalogue record.\n\nShelf marks look like <code>FI-204</code>, where <em>FI</em> is the collection and <strong>204</strong> is the bay.\n\nPress <kbd>Enter</kbd> to search. The <abbr title=\"International Standard Book Number\">ISBN</abbr> is optional for periodicals.\n\nMarkdown equivalents of the same things: `FI-204`, *FI*, **204**.\n\nA list, which markdown produces as raw markup too:\n\n- hardback\n- paperback\n- audio\n\nAnd a link that must keep working: [the lending policy](https://example.invalid/policy).",
+        "tags": [
+          "Catalogue"
+        ],
+        "parameters": [
+          {
+            "name": "bookId",
+            "in": "path",
+            "required": true,
+            "description": "A catalogue record.\n\nShelf marks look like <code>FI-204</code>, where <em>FI</em> is the collection and <strong>204</strong> is the bay.\n\nPress <kbd>Enter</kbd> to search. The <abbr title=\"International Standard Book Number\">ISBN</abbr> is optional for periodicals.\n\nMarkdown equivalents of the same things: `FI-204`, *FI*, **204**.\n\nA list, which markdown produces as raw markup too:\n\n- hardback\n- paperback\n- audio\n\nAnd a link that must keep working: [the lending policy](https://example.invalid/policy).",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A catalogue record.\n\nShelf marks look like <code>FI-204</code>, where <em>FI</em> is the collection and <strong>204</strong> is the bay.\n\nPress <kbd>Enter</kbd> to search. The <abbr title=\"International Standard Book Number\">ISBN</abbr> is optional for periodicals.\n\nMarkdown equivalents of the same things: `FI-204`, *FI*, **204**.\n\nA list, which markdown produces as raw markup too:\n\n- hardback\n- paperback\n- audio\n\nAnd a link that must keep working: [the lending policy](https://example.invalid/policy).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Book"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Book": {
+        "type": "object",
+        "description": "A catalogue record.\n\nShelf marks look like <code>FI-204</code>, where <em>FI</em> is the collection and <strong>204</strong> is the bay.\n\nPress <kbd>Enter</kbd> to search. The <abbr title=\"International Standard Book Number\">ISBN</abbr> is optional for periodicals.\n\nMarkdown equivalents of the same things: `FI-204`, *FI*, **204**.\n\nA list, which markdown produces as raw markup too:\n\n- hardback\n- paperback\n- audio\n\nAnd a link that must keep working: [the lending policy](https://example.invalid/policy).",
+        "properties": {
+          "title": {
+            "type": "string",
+            "description": "A catalogue record.\n\nShelf marks look like <code>FI-204</code>, where <em>FI</em> is the collection and <strong>204</strong> is the bay.\n\nPress <kbd>Enter</kbd> to search. The <abbr title=\"International Standard Book Number\">ISBN</abbr> is optional for periodicals.\n\nMarkdown equivalents of the same things: `FI-204`, *FI*, **204**.\n\nA list, which markdown produces as raw markup too:\n\n- hardback\n- paperback\n- audio\n\nAnd a link that must keep working: [the lending policy](https://example.invalid/policy)."
+          },
+          "shelfMark": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}

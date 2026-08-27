@@ -1,0 +1,39 @@
+{
+  "fixture": "description-safe-html.json",
+  "exercises": "inline HTML that is legitimate and worth keeping, beside the markdown that produces the same result",
+  "validates": true,
+  "note": "These documents are valid OpenAPI. Nothing in them is malformed, which is the point: a validator will never flag any of it, so validity is no defence. The hostile part is the content of a description string, and description strings are rendered as HTML.\n\nThis matters now because of the extraction. While the browser read one corpus of first-party specs from the repository that generated them, spec content and application code had the same author and the same trust level. A general browser loads a catalogue from a URL, so spec content becomes arbitrary third-party input rendering into the DOM on the browser's own origin. That change arrives as a consequence of the split rather than as a change anyone makes, and it is silent.\n\nEvery assertion here is written as what must be true. None of them was checked against the current implementation, deliberately: a fixture that recorded today's behaviour would entrench it.\n\nThis fixture exists so the answer to the others cannot be `escape everything`. Spec authors write <code> and <em> in descriptions and mean them, and markdown itself produces markup, so the renderer cannot be turned off. The line is between markup that formats text and markup that carries behaviour or loads a resource, and this fixture is the half of that line that must survive.\n\nWhere exactly the line falls is a decision, not a fact. The assertions below claim only that these specific elements are on the safe side of it, and that a formatting element never carries an event handler, a style or a URI.",
+  "security": true,
+  "doNotSoften": "Assertions with kind `security` are safety requirements, not rendering preferences. They are written as what must be true. They may be satisfied, and the fixture may then be extended, but they must never be relaxed, narrowed or deleted to match what an implementation currently does.",
+  "pending": true,
+  "doNotChangeFixture": "Assertions marked pending describe correct behaviour the browser does not have yet. A failure on one of them is a backlog item, not a fixture defect. Do not edit this fixture or its expectations to match what the app currently does.",
+  "expected": [
+    {
+      "assert": "code, em, strong, kbd and abbr render as formatting, from raw HTML and from the markdown that produces them.",
+      "status": "pending",
+      "why": "The safe half of the line is as much a decision as the unsafe half, and it has not been made yet. Stated here so that making it is deliberate."
+    },
+    {
+      "assert": "Lists, emphasis and code spans written as markdown render as markup.",
+      "status": "pending",
+      "why": "Same decision. Markdown is only useful in a description if it renders."
+    },
+    {
+      "assert": "An https link renders as a link and opens normally.",
+      "status": "pending",
+      "why": "Same decision, and the counterpart to refusing javascript: in the link fixture."
+    },
+    {
+      "assert": "An element that is allowed to render still carries no event handler, no style attribute and no href or src outside the permitted schemes. Permitting an element is not permitting its attributes.",
+      "status": "pending",
+      "kind": "security",
+      "why": "Deliberately not assessed against the current implementation. Held pending so it is treated as unmet until someone demonstrates otherwise, rather than being read off what the app happens to do today."
+    },
+    {
+      "assert": "The allow-list is of elements and attributes that are permitted, never a deny-list of those that are not.",
+      "status": "pending",
+      "kind": "security",
+      "why": "Deliberately not assessed against the current implementation. Held pending so it is treated as unmet until someone demonstrates otherwise, rather than being read off what the app happens to do today."
+    }
+  ]
+}

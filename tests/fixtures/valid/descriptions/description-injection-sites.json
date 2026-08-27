@@ -1,0 +1,90 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Riverside Library: one payload at each description site, labelled by site",
+    "version": "1.0.0"
+  },
+  "tags": [
+    {
+      "name": "Catalogue",
+      "description": "<script>window.__fixtureSiteFired='tag'</script><img src=x onerror=\"window.__fixtureSiteFired='tag'\">[link](javascript:window.__fixtureSiteFired='tag') INJECTION-SITE tag."
+    }
+  ],
+  "paths": {
+    "/books/{bookId}": {
+      "get": {
+        "operationId": "getBook",
+        "summary": "Fetch one book",
+        "description": "<script>window.__fixtureSiteFired='operation'</script><img src=x onerror=\"window.__fixtureSiteFired='operation'\">[link](javascript:window.__fixtureSiteFired='operation') INJECTION-SITE operation.",
+        "tags": [
+          "Catalogue"
+        ],
+        "parameters": [
+          {
+            "name": "bookId",
+            "in": "path",
+            "required": true,
+            "description": "<script>window.__fixtureSiteFired='parameter'</script><img src=x onerror=\"window.__fixtureSiteFired='parameter'\">[link](javascript:window.__fixtureSiteFired='parameter') INJECTION-SITE parameter.",
+            "schema": {
+              "type": "string",
+              "description": "<script>window.__fixtureSiteFired='parameter-schema'</script><img src=x onerror=\"window.__fixtureSiteFired='parameter-schema'\">[link](javascript:window.__fixtureSiteFired='parameter-schema') INJECTION-SITE parameter-schema."
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "<script>window.__fixtureSiteFired='request-body'</script><img src=x onerror=\"window.__fixtureSiteFired='request-body'\">[link](javascript:window.__fixtureSiteFired='request-body') INJECTION-SITE request-body.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "note": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "<script>window.__fixtureSiteFired='response'</script><img src=x onerror=\"window.__fixtureSiteFired='response'\">[link](javascript:window.__fixtureSiteFired='response') INJECTION-SITE response.",
+            "headers": {
+              "X-Total-Count": {
+                "description": "<script>window.__fixtureSiteFired='header'</script><img src=x onerror=\"window.__fixtureSiteFired='header'\">[link](javascript:window.__fixtureSiteFired='header') INJECTION-SITE header.",
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Book"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Book": {
+        "type": "object",
+        "description": "<script>window.__fixtureSiteFired='schema'</script><img src=x onerror=\"window.__fixtureSiteFired='schema'\">[link](javascript:window.__fixtureSiteFired='schema') INJECTION-SITE schema.",
+        "properties": {
+          "title": {
+            "type": "string",
+            "description": "<script>window.__fixtureSiteFired='property'</script><img src=x onerror=\"window.__fixtureSiteFired='property'\">[link](javascript:window.__fixtureSiteFired='property') INJECTION-SITE property."
+          },
+          "author": {
+            "type": "string",
+            "description": "<script>window.__fixtureSiteFired='nested-property'</script><img src=x onerror=\"window.__fixtureSiteFired='nested-property'\">[link](javascript:window.__fixtureSiteFired='nested-property') INJECTION-SITE nested-property."
+          }
+        }
+      }
+    }
+  }
+}

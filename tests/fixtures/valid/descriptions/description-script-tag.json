@@ -1,0 +1,65 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Riverside Library: a raw script tag in every description",
+    "version": "1.0.0"
+  },
+  "tags": [
+    {
+      "name": "Catalogue",
+      "description": "A catalogue record.\n\n<script>window.__fixtureScriptExecuted = true;</script>\n\nIf the page defines window.__fixtureScriptExecuted, this description executed.\n\n<script src=\"https://example.invalid/payload.js\"></script>\n\nThe second tag is the one a content policy has to stop even when the first is stripped."
+    }
+  ],
+  "paths": {
+    "/books/{bookId}": {
+      "get": {
+        "operationId": "getBook",
+        "summary": "Fetch one book",
+        "description": "A catalogue record.\n\n<script>window.__fixtureScriptExecuted = true;</script>\n\nIf the page defines window.__fixtureScriptExecuted, this description executed.\n\n<script src=\"https://example.invalid/payload.js\"></script>\n\nThe second tag is the one a content policy has to stop even when the first is stripped.",
+        "tags": [
+          "Catalogue"
+        ],
+        "parameters": [
+          {
+            "name": "bookId",
+            "in": "path",
+            "required": true,
+            "description": "A catalogue record.\n\n<script>window.__fixtureScriptExecuted = true;</script>\n\nIf the page defines window.__fixtureScriptExecuted, this description executed.\n\n<script src=\"https://example.invalid/payload.js\"></script>\n\nThe second tag is the one a content policy has to stop even when the first is stripped.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A catalogue record.\n\n<script>window.__fixtureScriptExecuted = true;</script>\n\nIf the page defines window.__fixtureScriptExecuted, this description executed.\n\n<script src=\"https://example.invalid/payload.js\"></script>\n\nThe second tag is the one a content policy has to stop even when the first is stripped.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Book"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Book": {
+        "type": "object",
+        "description": "A catalogue record.\n\n<script>window.__fixtureScriptExecuted = true;</script>\n\nIf the page defines window.__fixtureScriptExecuted, this description executed.\n\n<script src=\"https://example.invalid/payload.js\"></script>\n\nThe second tag is the one a content policy has to stop even when the first is stripped.",
+        "properties": {
+          "title": {
+            "type": "string",
+            "description": "A catalogue record.\n\n<script>window.__fixtureScriptExecuted = true;</script>\n\nIf the page defines window.__fixtureScriptExecuted, this description executed.\n\n<script src=\"https://example.invalid/payload.js\"></script>\n\nThe second tag is the one a content policy has to stop even when the first is stripped."
+          },
+          "shelfMark": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}

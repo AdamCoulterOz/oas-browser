@@ -1,0 +1,34 @@
+{
+  "fixture": "description-script-tag.json",
+  "exercises": "a raw <script> tag, both inline and with a src, written into a description at every rendering site",
+  "validates": true,
+  "note": "These documents are valid OpenAPI. Nothing in them is malformed, which is the point: a validator will never flag any of it, so validity is no defence. The hostile part is the content of a description string, and description strings are rendered as HTML.\n\nThis matters now because of the extraction. While the browser read one corpus of first-party specs from the repository that generated them, spec content and application code had the same author and the same trust level. A general browser loads a catalogue from a URL, so spec content becomes arbitrary third-party input rendering into the DOM on the browser's own origin. That change arrives as a consequence of the split rather than as a change anyone makes, and it is silent.\n\nEvery assertion here is written as what must be true. None of them was checked against the current implementation, deliberately: a fixture that recorded today's behaviour would entrench it.\n\nDescriptions are rendered in at least six places, and they are not one code path. A sanitiser applied at one call site and missed at another is the likely shape of a partial fix, so the same payload appears at every site here.\n\nBoth forms are here on purpose. Stripping inline script bodies while leaving a src attribute intact is the more common half-fix, and it is the more dangerous half.",
+  "security": true,
+  "doNotSoften": "Assertions with kind `security` are safety requirements, not rendering preferences. They are written as what must be true. They may be satisfied, and the fixture may then be extended, but they must never be relaxed, narrowed or deleted to match what an implementation currently does.",
+  "pending": true,
+  "doNotChangeFixture": "Assertions marked pending describe correct behaviour the browser does not have yet. A failure on one of them is a backlog item, not a fixture defect. Do not edit this fixture or its expectations to match what the app currently does.",
+  "expected": [
+    {
+      "assert": "No script from a description ever executes. window.__fixtureScriptExecuted is undefined after the page renders.",
+      "status": "pending",
+      "kind": "security",
+      "why": "Deliberately not assessed against the current implementation. Held pending so it is treated as unmet until someone demonstrates otherwise, rather than being read off what the app happens to do today."
+    },
+    {
+      "assert": "No external script is fetched. Nothing in the network log points at example.invalid.",
+      "status": "pending",
+      "kind": "security",
+      "why": "Deliberately not assessed against the current implementation. Held pending so it is treated as unmet until someone demonstrates otherwise, rather than being read off what the app happens to do today."
+    },
+    {
+      "assert": "The same holds at all six sites: tag, operation, parameter, response, schema and property descriptions.",
+      "status": "pending",
+      "kind": "security",
+      "why": "Deliberately not assessed against the current implementation. Held pending so it is treated as unmet until someone demonstrates otherwise, rather than being read off what the app happens to do today."
+    },
+    {
+      "assert": "The surrounding prose still renders. Neutralising the tag must not blank the whole description, because a blanked description hides that anything was there.",
+      "status": "implemented"
+    }
+  ]
+}

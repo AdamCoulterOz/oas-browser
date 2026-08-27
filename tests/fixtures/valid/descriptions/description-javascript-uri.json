@@ -1,0 +1,65 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Riverside Library: javascript: URIs in markdown links",
+    "version": "1.0.0"
+  },
+  "tags": [
+    {
+      "name": "Catalogue",
+      "description": "A catalogue record.\n\nSee [the cataloguing guide](javascript:window.__fixtureUriFired=true) for shelf mark rules.\n\nAlso written as [a reference-style link][guide], and as an autolink: <javascript:window.__fixtureUriFired=true>.\n\nAnd with a scheme obfuscated by case and whitespace: [mixed](JaVaScRiPt&#58;alert(1)).\n\n[guide]: javascript:window.__fixtureUriFired=true"
+    }
+  ],
+  "paths": {
+    "/books/{bookId}": {
+      "get": {
+        "operationId": "getBook",
+        "summary": "Fetch one book",
+        "description": "A catalogue record.\n\nSee [the cataloguing guide](javascript:window.__fixtureUriFired=true) for shelf mark rules.\n\nAlso written as [a reference-style link][guide], and as an autolink: <javascript:window.__fixtureUriFired=true>.\n\nAnd with a scheme obfuscated by case and whitespace: [mixed](JaVaScRiPt&#58;alert(1)).\n\n[guide]: javascript:window.__fixtureUriFired=true",
+        "tags": [
+          "Catalogue"
+        ],
+        "parameters": [
+          {
+            "name": "bookId",
+            "in": "path",
+            "required": true,
+            "description": "A catalogue record.\n\nSee [the cataloguing guide](javascript:window.__fixtureUriFired=true) for shelf mark rules.\n\nAlso written as [a reference-style link][guide], and as an autolink: <javascript:window.__fixtureUriFired=true>.\n\nAnd with a scheme obfuscated by case and whitespace: [mixed](JaVaScRiPt&#58;alert(1)).\n\n[guide]: javascript:window.__fixtureUriFired=true",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A catalogue record.\n\nSee [the cataloguing guide](javascript:window.__fixtureUriFired=true) for shelf mark rules.\n\nAlso written as [a reference-style link][guide], and as an autolink: <javascript:window.__fixtureUriFired=true>.\n\nAnd with a scheme obfuscated by case and whitespace: [mixed](JaVaScRiPt&#58;alert(1)).\n\n[guide]: javascript:window.__fixtureUriFired=true",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Book"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Book": {
+        "type": "object",
+        "description": "A catalogue record.\n\nSee [the cataloguing guide](javascript:window.__fixtureUriFired=true) for shelf mark rules.\n\nAlso written as [a reference-style link][guide], and as an autolink: <javascript:window.__fixtureUriFired=true>.\n\nAnd with a scheme obfuscated by case and whitespace: [mixed](JaVaScRiPt&#58;alert(1)).\n\n[guide]: javascript:window.__fixtureUriFired=true",
+        "properties": {
+          "title": {
+            "type": "string",
+            "description": "A catalogue record.\n\nSee [the cataloguing guide](javascript:window.__fixtureUriFired=true) for shelf mark rules.\n\nAlso written as [a reference-style link][guide], and as an autolink: <javascript:window.__fixtureUriFired=true>.\n\nAnd with a scheme obfuscated by case and whitespace: [mixed](JaVaScRiPt&#58;alert(1)).\n\n[guide]: javascript:window.__fixtureUriFired=true"
+          },
+          "shelfMark": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}

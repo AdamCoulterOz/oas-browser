@@ -1,0 +1,65 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Riverside Library: attribute and context breakout attempts",
+    "version": "1.0.0"
+  },
+  "tags": [
+    {
+      "name": "Catalogue",
+      "description": "A catalogue record.\n\nA link whose title tries to break out of its quoting: [shelf marks](https://example.invalid/guide \"a\\\" onmouseover=\\\"window.__fixtureBreakoutFired=true\") .\n\nA code span whose content is markup: `<img src=x onerror=\"window.__fixtureBreakoutFired=true\">`\n\nA fenced block containing the same:\n\n```\n<img src=x onerror=\"window.__fixtureBreakoutFired=true\">\n```\n\nAn unclosed tag that swallows what follows: <div title=\"\n\nThis sentence is after the unclosed attribute and must still be readable."
+    }
+  ],
+  "paths": {
+    "/books/{bookId}": {
+      "get": {
+        "operationId": "getBook",
+        "summary": "Fetch one book",
+        "description": "A catalogue record.\n\nA link whose title tries to break out of its quoting: [shelf marks](https://example.invalid/guide \"a\\\" onmouseover=\\\"window.__fixtureBreakoutFired=true\") .\n\nA code span whose content is markup: `<img src=x onerror=\"window.__fixtureBreakoutFired=true\">`\n\nA fenced block containing the same:\n\n```\n<img src=x onerror=\"window.__fixtureBreakoutFired=true\">\n```\n\nAn unclosed tag that swallows what follows: <div title=\"\n\nThis sentence is after the unclosed attribute and must still be readable.",
+        "tags": [
+          "Catalogue"
+        ],
+        "parameters": [
+          {
+            "name": "bookId",
+            "in": "path",
+            "required": true,
+            "description": "A catalogue record.\n\nA link whose title tries to break out of its quoting: [shelf marks](https://example.invalid/guide \"a\\\" onmouseover=\\\"window.__fixtureBreakoutFired=true\") .\n\nA code span whose content is markup: `<img src=x onerror=\"window.__fixtureBreakoutFired=true\">`\n\nA fenced block containing the same:\n\n```\n<img src=x onerror=\"window.__fixtureBreakoutFired=true\">\n```\n\nAn unclosed tag that swallows what follows: <div title=\"\n\nThis sentence is after the unclosed attribute and must still be readable.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A catalogue record.\n\nA link whose title tries to break out of its quoting: [shelf marks](https://example.invalid/guide \"a\\\" onmouseover=\\\"window.__fixtureBreakoutFired=true\") .\n\nA code span whose content is markup: `<img src=x onerror=\"window.__fixtureBreakoutFired=true\">`\n\nA fenced block containing the same:\n\n```\n<img src=x onerror=\"window.__fixtureBreakoutFired=true\">\n```\n\nAn unclosed tag that swallows what follows: <div title=\"\n\nThis sentence is after the unclosed attribute and must still be readable.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Book"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Book": {
+        "type": "object",
+        "description": "A catalogue record.\n\nA link whose title tries to break out of its quoting: [shelf marks](https://example.invalid/guide \"a\\\" onmouseover=\\\"window.__fixtureBreakoutFired=true\") .\n\nA code span whose content is markup: `<img src=x onerror=\"window.__fixtureBreakoutFired=true\">`\n\nA fenced block containing the same:\n\n```\n<img src=x onerror=\"window.__fixtureBreakoutFired=true\">\n```\n\nAn unclosed tag that swallows what follows: <div title=\"\n\nThis sentence is after the unclosed attribute and must still be readable.",
+        "properties": {
+          "title": {
+            "type": "string",
+            "description": "A catalogue record.\n\nA link whose title tries to break out of its quoting: [shelf marks](https://example.invalid/guide \"a\\\" onmouseover=\\\"window.__fixtureBreakoutFired=true\") .\n\nA code span whose content is markup: `<img src=x onerror=\"window.__fixtureBreakoutFired=true\">`\n\nA fenced block containing the same:\n\n```\n<img src=x onerror=\"window.__fixtureBreakoutFired=true\">\n```\n\nAn unclosed tag that swallows what follows: <div title=\"\n\nThis sentence is after the unclosed attribute and must still be readable."
+          },
+          "shelfMark": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,65 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Riverside Library: event handler attributes in descriptions",
+    "version": "1.0.0"
+  },
+  "tags": [
+    {
+      "name": "Catalogue",
+      "description": "A catalogue record.\n\n<img src=x onerror=\"window.__fixtureImgFired=true\">\n\nThe same thing through markdown image syntax, where the title field is the way in: ![cover](https://example.invalid/x.png \"a\\\" onerror=\\\"window.__fixtureImgFired=true\")\n\nAnd an event handler on an element with no src at all: <div onmouseover=\"window.__fixtureImgFired=true\">hover me</div>"
+    }
+  ],
+  "paths": {
+    "/books/{bookId}": {
+      "get": {
+        "operationId": "getBook",
+        "summary": "Fetch one book",
+        "description": "A catalogue record.\n\n<img src=x onerror=\"window.__fixtureImgFired=true\">\n\nThe same thing through markdown image syntax, where the title field is the way in: ![cover](https://example.invalid/x.png \"a\\\" onerror=\\\"window.__fixtureImgFired=true\")\n\nAnd an event handler on an element with no src at all: <div onmouseover=\"window.__fixtureImgFired=true\">hover me</div>",
+        "tags": [
+          "Catalogue"
+        ],
+        "parameters": [
+          {
+            "name": "bookId",
+            "in": "path",
+            "required": true,
+            "description": "A catalogue record.\n\n<img src=x onerror=\"window.__fixtureImgFired=true\">\n\nThe same thing through markdown image syntax, where the title field is the way in: ![cover](https://example.invalid/x.png \"a\\\" onerror=\\\"window.__fixtureImgFired=true\")\n\nAnd an event handler on an element with no src at all: <div onmouseover=\"window.__fixtureImgFired=true\">hover me</div>",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A catalogue record.\n\n<img src=x onerror=\"window.__fixtureImgFired=true\">\n\nThe same thing through markdown image syntax, where the title field is the way in: ![cover](https://example.invalid/x.png \"a\\\" onerror=\\\"window.__fixtureImgFired=true\")\n\nAnd an event handler on an element with no src at all: <div onmouseover=\"window.__fixtureImgFired=true\">hover me</div>",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Book"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Book": {
+        "type": "object",
+        "description": "A catalogue record.\n\n<img src=x onerror=\"window.__fixtureImgFired=true\">\n\nThe same thing through markdown image syntax, where the title field is the way in: ![cover](https://example.invalid/x.png \"a\\\" onerror=\\\"window.__fixtureImgFired=true\")\n\nAnd an event handler on an element with no src at all: <div onmouseover=\"window.__fixtureImgFired=true\">hover me</div>",
+        "properties": {
+          "title": {
+            "type": "string",
+            "description": "A catalogue record.\n\n<img src=x onerror=\"window.__fixtureImgFired=true\">\n\nThe same thing through markdown image syntax, where the title field is the way in: ![cover](https://example.invalid/x.png \"a\\\" onerror=\\\"window.__fixtureImgFired=true\")\n\nAnd an event handler on an element with no src at all: <div onmouseover=\"window.__fixtureImgFired=true\">hover me</div>"
+          },
+          "shelfMark": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}
