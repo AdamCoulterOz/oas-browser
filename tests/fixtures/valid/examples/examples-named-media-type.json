@@ -1,0 +1,87 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Riverside Library: several named examples on one media type",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/books/{bookId}": {
+      "get": {
+        "operationId": "getBook",
+        "parameters": [
+          {
+            "name": "bookId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The book.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Book"
+                },
+                "examples": {
+                  "hardback": {
+                    "summary": "A hardback first edition",
+                    "value": {
+                      "id": "bk-1902",
+                      "title": "The Long Weir",
+                      "format": "hardback",
+                      "copies": 2
+                    }
+                  },
+                  "audio": {
+                    "summary": "An audio edition",
+                    "description": "Audio editions carry a runtime instead of a page count.",
+                    "value": {
+                      "id": "bk-4417",
+                      "title": "Tidewater",
+                      "format": "audio",
+                      "copies": 1
+                    }
+                  },
+                  "withdrawn": {
+                    "summary": "A record with no copies left in stock",
+                    "value": {
+                      "id": "bk-0031",
+                      "title": "Marsh Almanac",
+                      "format": "paperback",
+                      "copies": 0
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Book": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "format": {
+            "type": "string"
+          },
+          "copies": {
+            "type": "integer"
+          }
+        }
+      }
+    }
+  }
+}

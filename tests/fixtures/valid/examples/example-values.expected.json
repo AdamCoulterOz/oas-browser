@@ -1,0 +1,35 @@
+{
+  "fixture": "example-values.json",
+  "exercises": "the singular `example` keyword on a parameter, on a parameter's schema, on individual properties, and on a whole schema",
+  "validates": true,
+  "note": "There are three distinct placements here and they are not interchangeable: `example` on the parameter object, `example` inside that parameter's schema, and `example` on a schema or one of its properties. A reader following only one of them will miss the other two.",
+  "pending": true,
+  "doNotChangeFixture": "Assertions marked pending describe correct behaviour the browser does not have yet. A failure on one of them is a backlog item, not a fixture defect. Do not edit this fixture or its expectations to match what the app currently does.",
+  "expected": [
+    {
+      "assert": "The shelfMark parameter shows its example FI-204.",
+      "status": "pending",
+      "why": "Example values are not read at all: the schema model's example accessor returns null unconditionally, and no caller reads `example` or `examples` from a parameter, schema or media type."
+    },
+    {
+      "assert": "The limit parameter shows the example 25, taken from inside its schema rather than from the parameter object.",
+      "status": "pending",
+      "why": "Example values are not read at all: the schema model's example accessor returns null unconditionally, and no caller reads `example` or `examples` from a parameter, schema or media type."
+    },
+    {
+      "assert": "The Book schema shows its whole-object example, and that example is preferred over one synthesised from the property types.",
+      "status": "pending",
+      "why": "Example values are not read at all: the schema model's example accessor returns null unconditionally, and no caller reads `example` or `examples` from a parameter, schema or media type."
+    },
+    {
+      "assert": "Each property shows its own example.",
+      "status": "pending",
+      "why": "Example values are not read at all: the schema model's example accessor returns null unconditionally, and no caller reads `example` or `examples` from a parameter, schema or media type."
+    },
+    {
+      "assert": "The numeric example 25 renders as a number, not quoted as a string.",
+      "status": "pending",
+      "why": "Example values are not read at all: the schema model's example accessor returns null unconditionally, and no caller reads `example` or `examples` from a parameter, schema or media type."
+    }
+  ]
+}

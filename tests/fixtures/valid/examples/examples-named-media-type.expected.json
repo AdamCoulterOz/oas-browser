@@ -1,0 +1,30 @@
+{
+  "fixture": "examples-named-media-type.json",
+  "exercises": "a media type's `examples` map with three named entries, one of which also carries a description",
+  "validates": true,
+  "note": "`example` and `examples` are mutually exclusive on a media type. This fixture uses only `examples`.",
+  "pending": true,
+  "doNotChangeFixture": "Assertions marked pending describe correct behaviour the browser does not have yet. A failure on one of them is a backlog item, not a fixture defect. Do not edit this fixture or its expectations to match what the app currently does.",
+  "expected": [
+    {
+      "assert": "All three examples render, labelled hardback, audio and withdrawn, in document order.",
+      "status": "pending",
+      "why": "Example values are not read at all: the schema model's example accessor returns null unconditionally, and no caller reads `example` or `examples` from a parameter, schema or media type."
+    },
+    {
+      "assert": "Each shows its summary, and `audio` also shows its description.",
+      "status": "pending",
+      "why": "Example values are not read at all: the schema model's example accessor returns null unconditionally, and no caller reads `example` or `examples` from a parameter, schema or media type."
+    },
+    {
+      "assert": "Each value renders as formatted JSON.",
+      "status": "pending",
+      "why": "Example values are not read at all: the schema model's example accessor returns null unconditionally, and no caller reads `example` or `examples` from a parameter, schema or media type."
+    },
+    {
+      "assert": "The `withdrawn` example's copies value renders as 0 and is not dropped as an empty value.",
+      "status": "pending",
+      "why": "Example values are not read at all: the schema model's example accessor returns null unconditionally, and no caller reads `example` or `examples` from a parameter, schema or media type."
+    }
+  ]
+}

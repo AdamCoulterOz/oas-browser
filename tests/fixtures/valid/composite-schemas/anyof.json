@@ -1,0 +1,68 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Riverside Library: anyOf",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/members/{memberId}/contact": {
+      "get": {
+        "operationId": "getMemberContact",
+        "responses": {
+          "200": {
+            "description": "The record.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ContactDetails"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "memberId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "ContactDetails": {
+        "description": "At least one contact route must be present. Both are allowed.",
+        "anyOf": [
+          {
+            "type": "object",
+            "required": [
+              "email"
+            ],
+            "properties": {
+              "email": {
+                "type": "string",
+                "format": "email"
+              }
+            }
+          },
+          {
+            "type": "object",
+            "required": [
+              "phone"
+            ],
+            "properties": {
+              "phone": {
+                "type": "string"
+              }
+            }
+          }
+        ]
+      }
+    }
+  }
+}

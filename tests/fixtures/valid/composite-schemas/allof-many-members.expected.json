@@ -1,0 +1,29 @@
+{
+  "fixture": "allof-many-members.json",
+  "exercises": "allOf with three members: two references and one inline object",
+  "validates": true,
+  "pending": true,
+  "doNotChangeFixture": "Assertions marked pending describe correct behaviour the browser does not have yet. A failure on one of them is a backlog item, not a fixture defect. Do not edit this fixture or its expectations to match what the app currently does.",
+  "expected": [
+    {
+      "assert": "LoanRecord renders with five properties: id, createdAt, updatedAt, itemId, dueOn.",
+      "status": "pending",
+      "why": "A schema node with no `type` of its own that carries allOf, oneOf or anyOf is labelled with the keyword itself and rendered as a leaf. The member subschemas are never listed, merged or expanded."
+    },
+    {
+      "assert": "id, itemId and dueOn are marked required. The required arrays from the members combine.",
+      "status": "pending",
+      "why": "A schema node with no `type` of its own that carries allOf, oneOf or anyOf is labelled with the keyword itself and rendered as a leaf. The member subschemas are never listed, merged or expanded."
+    },
+    {
+      "assert": "The type label reads as an object, not as the literal word allOf.",
+      "status": "pending",
+      "why": "A schema node with no `type` of its own that carries allOf, oneOf or anyOf is labelled with the keyword itself and rendered as a leaf. The member subschemas are never listed, merged or expanded."
+    },
+    {
+      "assert": "A reader can still see which member each property came from. Merging must not erase the composition.",
+      "status": "pending",
+      "why": "A schema node with no `type` of its own that carries allOf, oneOf or anyOf is labelled with the keyword itself and rendered as a leaf. The member subschemas are never listed, merged or expanded."
+    }
+  ]
+}

@@ -1,0 +1,92 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Riverside Library: allOf with several members",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/loans/{loanId}": {
+      "get": {
+        "operationId": "getLoan",
+        "responses": {
+          "200": {
+            "description": "The record.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoanRecord"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "loanId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Identified": {
+        "type": "object",
+        "required": [
+          "id"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
+      "Timestamped": {
+        "type": "object",
+        "properties": {
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "LoanRecord": {
+        "description": "One item out on loan.",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Identified"
+          },
+          {
+            "$ref": "#/components/schemas/Timestamped"
+          },
+          {
+            "type": "object",
+            "required": [
+              "itemId",
+              "dueOn"
+            ],
+            "properties": {
+              "itemId": {
+                "type": "string"
+              },
+              "dueOn": {
+                "type": "string",
+                "format": "date"
+              }
+            }
+          }
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "fixture": "allof-single-member.json",
+  "exercises": "allOf with exactly one member, the idiom for attaching a description to a $ref under OAS 3.0",
+  "validates": true,
+  "note": "This shape exists because OAS 3.0 forbids siblings of $ref. Wrapping the reference in a single-member allOf is the only way to attach a description to it, so it is common and must not render as a composite.",
+  "pending": true,
+  "doNotChangeFixture": "Assertions marked pending describe correct behaviour the browser does not have yet. A failure on one of them is a backlog item, not a fixture defect. Do not edit this fixture or its expectations to match what the app currently does.",
+  "expected": [
+    {
+      "assert": "BookSummary renders as Book: the single member is unwrapped, and the label is not the literal word allOf.",
+      "status": "implemented"
+    },
+    {
+      "assert": "Book's two properties render under BookSummary.",
+      "status": "implemented"
+    },
+    {
+      "assert": "BookSummary's own description, 'The same record, described for the summary view.', is shown in preference to the member's.",
+      "status": "pending",
+      "why": "Unwrapping replaces the node with its single member outright, so the wrapper's description is discarded along with the wrapper."
+    }
+  ]
+}

@@ -1,0 +1,113 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Riverside Library: a discriminator over oneOf",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/items/{itemId}": {
+      "get": {
+        "operationId": "getCatalogueItem",
+        "responses": {
+          "200": {
+            "description": "The record.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CatalogueItem"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "itemId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "CatalogueItem": {
+        "description": "Any lendable item. itemType says which.",
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/Book"
+          },
+          {
+            "$ref": "#/components/schemas/Audiobook"
+          },
+          {
+            "$ref": "#/components/schemas/Periodical"
+          }
+        ],
+        "discriminator": {
+          "propertyName": "itemType",
+          "mapping": {
+            "book": "#/components/schemas/Book",
+            "audio": "#/components/schemas/Audiobook",
+            "periodical": "#/components/schemas/Periodical"
+          }
+        }
+      },
+      "Book": {
+        "type": "object",
+        "required": [
+          "itemType",
+          "title"
+        ],
+        "properties": {
+          "itemType": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "pages": {
+            "type": "integer"
+          }
+        }
+      },
+      "Audiobook": {
+        "type": "object",
+        "required": [
+          "itemType",
+          "title"
+        ],
+        "properties": {
+          "itemType": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "runtimeMinutes": {
+            "type": "integer"
+          }
+        }
+      },
+      "Periodical": {
+        "type": "object",
+        "required": [
+          "itemType",
+          "issue"
+        ],
+        "properties": {
+          "itemType": {
+            "type": "string"
+          },
+          "issue": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}

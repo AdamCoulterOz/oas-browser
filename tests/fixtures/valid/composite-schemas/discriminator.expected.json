@@ -1,0 +1,30 @@
+{
+  "fixture": "discriminator.json",
+  "exercises": "a discriminator with an explicit mapping whose keys differ from the schema names",
+  "validates": true,
+  "note": "The mapping keys are deliberately not the schema names: `audio` maps to Audiobook. An implementation that assumes the discriminator value equals the schema name will render Audiobook under the wrong key, and will look correct for Book, which is the trap.",
+  "pending": true,
+  "doNotChangeFixture": "Assertions marked pending describe correct behaviour the browser does not have yet. A failure on one of them is a backlog item, not a fixture defect. Do not edit this fixture or its expectations to match what the app currently does.",
+  "expected": [
+    {
+      "assert": "CatalogueItem names itemType as the discriminating property.",
+      "status": "pending",
+      "why": "The discriminator keyword is not read anywhere in the model."
+    },
+    {
+      "assert": "The three mapping entries are shown as value-to-schema pairs: book to Book, audio to Audiobook, periodical to Periodical.",
+      "status": "pending",
+      "why": "The discriminator keyword is not read anywhere in the model."
+    },
+    {
+      "assert": "The mapping key `audio` is shown against Audiobook, taken from the mapping rather than from the schema name.",
+      "status": "pending",
+      "why": "The discriminator keyword is not read anywhere in the model."
+    },
+    {
+      "assert": "Each alternative is expandable to its own properties.",
+      "status": "pending",
+      "why": "A schema node with no `type` of its own that carries allOf, oneOf or anyOf is labelled with the keyword itself and rendered as a leaf. The member subschemas are never listed, merged or expanded."
+    }
+  ]
+}

@@ -1,0 +1,93 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Riverside Library: schema validation keywords",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/books/{bookId}": {
+      "get": {
+        "operationId": "getBook",
+        "responses": {
+          "200": {
+            "description": "The record.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Book"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "bookId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Book": {
+        "type": "object",
+        "required": [
+          "title",
+          "isbn"
+        ],
+        "properties": {
+          "title": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200,
+            "description": "As printed on the title page."
+          },
+          "isbn": {
+            "type": "string",
+            "pattern": "^97[89]-[0-9]{1,5}-[0-9]{1,7}-[0-9]{1,7}-[0-9]$"
+          },
+          "copies": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 40,
+            "default": 1
+          },
+          "weightGrams": {
+            "type": "number",
+            "multipleOf": 0.5
+          },
+          "conditionScore": {
+            "type": "number",
+            "minimum": 0,
+            "exclusiveMinimum": true,
+            "maximum": 10,
+            "description": "Strictly greater than zero."
+          },
+          "loanDays": {
+            "type": "integer",
+            "default": 21
+          },
+          "format": {
+            "type": "string",
+            "enum": [
+              "hardback",
+              "paperback",
+              "audio",
+              "large-print"
+            ]
+          },
+          "publishedOn": {
+            "type": "string",
+            "format": "date"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,74 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Riverside Library: allOf members whose properties must merge",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/members/{memberId}": {
+      "get": {
+        "operationId": "getMember",
+        "responses": {
+          "200": {
+            "description": "The record.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MemberProfile"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "memberId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "MemberProfile": {
+        "allOf": [
+          {
+            "type": "object",
+            "required": [
+              "memberId"
+            ],
+            "properties": {
+              "memberId": {
+                "type": "string"
+              },
+              "displayName": {
+                "type": "string",
+                "description": "From the first member."
+              }
+            }
+          },
+          {
+            "type": "object",
+            "required": [
+              "joinedOn"
+            ],
+            "properties": {
+              "joinedOn": {
+                "type": "string",
+                "format": "date"
+              },
+              "homeBranch": {
+                "type": "string"
+              }
+            }
+          }
+        ]
+      }
+    }
+  }
+}

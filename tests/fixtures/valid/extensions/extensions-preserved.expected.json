@@ -1,0 +1,24 @@
+{
+  "fixture": "extensions-preserved.json",
+  "exercises": "vendor extension keys at the document root, on info, on a path item, on an operation, on a parameter, on a schema and on a schema property",
+  "validates": true,
+  "note": "The prefix x-riverside- is invented for these fixtures. The point is not that the browser understands any of these keys, it is that resolution hands back the node as written. Nothing here is allow-listed, so no future extension should need the resolver to be revisited. Check this by resolving a reference and inspecting the resulting node, not only by looking at the rendered page.",
+  "expected": [
+    {
+      "assert": "Every x-riverside- key survives parsing and resolution byte for byte, including the nested object value on x-riverside-rate-limit and the integer on x-riverside-cache-seconds.",
+      "status": "implemented"
+    },
+    {
+      "assert": "No unknown extension key causes an error, a warning, or a dropped node.",
+      "status": "implemented"
+    },
+    {
+      "assert": "listBooks, its shelfMark parameter and the Book schema all render normally alongside their unknown extensions.",
+      "status": "implemented"
+    },
+    {
+      "assert": "The browser does not need to display any of these. It must not rename, coerce or discard them.",
+      "status": "implemented"
+    }
+  ]
+}

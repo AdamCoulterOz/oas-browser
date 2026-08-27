@@ -1,0 +1,60 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Riverside Library: allOf with a single member",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/books/{bookId}/summary": {
+      "get": {
+        "operationId": "getBookSummary",
+        "responses": {
+          "200": {
+            "description": "The record.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BookSummary"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "bookId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Book": {
+        "type": "object",
+        "description": "A catalogue record for one book.",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          }
+        }
+      },
+      "BookSummary": {
+        "description": "The same record, described for the summary view.",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Book"
+          }
+        ]
+      }
+    }
+  }
+}

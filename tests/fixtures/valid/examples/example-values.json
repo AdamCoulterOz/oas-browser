@@ -1,0 +1,72 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Riverside Library: example on parameters and schemas",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/books": {
+      "get": {
+        "operationId": "listBooks",
+        "parameters": [
+          {
+            "name": "shelfMark",
+            "in": "query",
+            "description": "Restrict results to one shelf mark.",
+            "schema": {
+              "type": "string",
+              "pattern": "^[A-Z]{2}-[0-9]{3}$"
+            },
+            "example": "FI-204"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "example": 25
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Matching books.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Book"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Book": {
+        "type": "object",
+        "example": {
+          "id": "bk-1902",
+          "title": "The Long Weir",
+          "shelfMark": "FI-204"
+        },
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "bk-1902"
+          },
+          "title": {
+            "type": "string",
+            "example": "The Long Weir"
+          },
+          "shelfMark": {
+            "type": "string",
+            "example": "FI-204"
+          }
+        }
+      }
+    }
+  }
+}

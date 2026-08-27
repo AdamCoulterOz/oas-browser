@@ -1,0 +1,42 @@
+{
+  "fixture": "schema-visibility.json",
+  "exercises": "readOnly, writeOnly and deprecated on properties, title and nullable on schemas, and deprecated on an operation",
+  "validates": true,
+  "pending": true,
+  "doNotChangeFixture": "Assertions marked pending describe correct behaviour the browser does not have yet. A failure on one of them is a backlog item, not a fixture defect. Do not edit this fixture or its expectations to match what the app currently does.",
+  "expected": [
+    {
+      "assert": "middleName is marked nullable.",
+      "status": "implemented"
+    },
+    {
+      "assert": "The Member schema's description renders.",
+      "status": "implemented"
+    },
+    {
+      "assert": "The Member schema shows its title, 'Library member', alongside or in place of the component key.",
+      "status": "pending",
+      "why": "The schema `title` keyword is not read."
+    },
+    {
+      "assert": "memberId is marked read only, and is visibly excluded from what a client may send.",
+      "status": "pending",
+      "why": "readOnly is not read."
+    },
+    {
+      "assert": "pin is marked write only, and is visibly excluded from what a client will receive.",
+      "status": "pending",
+      "why": "writeOnly is not read."
+    },
+    {
+      "assert": "cardBarcode is marked deprecated and is visually set apart from the live properties.",
+      "status": "pending",
+      "why": "The property-level deprecated keyword is not read."
+    },
+    {
+      "assert": "getMember is marked deprecated wherever it appears, including in the navigation, not only on its own page.",
+      "status": "pending",
+      "why": "The operation-level deprecated keyword is not read."
+    }
+  ]
+}

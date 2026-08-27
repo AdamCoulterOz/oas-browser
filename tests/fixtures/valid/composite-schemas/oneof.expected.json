@@ -1,0 +1,24 @@
+{
+  "fixture": "oneof.json",
+  "exercises": "oneOf across two named schemas",
+  "validates": true,
+  "pending": true,
+  "doNotChangeFixture": "Assertions marked pending describe correct behaviour the browser does not have yet. A failure on one of them is a backlog item, not a fixture defect. Do not edit this fixture or its expectations to match what the app currently does.",
+  "expected": [
+    {
+      "assert": "SearchHit renders as a choice between Book and Author, with both alternatives named and expandable.",
+      "status": "pending",
+      "why": "A schema node with no `type` of its own that carries allOf, oneOf or anyOf is labelled with the keyword itself and rendered as a leaf. The member subschemas are never listed, merged or expanded."
+    },
+    {
+      "assert": "The exclusivity of oneOf is conveyed: exactly one alternative applies.",
+      "status": "pending",
+      "why": "A schema node with no `type` of its own that carries allOf, oneOf or anyOf is labelled with the keyword itself and rendered as a leaf. The member subschemas are never listed, merged or expanded."
+    },
+    {
+      "assert": "The type label is not the literal word oneOf standing alone with nothing under it.",
+      "status": "pending",
+      "why": "A schema node with no `type` of its own that carries allOf, oneOf or anyOf is labelled with the keyword itself and rendered as a leaf. The member subschemas are never listed, merged or expanded."
+    }
+  ]
+}

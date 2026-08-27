@@ -1,0 +1,61 @@
+{
+  "openapi": "3.0.3",
+  "x-riverside-catalogue-generation": "2026-03",
+  "info": {
+    "title": "Riverside Library: vendor extensions at every level",
+    "version": "1.0.0",
+    "x-riverside-maintainer": "Catalogue Services"
+  },
+  "paths": {
+    "/books": {
+      "x-riverside-cache-seconds": 60,
+      "get": {
+        "operationId": "listBooks",
+        "x-riverside-audience": "staff",
+        "x-riverside-rate-limit": {
+          "perMinute": 120,
+          "burst": 20
+        },
+        "parameters": [
+          {
+            "name": "shelfMark",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "x-riverside-index": "btree"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Matching books.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Book"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Book": {
+        "type": "object",
+        "x-riverside-storage": "cold-stack",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string",
+            "x-riverside-collation": "en-AU"
+          }
+        }
+      }
+    }
+  }
+}

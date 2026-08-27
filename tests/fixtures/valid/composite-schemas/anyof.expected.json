@@ -1,0 +1,20 @@
+{
+  "fixture": "anyof.json",
+  "exercises": "anyOf with two inline members, where one or both may apply",
+  "validates": true,
+  "note": "anyOf is not oneOf. The rendering must not imply the alternatives are mutually exclusive.",
+  "pending": true,
+  "doNotChangeFixture": "Assertions marked pending describe correct behaviour the browser does not have yet. A failure on one of them is a backlog item, not a fixture defect. Do not edit this fixture or its expectations to match what the app currently does.",
+  "expected": [
+    {
+      "assert": "ContactDetails renders both alternatives, each with its property and its required flag.",
+      "status": "pending",
+      "why": "A schema node with no `type` of its own that carries allOf, oneOf or anyOf is labelled with the keyword itself and rendered as a leaf. The member subschemas are never listed, merged or expanded."
+    },
+    {
+      "assert": "The rendering says one or more alternatives may apply, distinctly from how oneOf is presented.",
+      "status": "pending",
+      "why": "A schema node with no `type` of its own that carries allOf, oneOf or anyOf is labelled with the keyword itself and rendered as a leaf. The member subschemas are never listed, merged or expanded."
+    }
+  ]
+}

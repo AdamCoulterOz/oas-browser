@@ -1,0 +1,75 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Riverside Library: readOnly, writeOnly, deprecated, title and nullable",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/members/{memberId}": {
+      "get": {
+        "operationId": "getMember",
+        "summary": "Fetch one member",
+        "deprecated": true,
+        "description": "Superseded by the member profile endpoint.",
+        "parameters": [
+          {
+            "name": "memberId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The member.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Member"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Member": {
+        "type": "object",
+        "title": "Library member",
+        "description": "A person entitled to borrow.",
+        "required": [
+          "memberId"
+        ],
+        "properties": {
+          "memberId": {
+            "type": "string",
+            "readOnly": true,
+            "description": "Assigned on registration. Never accepted on write."
+          },
+          "pin": {
+            "type": "string",
+            "writeOnly": true,
+            "description": "Set by the member. Never returned on read."
+          },
+          "cardBarcode": {
+            "type": "string",
+            "deprecated": true,
+            "description": "Replaced by memberId. Kept for the old self-service terminals."
+          },
+          "middleName": {
+            "type": "string",
+            "nullable": true
+          },
+          "homeBranch": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}

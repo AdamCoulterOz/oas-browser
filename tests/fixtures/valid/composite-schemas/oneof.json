@@ -1,0 +1,73 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Riverside Library: oneOf",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/search/{query}": {
+      "get": {
+        "operationId": "search",
+        "responses": {
+          "200": {
+            "description": "The record.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SearchHit"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "query",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Book": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          }
+        }
+      },
+      "Author": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          }
+        }
+      },
+      "SearchHit": {
+        "description": "A hit is either a book or an author, never both.",
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/Book"
+          },
+          {
+            "$ref": "#/components/schemas/Author"
+          }
+        ]
+      }
+    }
+  }
+}

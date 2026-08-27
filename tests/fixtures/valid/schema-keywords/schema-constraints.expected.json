@@ -1,0 +1,44 @@
+{
+  "fixture": "schema-constraints.json",
+  "exercises": "minLength, maxLength, pattern, minimum, maximum, multipleOf, exclusiveMinimum, default, enum and format",
+  "validates": true,
+  "note": "In OpenAPI 3.0 exclusiveMinimum is a boolean that qualifies minimum, not a number. OAS 3.1 changes it to a number. Written here in the 3.0 form deliberately: a browser that expects the 3.1 form will read `true` as the bound and show a nonsense constraint rather than failing loudly.",
+  "pending": true,
+  "doNotChangeFixture": "Assertions marked pending describe correct behaviour the browser does not have yet. A failure on one of them is a backlog item, not a fixture defect. Do not edit this fixture or its expectations to match what the app currently does.",
+  "expected": [
+    {
+      "assert": "title shows minLength 1 and maxLength 200.",
+      "status": "implemented"
+    },
+    {
+      "assert": "isbn shows its pattern, rendered as literal text and not interpreted as markup.",
+      "status": "implemented"
+    },
+    {
+      "assert": "copies shows minimum 0, maximum 40 and default 1.",
+      "status": "implemented"
+    },
+    {
+      "assert": "publishedOn shows type string with format date.",
+      "status": "implemented"
+    },
+    {
+      "assert": "format shows its four enum values.",
+      "status": "implemented"
+    },
+    {
+      "assert": "weightGrams shows multipleOf 0.5.",
+      "status": "pending",
+      "why": "The constraint list is a fixed set of keys: minLength, maxLength, minimum, maximum, pattern and default. multipleOf is not among them."
+    },
+    {
+      "assert": "conditionScore shows that the minimum of 0 is exclusive, phrased as a bound rather than as the raw key exclusiveMinimum with the value true.",
+      "status": "pending",
+      "why": "exclusiveMinimum is not in the constraint list, so the qualifier is dropped and the bound reads as inclusive when it is not."
+    },
+    {
+      "assert": "loanDays shows default 21 even though it has no other constraint.",
+      "status": "implemented"
+    }
+  ]
+}

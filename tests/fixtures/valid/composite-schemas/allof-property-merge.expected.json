@@ -1,0 +1,25 @@
+{
+  "fixture": "allof-property-merge.json",
+  "exercises": "two inline allOf members, each carrying its own properties and required list, that must combine into one property set",
+  "validates": true,
+  "note": "Both members are inline, so there is no named component to fall back on: an implementation that only handles allOf-of-$ref will render nothing here at all.",
+  "pending": true,
+  "doNotChangeFixture": "Assertions marked pending describe correct behaviour the browser does not have yet. A failure on one of them is a backlog item, not a fixture defect. Do not edit this fixture or its expectations to match what the app currently does.",
+  "expected": [
+    {
+      "assert": "MemberProfile shows four properties: memberId, displayName, joinedOn, homeBranch.",
+      "status": "pending",
+      "why": "A schema node with no `type` of its own that carries allOf, oneOf or anyOf is labelled with the keyword itself and rendered as a leaf. The member subschemas are never listed, merged or expanded."
+    },
+    {
+      "assert": "Both memberId and joinedOn are marked required. Neither member's required list wins over the other.",
+      "status": "pending",
+      "why": "A schema node with no `type` of its own that carries allOf, oneOf or anyOf is labelled with the keyword itself and rendered as a leaf. The member subschemas are never listed, merged or expanded."
+    },
+    {
+      "assert": "displayName keeps its description.",
+      "status": "pending",
+      "why": "A schema node with no `type` of its own that carries allOf, oneOf or anyOf is labelled with the keyword itself and rendered as a leaf. The member subschemas are never listed, merged or expanded."
+    }
+  ]
+}
