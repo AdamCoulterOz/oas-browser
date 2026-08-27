@@ -114,6 +114,49 @@ public sealed class SpecStore(HttpClient http, NavigationManager nav)
     /// </summary>
     private Uri CatalogueUri => _catalogueUri ??= ResolveCatalogueUri();
 
+    /// <summary>
+    /// The origin the catalogue was actually fetched from, as
+    /// scheme://host[:port]. Null only when the url was refused, which is the
+    /// one case where there is no origin to name.
+    ///
+    /// Everything else this app shows about a corpus is the corpus's own claim.
+    /// The nav bar name, the short name, the tab title and the tooltip all come
+    /// out of the catalogue's brand block, so a catalogue served from anywhere
+    /// can make this browser display any name it likes on somebody else's
+    /// domain. Branding is exactly what an impersonator controls; the url the
+    /// bytes came from is exactly what they do not, so that is the thing worth
+    /// putting on screen beside the name.
+    ///
+    /// An origin allow-list was the other candidate and was rejected. It needs
+    /// a list, it needs somebody to maintain the list, it needs a decision
+    /// about who is on it, and it fails closed against every corpus nobody has
+    /// thought of yet, which is the population a general browser exists for.
+    /// Showing where the bytes came from needs none of that and leaves the
+    /// judgement with the reader, who is the only party who knows which origin
+    /// they expected.
+    ///
+    /// Wrong by construction is what to want here, and this is as close as C#
+    /// gets: read-only, no setter and no backing field, computed from the Uri
+    /// that ResolveCatalogueUri built out of the app's base href and the query
+    /// string. Nothing deserialised is in scope, so no field added to
+    /// CatalogueDocument or CatalogueBrand can ever reach it. Making this show
+    /// a corpus's own claim takes an edit to this line, which is a different
+    /// and much louder kind of mistake than the one being defended against.
+    ///
+    /// It does not throw, deliberately. A refused catalogue url makes
+    /// CatalogueUri throw, the shell catches that during load and renders its
+    /// error page, and the header renders alongside that page: a throw from
+    /// here would turn a readable message into a dead app.
+    /// </summary>
+    public string? CatalogueOrigin
+    {
+        get
+        {
+            try { return CatalogueUri.GetLeftPart(UriPartial.Authority); }
+            catch (Exception e) when (e is InvalidOperationException or UriFormatException) { return null; }
+        }
+    }
+
     private Uri ResolveCatalogueUri()
     {
         var appBase = new Uri(nav.BaseUri);

@@ -29,6 +29,40 @@
                     <span class="brand__short">@Brand.Short</span>
                 </a>
 
+                @* Where the catalogue came from, beside the name it chose for
+                   itself. Every other word in this bar is the catalogue's own
+                   claim, so a catalogue served from anywhere can put any name
+                   here on somebody else's domain; the origin is the one thing
+                   on screen an impersonator does not get to write. See
+                   SpecStore.CatalogueOrigin for why this rather than an
+                   allow-list.
+
+                   In the bar rather than in a tooltip, because a tooltip is
+                   precisely what somebody being deceived will not hover over,
+                   and it is shown for the same-origin default too. Only ever
+                   appearing when the catalogue is remote would make its
+                   absence the signal, and absence is the easy thing to
+                   arrange: a reader who has never seen this marker cannot
+                   notice it missing. Showing it always is also one rule rather
+                   than two, with nothing to get wrong about which origin
+                   counts as ours.
+
+                   The origin, not the whole url. That is a shortening from the
+                   end, which drops the path and keeps the host entire; cutting
+                   a long hostname short instead would hide the registrable
+                   domain, which is the half a lookalike host is built out of.
+                   It does not shrink for the same reason: the select beside it
+                   is resizable content and this is not.
+
+                   The title says the whole sentence for a reader who does not
+                   recognise a bare origin. It is a supplement to the visible
+                   text and never the only place this appears. *@
+                @if (Store.CatalogueOrigin is { } origin)
+                {
+                    <KeelChip class="brand-origin" Emphasis="Emphasis.Quiet" Mono="true"
+                              title="@($"Catalogue fetched from {origin}")">@origin</KeelChip>
+                }
+
                 @if (_catalogue.Count > 1)
                 {
                     <KeelSelect class="appbar__select" TValue="string" Size="Size.Sm"

@@ -55,12 +55,37 @@ html, body {
   text-decoration: none;
 }
 
-/* The brand shortens rather than wrapping the bar onto two lines. */
+/* The brand shortens rather than wrapping onto two lines of its own. */
 .brand__long { display: none; }
 @media (min-width: 560px) {
   .brand__short { display: none; }
   .brand__long { display: inline; }
 }
+
+/* The catalogue's origin, beside the name the catalogue chose for itself. keel
+   draws it: a quiet mono chip is already a value said under its breath, so
+   there is no colour, size or padding here for this app to pick. What is left
+   is that it must never be squeezed. Provenance that has been ellipsed is
+   worse than none, because a shortened host is the thing a lookalike host is
+   built out of, so this never shrinks and never truncates. */
+.brand-origin { flex: 0 0 auto; }
+
+/* Which means the bar has to be allowed a second row. An origin is commonly
+   longer than a phone has room for beside a name, a picker and a burger:
+   measured at 375px, a 43-character origin took the page's scrollWidth to 494,
+   and the arithmetic puts the shortest origin that does it at around 24
+   characters, which is most of them. A page that scrolls sideways puts the end
+   of the origin off the screen, which is the reader back to being shown half a
+   hostname by a different mechanism.
+
+   The cost is real and is worth stating here rather than being discovered: the
+   picker now takes a row of its own on a phone instead of being squeezed
+   alongside, so the bar is two rows there where it was one. That is the price
+   of showing the origin unconditionally and it is the right way round, because
+   the row is spent on the one thing in the bar the catalogue cannot write. An
+   origin longer than a whole line still overflows; there is nothing left to
+   give at that point and a scrollbar is the honest failure. */
+.appbar { flex-wrap: wrap; }
 
 /* A select fills its container by default, which in a bar means it eats the
    whole row. Cap it at the longest API title and let it shrink below that. */
