@@ -1,0 +1,28 @@
+{
+  "fixture": "ref-chain-over-hop-limit.json",
+  "exercises": "a chain of twelve references that resolves, beside a chain of three, to separate a hop limit from a genuine cycle",
+  "validates": true,
+  "note": "Every reference here resolves. The chain is long, not broken, and not circular. A hop limit exists to stop a cycle, and a long chain is the case where that guard fires on a document that is perfectly well formed.\n\nTwelve links is deliberately past any small limit. The short chain is the control: whatever the long one does, the short one must resolve to its far end, so a regression in the limit itself is distinguishable from a regression in resolution.\n\nWhich way this should fall is a judgement. Raising the limit only moves the number. What must not happen is a silent stop: a chain abandoned partway through renders as though the document said nothing, and that is indistinguishable from a document that says nothing.",
+  "pending": true,
+  "doNotChangeFixture": "Assertions marked pending describe correct behaviour the browser does not have yet. A failure on one of them is a backlog item, not a fixture defect. Do not edit this fixture or its expectations to match what the app currently does.",
+  "expected": [
+    {
+      "assert": "The short chain resolves to ShortC and shows its `reached` property.",
+      "status": "implemented"
+    },
+    {
+      "assert": "The long chain either resolves to LinkL, or stops and says that it stopped, naming the reference it was following and why.",
+      "status": "pending",
+      "why": "A chain longer than the hop limit is abandoned and the original node is reported as unresolved, which is the right shape, but the reason given is the pointer rather than the limit, so a long chain is indistinguishable from a dangling reference."
+    },
+    {
+      "assert": "Nothing hangs, overflows the stack, or loops. A limit that stops the walk is the correct instinct even where the number is arguable.",
+      "status": "implemented"
+    },
+    {
+      "assert": "A chain stopped by a limit is reported differently from a reference that points at nothing. They are different document defects, and only one of them is a defect at all.",
+      "status": "pending",
+      "why": "Both surface through the same unresolved-reference path and read identically to a reader."
+    }
+  ]
+}

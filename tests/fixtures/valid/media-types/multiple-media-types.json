@@ -1,0 +1,116 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Riverside Library: several media types in one content map",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/books/{bookId}": {
+      "put": {
+        "operationId": "replaceBook",
+        "summary": "Replace one catalogue record",
+        "parameters": [
+          {
+            "name": "bookId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "description": "The record, in any of three representations.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "description": "FIRST media type. A reader who sees only this one cannot tell the others exist.",
+                "properties": {
+                  "title": {
+                    "type": "string"
+                  },
+                  "author": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "application/xml": {
+              "schema": {
+                "type": "object",
+                "description": "SECOND media type. Deliberately a different shape from the first.",
+                "properties": {
+                  "record": {
+                    "type": "string"
+                  },
+                  "encoding": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "text/csv": {
+              "schema": {
+                "type": "string",
+                "description": "THIRD media type. Not even an object, so a renderer that shows only the first will claim this endpoint takes JSON alone."
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The replaced record.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Book"
+                }
+              },
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              },
+              "text/plain": {
+                "schema": {
+                  "type": "string",
+                  "description": "THIRD response media type, a bare string."
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Book": {
+        "type": "object",
+        "description": "FIRST response media type.",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          }
+        }
+      },
+      "Problem": {
+        "type": "object",
+        "description": "SECOND response media type. A different schema, so picking the wrong one is visible.",
+        "properties": {
+          "type": {
+            "type": "string"
+          },
+          "detail": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,82 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Riverside Library: wildcard response ranges and default",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/books/{bookId}": {
+      "get": {
+        "operationId": "getBook",
+        "summary": "Explicit codes, two ranges and a default",
+        "parameters": [
+          {
+            "name": "bookId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The book."
+          },
+          "201": {
+            "description": "Not reachable here. Present so two explicit codes must sort against each other."
+          },
+          "4XX": {
+            "description": "Any client error. A range, not a status code.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "5XX": {
+            "description": "Any server error. Also a range."
+          },
+          "default": {
+            "description": "Anything not matched above. This is the error shape, which is what default almost always means in practice.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/opening-hours": {
+      "get": {
+        "operationId": "getOpeningHours",
+        "summary": "Only a default, and no success code at all",
+        "responses": {
+          "default": {
+            "description": "The only response this operation documents."
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Problem": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string"
+          },
+          "detail": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}

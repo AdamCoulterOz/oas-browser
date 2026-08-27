@@ -1,0 +1,99 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Riverside Library: the three forms of additionalProperties",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/items/{itemId}/annotations": {
+      "get": {
+        "operationId": "getAnnotations",
+        "parameters": [
+          {
+            "name": "itemId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Three schemas that differ only in additionalProperties.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Envelope"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Envelope": {
+        "type": "object",
+        "properties": {
+          "open": {
+            "$ref": "#/components/schemas/OpenBag"
+          },
+          "closed": {
+            "$ref": "#/components/schemas/ClosedBag"
+          },
+          "typed": {
+            "$ref": "#/components/schemas/TypedBag"
+          },
+          "absent": {
+            "$ref": "#/components/schemas/UnstatedBag"
+          }
+        }
+      },
+      "OpenBag": {
+        "type": "object",
+        "description": "Any extra property is allowed, of any type.",
+        "properties": {
+          "known": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": true
+      },
+      "ClosedBag": {
+        "type": "object",
+        "description": "No extra property is allowed. The opposite of OpenBag.",
+        "properties": {
+          "known": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "TypedBag": {
+        "type": "object",
+        "description": "Extra properties are allowed, and each must be a date.",
+        "properties": {
+          "known": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": {
+          "type": "string",
+          "format": "date"
+        }
+      },
+      "UnstatedBag": {
+        "type": "object",
+        "description": "additionalProperties is not written at all, which means the same as true.",
+        "properties": {
+          "known": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}

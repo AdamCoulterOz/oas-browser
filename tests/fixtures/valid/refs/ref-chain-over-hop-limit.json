@@ -1,0 +1,156 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Riverside Library: a reference chain longer than a hop limit",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/long": {
+      "get": {
+        "operationId": "getLongChain",
+        "responses": {
+          "200": {
+            "description": "The far end of a twelve link chain.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LinkA"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/short": {
+      "get": {
+        "operationId": "getShortChain",
+        "responses": {
+          "200": {
+            "description": "The far end of a three link chain.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ShortA"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "LinkA": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/LinkB"
+          }
+        ]
+      },
+      "LinkB": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/LinkC"
+          }
+        ]
+      },
+      "LinkC": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/LinkD"
+          }
+        ]
+      },
+      "LinkD": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/LinkE"
+          }
+        ]
+      },
+      "LinkE": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/LinkF"
+          }
+        ]
+      },
+      "LinkF": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/LinkG"
+          }
+        ]
+      },
+      "LinkG": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/LinkH"
+          }
+        ]
+      },
+      "LinkH": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/LinkI"
+          }
+        ]
+      },
+      "LinkI": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/LinkJ"
+          }
+        ]
+      },
+      "LinkJ": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/LinkK"
+          }
+        ]
+      },
+      "LinkK": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/LinkL"
+          }
+        ]
+      },
+      "LinkL": {
+        "type": "object",
+        "description": "The end of the long chain. Reaching this proves the whole chain was followed.",
+        "properties": {
+          "reached": {
+            "type": "boolean"
+          }
+        }
+      },
+      "ShortA": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ShortB"
+          }
+        ]
+      },
+      "ShortB": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/ShortC"
+          }
+        ]
+      },
+      "ShortC": {
+        "type": "object",
+        "description": "The end of the short chain. This one is well inside any sane hop limit.",
+        "properties": {
+          "reached": {
+            "type": "boolean"
+          }
+        }
+      }
+    }
+  }
+}

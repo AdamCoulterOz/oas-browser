@@ -1,0 +1,35 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Riverside Library: a lowercase wildcard range, which sorts into an absurd position",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/books/{bookId}": {
+      "get": {
+        "operationId": "getBook",
+        "parameters": [
+          {
+            "name": "bookId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The book."
+          },
+          "default": {
+            "description": "The fallback."
+          },
+          "4xx": {
+            "description": "Any client error, written in lowercase."
+          }
+        }
+      }
+    }
+  }
+}

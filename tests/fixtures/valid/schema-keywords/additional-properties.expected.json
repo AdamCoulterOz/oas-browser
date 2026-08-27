@@ -1,0 +1,29 @@
+{
+  "fixture": "additional-properties.json",
+  "exercises": "additionalProperties written as true, as false, as a schema, and left unwritten",
+  "validates": true,
+  "note": "true and false are opposites and they are the pair that matters. An implementation that reads additionalProperties only when its value is an object treats both as absent, so the most restrictive form and the most permissive form render identically, and neither renders as anything at all.\n\nUnstatedBag is the control. Absent means the same as true, so UnstatedBag and OpenBag should read alike, while ClosedBag must read differently from both. A rendering where all three agree has lost the distinction rather than made a defensible choice about it.",
+  "pending": true,
+  "doNotChangeFixture": "Assertions marked pending describe correct behaviour the browser does not have yet. A failure on one of them is a backlog item, not a fixture defect. Do not edit this fixture or its expectations to match what the app currently does.",
+  "expected": [
+    {
+      "assert": "TypedBag shows that its extra properties are dates, in the map form.",
+      "status": "implemented"
+    },
+    {
+      "assert": "OpenBag says that extra properties are allowed.",
+      "status": "pending",
+      "why": "additionalProperties is read only when its value is an object, so a boolean is treated as though the key were absent."
+    },
+    {
+      "assert": "ClosedBag says that extra properties are not allowed, and reads differently from OpenBag.",
+      "status": "pending",
+      "why": "Same cause. false is discarded along with true, so the one form that genuinely constrains the payload is the one that renders as nothing."
+    },
+    {
+      "assert": "UnstatedBag reads the same as OpenBag, because an absent additionalProperties means true.",
+      "status": "pending",
+      "why": "Both currently render as nothing, so they agree by accident rather than because the rule was applied."
+    }
+  ]
+}

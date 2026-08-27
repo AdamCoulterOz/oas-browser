@@ -1,0 +1,34 @@
+{
+  "fixture": "multiple-media-types.json",
+  "exercises": "a request body and a response that each declare three media types with deliberately different schemas",
+  "validates": true,
+  "note": "The schemas differ in shape, not only in name, and two of the six are not objects at all. A first-entry-only implementation therefore renders something that is wrong rather than merely incomplete: it states that this endpoint accepts and returns JSON, which is a claim the document does not make.\n\nOrdering is load-bearing. JSON is first in both maps, which is the common case and the reason the loss goes unnoticed: the one media type that survives is usually the one a reader expected, so nothing looks wrong.",
+  "pending": true,
+  "doNotChangeFixture": "Assertions marked pending describe correct behaviour the browser does not have yet. A failure on one of them is a backlog item, not a fixture defect. Do not edit this fixture or its expectations to match what the app currently does.",
+  "expected": [
+    {
+      "assert": "The request body lists all three media types, each selectable, each with its own schema.",
+      "status": "pending",
+      "why": "A body and a response each read their content map with a first-entry lookup and keep that one media type. Every media type after the first is discarded before anything can render it, so the loss is silent and the document looks like it declared one representation."
+    },
+    {
+      "assert": "The 200 response lists all three of its media types, each with its own schema.",
+      "status": "pending",
+      "why": "A body and a response each read their content map with a first-entry lookup and keep that one media type. Every media type after the first is discarded before anything can render it, so the loss is silent and the document looks like it declared one representation."
+    },
+    {
+      "assert": "The text/csv body and the text/plain response render as strings, not as empty objects or as blank rows. A media type whose schema is not an object is still a schema.",
+      "status": "pending",
+      "why": "A body and a response each read their content map with a first-entry lookup and keep that one media type. Every media type after the first is discarded before anything can render it, so the loss is silent and the document looks like it declared one representation."
+    },
+    {
+      "assert": "application/problem+json is not confused with application/json. Media type matching is on the full type, not on a prefix.",
+      "status": "pending",
+      "why": "A body and a response each read their content map with a first-entry lookup and keep that one media type. Every media type after the first is discarded before anything can render it, so the loss is silent and the document looks like it declared one representation."
+    },
+    {
+      "assert": "The first media type in each map renders correctly. That is what makes the omission of the rest easy to miss.",
+      "status": "implemented"
+    }
+  ]
+}

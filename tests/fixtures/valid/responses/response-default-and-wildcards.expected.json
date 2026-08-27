@@ -1,0 +1,33 @@
+{
+  "fixture": "response-default-and-wildcards.json",
+  "exercises": "the 4XX and 5XX range keys and the default key, including an operation whose only response is default",
+  "validates": true,
+  "note": "default is not a status code and must not be presented as one. It is the fallback, it carries no number, and in practice it is the error shape, so rendering it in the neutral tone used for codes that are neither success nor error tells a reader the opposite of what it means.\n\nThe second operation is the case that catches a renderer which opens on the first success response and has no fallback: there is no success response here at all.",
+  "pending": true,
+  "doNotChangeFixture": "Assertions marked pending describe correct behaviour the browser does not have yet. A failure on one of them is a backlog item, not a fixture defect. Do not edit this fixture or its expectations to match what the app currently does.",
+  "expected": [
+    {
+      "assert": "All five responses on getBook render, and 4XX and 5XX are toned as errors.",
+      "status": "implemented"
+    },
+    {
+      "assert": "getOpeningHours renders its default response even though it declares no success code.",
+      "status": "implemented"
+    },
+    {
+      "assert": "4XX and 5XX are presented as ranges rather than as literal status codes. `4XX` is not a status a service can return.",
+      "status": "pending",
+      "why": "A response code is treated as an opaque string throughout, so a range is indistinguishable from an explicit code."
+    },
+    {
+      "assert": "default is presented as the fallback, set apart from the numbered responses rather than sorted among them.",
+      "status": "pending",
+      "why": "Responses are sorted as plain strings, which files `default` after the numbers by accident rather than by intent, and it is toned as neither success nor error."
+    },
+    {
+      "assert": "default is not toned as though it were a neutral or informational response. It carries the error shape here, and that is the usual case.",
+      "status": "pending",
+      "why": "Tone is decided by the first character of the code, so `default` matches neither the success test nor the error test and falls through to the neutral case."
+    }
+  ]
+}

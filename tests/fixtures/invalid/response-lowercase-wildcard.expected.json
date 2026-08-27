@@ -1,0 +1,29 @@
+{
+  "fixture": "response-lowercase-wildcard.json",
+  "exercises": "a lowercase 4xx range key, which plain string sorting places after `default` and therefore in an obviously wrong position",
+  "validates": false,
+  "note": "Deliberately invalid. OAS 3.0 requires the range form to be uppercase: the key pattern is ^[1-5](?:\\d{2}|XX)$, and openapi-spec-validator rejects `4xx`. Hand-written documents get this wrong regularly, which is when a browser gets pointed at one.\n\nThis is the ordering case. Sorting these three keys as plain strings gives 200, default, 4xx, because `d` sorts before `x`. A fallback rendered between a success and a client error is visibly wrong in a way that the conformant fixture cannot show, since with uppercase ranges the string order and the sensible order happen to agree.\n\nThe agreement is the hazard. Ordinal sorting looks correct on every conformant document and is still not the rule being implemented, so nothing reveals it until a document like this one arrives.",
+  "pending": true,
+  "doNotChangeFixture": "Assertions marked pending describe correct behaviour the browser does not have yet. A failure on one of them is a backlog item, not a fixture defect. Do not edit this fixture or its expectations to match what the app currently does.",
+  "expected": [
+    {
+      "assert": "All three responses render. A non-conformant status key is not a reason to drop a response.",
+      "status": "implemented"
+    },
+    {
+      "assert": "The ordering is by meaning, not by string: the success code first, then the client error range, then the fallback. `default` never appears between two numbered responses.",
+      "status": "pending",
+      "why": "Responses are sorted with an ordinal string comparison, which puts `default` before `4xx`."
+    },
+    {
+      "assert": "4xx is recognised as the range it plainly is, and toned as a client error.",
+      "status": "pending",
+      "why": "The error test looks at the first character, which does hold here, but the key is otherwise treated as an opaque string and never recognised as a range."
+    },
+    {
+      "assert": "The document's non-conformance is surfaced, rather than being silently normalised or silently tolerated. A reader should learn that the spec is wrong.",
+      "status": "pending",
+      "why": "Nothing in the browser validates the document, so a malformed key is indistinguishable from a well-formed one."
+    }
+  ]
+}
