@@ -602,6 +602,43 @@ More than one writer will be in a repo at once, some of them not yours.
   there is a follow-up question.
 - **Escalate what you own.** Being in contact with someone is not the same as
   owning the question. Proximity is not authority.
+- **Do not forward an observation as a claim.** A producer reporting something
+  about their own extraction is describing *their* artefact. The same sentence
+  arriving at the corpus owner is a claim about *theirs*, and the two are
+  different assertions with different burdens.
+
+  The worked case: a mapping producer reported a call carrying no `api-version`
+  on a path where the corpus requires one. Held rather than forwarded, pending
+  the exact path. The path turned out not to exist — their extractor had missed
+  a second call site — and three further extraction defects surfaced from
+  chasing it.
+
+  Had it been forwarded, the corpus owner would have searched a corpus that was
+  already correct and found nothing. Their own account of why that is worse than
+  it sounds is the part to keep: **the likely outcome is not "no finding", it is
+  a carefully documented note recording that the thing was not observed. A wrong
+  finding is expensive; a wrong finding documented as unconfirmed is worse,
+  because it looks like diligence.**
+- **A retraction that never arrives leaves the original claim standing**, and
+  the original claim was about somebody else's work. Chase the follow-up on a
+  claim you held back, and pass the retraction with the same weight you would
+  have passed the finding.
+- **The party holding the data does the analysis. Do not send them a
+  conclusion.** This is the same rule as *owning a contract means owning the
+  assumption that the data complies*, pointed the other way, and it is easy to
+  get backwards while being helpful.
+
+  The instance: 25 of a producer's 131 operation references did not resolve
+  against the corpus. Asking the producer to characterise them was the wrong
+  request, and the corpus owner said so — it puts the analysis with the party
+  who does not hold the corpus, index or checks, so whatever came back would
+  have been a theory about somebody else's data formed without it. The raw list
+  costs the holder minutes and the non-holder hours, and only one of those two
+  answers is worth anything.
+
+  The general form: **when a question spans two parties, the cheap accurate
+  answer and the expensive speculative one are usually on opposite sides of the
+  boundary.** Ask which side can answer it, not which side noticed it.
 - **When challenging from partial visibility, challenge the question rather than
   the answer.** You will often see enough to notice something is unexamined and
   not enough to say what the conclusion should be. Those are different claims and
@@ -1116,6 +1153,19 @@ that silently drops `readOnly`; the original `$ref` resolver handled exactly one
 target bucket; and the fifth is inside the checker built to prevent the other
 four. Nobody is careless five times about the same thing, which is what makes it
 structural.
+
+**A sixth, and it is the one that shows the shape is not about lists.** A
+mapping producer bound query parameters *positionally*, on the assumption that
+the call adding them appears after the URL they belong to. Three real spellings
+broke it, and each produced a plausible file with something quietly missing
+rather than an error. Their summary generalises the whole section better than
+the list does: **positional binding is an allow-list of forms nobody wrote
+down.** No literal appears anywhere, so nothing looks remembered, and the
+assumption is nonetheless a fixed set of shapes chosen once by whoever wrote it.
+
+Which extends the test. Not only *does this answer come out of the data or out
+of someone's memory of the data*, but also: **does this code assume a shape it
+never states?** A list you can see going stale is the easy case.
 
 **Note which way a stale check fails.** A rotted `GRADES` rejects *correct* data,
 and the failure reads as a data defect rather than a stale checker, so someone
