@@ -9,7 +9,7 @@
       "name": "Lending",
       "description": "Issuing, renewing and returning items.",
       "x-notes": [
-        "Every lending operation is refused while the branch is closed."
+        "TAG. Every lending operation is refused while the branch is closed."
       ]
     }
   ],
@@ -22,26 +22,29 @@
         ],
         "summary": "Fetch one loan",
         "x-notes": [
-          "A returned loan stays readable here for ninety days."
+          "OPERATION. A returned loan stays readable here for ninety days."
         ],
         "parameters": [
           {
             "name": "loanId",
             "in": "path",
             "required": true,
-            "schema": {
-              "type": "string"
-            },
             "x-notes": [
-              "Loan ids are not reused, but they are not sequential either."
-            ]
+              "PARAMETER OBJECT. Loan ids are not reused, but they are not sequential either."
+            ],
+            "schema": {
+              "type": "string",
+              "x-notes": [
+                "PARAMETER SCHEMA. Twelve characters, always, including the two letter branch prefix."
+              ]
+            }
           }
         ],
         "responses": {
           "200": {
             "description": "The loan.",
             "x-notes": [
-              "The body is returned even when the loan has been written off."
+              "RESPONSE OBJECT. The body is returned even when the loan has been written off."
             ],
             "content": {
               "application/json": {
@@ -60,7 +63,7 @@
       "Loan": {
         "type": "object",
         "x-notes": [
-          "Loans of periodicals carry no dueOn: they are reference only."
+          "COMPONENT SCHEMA. Loans of periodicals carry no dueOn: they are reference only."
         ],
         "properties": {
           "loanId": {
@@ -70,7 +73,7 @@
             "type": "string",
             "format": "date",
             "x-notes": [
-              "Always a date, never a date-time. The service has no concept of a due hour."
+              "SCHEMA PROPERTY. Always a date, never a date-time. The service has no concept of a due hour."
             ]
           }
         }

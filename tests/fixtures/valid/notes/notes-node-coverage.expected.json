@@ -1,8 +1,8 @@
 {
   "fixture": "notes-node-coverage.json",
-  "exercises": "one x-notes entry on each of: a tag, an operation, a parameter, a response, a schema and a schema property",
+  "exercises": "one x-notes entry on each node the extension is allowed on: a tag, an operation, a parameter object, that parameter's schema, a response object, a component schema and a schema property",
   "validates": true,
-  "note": "x-notes is defined on any node, so this fixture asks each node type for its notes in turn. The failures here are all the same shape and each one loses a note silently, which is the worst way to lose one.",
+  "note": "x-notes is defined on any node, so this fixture asks each node type for its notes in turn. Each note names its own site, so a failure says which node type was not asked.\n\nThe loanId parameter carries two notes, one on the parameter object and one on its schema, because those are different nodes and they behave differently. A note on the schema renders, and that is the convention a real corpus uses. A note on the parameter object does not, because a parameter is rendered by handing its schema to the property renderer, and the parameter object itself is never asked. The same reasoning explains the response object: a response's notes are never read either.\n\nThe distinction is worth stating exactly rather than as `notes on parameters are dropped`, which is true of one node and false of the other.",
   "pending": true,
   "doNotChangeFixture": "Assertions marked pending describe correct behaviour the browser does not have yet. A failure on one of them is a backlog item, not a fixture defect. Do not edit this fixture or its expectations to match what the app currently does.",
   "expected": [
@@ -15,23 +15,26 @@
       "status": "implemented"
     },
     {
-      "assert": "The Loan schema shows its note.",
+      "assert": "The Loan component schema shows its note.",
       "status": "implemented"
     },
     {
-      "assert": "The loanId parameter shows its note.",
+      "assert": "The dueOn property shows its note. Notes on a schema property written inline are read.",
+      "status": "implemented"
+    },
+    {
+      "assert": "The loanId parameter shows the note written on its schema. Notes on a parameter's inline schema are read, and this is where a real corpus puts them.",
+      "status": "implemented"
+    },
+    {
+      "assert": "The loanId parameter also shows the note written on the parameter object itself. Both notes appear, and a reader is not required to know which of the two nodes an author chose.",
       "status": "pending",
-      "why": "Notes are read from operations, tags and schema nodes only. No other node type is asked for them."
+      "why": "A parameter is rendered by converting it to a property over its schema, so only the schema node is asked for notes. The parameter object is never asked, and a note written there is lost with no trace."
     },
     {
       "assert": "The 200 response shows its note.",
       "status": "pending",
-      "why": "Notes are read from operations, tags and schema nodes only. No other node type is asked for them."
-    },
-    {
-      "assert": "The dueOn property shows its note.",
-      "status": "pending",
-      "why": "Notes are read from operations, tags and schema nodes only. No other node type is asked for them."
+      "why": "The response model reads a description, a media type, a schema and headers, and never asks for notes."
     }
   ]
 }

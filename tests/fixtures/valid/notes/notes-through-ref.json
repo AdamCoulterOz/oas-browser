@@ -1,0 +1,75 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Riverside Library: notes on a schema reached through a reference",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/books": {
+      "get": {
+        "operationId": "listBooks",
+        "parameters": [
+          {
+            "name": "shelfMark",
+            "in": "query",
+            "description": "CONTROL: this parameter's schema is written inline.",
+            "schema": {
+              "type": "string",
+              "x-notes": [
+                "INLINE. This note is on a schema node written in place, and it renders."
+              ]
+            }
+          },
+          {
+            "name": "branch",
+            "in": "query",
+            "description": "SUBJECT: this parameter's schema is a reference.",
+            "schema": {
+              "$ref": "#/components/schemas/BranchCode"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Matching books.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Book"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "BranchCode": {
+        "type": "string",
+        "description": "REFERENCED DESCRIPTION. This text does reach the row.",
+        "x-notes": [
+          "REFERENCED NOTE. This note is on the same node as that description, and must reach the row with it."
+        ]
+      },
+      "Book": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "homeBranch": {
+            "$ref": "#/components/schemas/BranchCode"
+          },
+          "shelfMark": {
+            "type": "string",
+            "x-notes": [
+              "INLINE PROPERTY. This note is on a property written in place, and it renders."
+            ]
+          }
+        }
+      }
+    }
+  }
+}

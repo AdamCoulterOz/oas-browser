@@ -2,6 +2,8 @@
   "fixture": "ref-nested-two-hops.json",
   "exercises": "two-hop resolution: operation parameter -> components/parameters -> components/schemas, with keys on the inner target that must survive both hops",
   "validates": true,
+  "pending": true,
+  "doNotChangeFixture": "Assertions marked pending describe correct behaviour the browser does not have yet. A failure on one of them is a backlog item, not a fixture defect. Do not edit this fixture or its expectations to match what the app currently does.",
   "expected": [
     {
       "assert": "The parameter renders as `shelfMark` in query, with the component's description.",
@@ -17,7 +19,8 @@
     },
     {
       "assert": "The x-notes entry declared on the inner schema renders. This is the observable proof that keys on the far end of the chain survive both hops rather than being lost when the outer reference is followed.",
-      "status": "implemented"
+      "status": "pending",
+      "why": "The node itself does survive both hops, but the parameter row reads notes from the schema node as written, which here is the reference node, rather than from the node the reference resolves to. The description on the same row does resolve through, so the two travel differently. See valid/notes/notes-through-ref.json, which isolates this."
     },
     {
       "assert": "x-riverside-classification is carried through untouched. The browser need not display it, but must not drop, rename or rewrite it: resolution returns the node as written, never a rebuilt copy.",

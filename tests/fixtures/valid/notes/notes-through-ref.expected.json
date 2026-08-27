@@ -1,0 +1,37 @@
+{
+  "fixture": "notes-through-ref.json",
+  "exercises": "notes on a schema node reached through a $ref, against the inline case as a control, on both a parameter and a property",
+  "validates": true,
+  "note": "This isolates a contract detail that is easy to state approximately and wrong to leave that way.\n\nA note on a parameter's schema renders when that schema is written inline. That is the convention a real corpus uses and it works. A note on a schema reached through a reference does not render, because the row reads notes from the node as written while reading the description from the node the reference resolves to. The description and the note sit on the same object and only one of them arrives.\n\nBoth rows here carry both a description and a note on the referenced schema, so the asymmetry is visible side by side: if REFERENCED DESCRIPTION appears and REFERENCED NOTE does not, that is the defect, and the inline rows above and below prove the note mechanism itself is working.",
+  "pending": true,
+  "doNotChangeFixture": "Assertions marked pending describe correct behaviour the browser does not have yet. A failure on one of them is a backlog item, not a fixture defect. Do not edit this fixture or its expectations to match what the app currently does.",
+  "expected": [
+    {
+      "assert": "The shelfMark parameter shows its inline note. This is the corpus convention and the control for the fixture.",
+      "status": "implemented"
+    },
+    {
+      "assert": "The shelfMark property shows its inline note.",
+      "status": "implemented"
+    },
+    {
+      "assert": "The branch parameter shows REFERENCED DESCRIPTION, taken from the referenced schema.",
+      "status": "implemented"
+    },
+    {
+      "assert": "The branch parameter also shows REFERENCED NOTE, from the same referenced node as that description.",
+      "status": "pending",
+      "why": "A parameter row and a property row read notes from the schema node exactly as written, not from the node a reference resolves to. The description on the same row does fall through to the resolved target, so the two travel differently through the same reference."
+    },
+    {
+      "assert": "The homeBranch property shows REFERENCED NOTE for the same reason.",
+      "status": "pending",
+      "why": "A parameter row and a property row read notes from the schema node exactly as written, not from the node a reference resolves to. The description on the same row does fall through to the resolved target, so the two travel differently through the same reference."
+    },
+    {
+      "assert": "Description and notes travel together through a reference. Whatever rule decides that a description resolves through a $ref applies to the notes beside it.",
+      "status": "pending",
+      "why": "A parameter row and a property row read notes from the schema node exactly as written, not from the node a reference resolves to. The description on the same row does fall through to the resolved target, so the two travel differently through the same reference."
+    }
+  ]
+}
