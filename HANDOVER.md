@@ -570,20 +570,76 @@ system, consumed as a private NuGet package. Rules, which are not optional:
 
 Open with keel, and its release plan for them:
 
-- **0.4.3, additive.** Their component reference generator, which was silently
-  understating the size of an enum. `KeelNavBar` gaining horizontal padding and
-  moving its burger to the trailing edge. And the new ink tokens
-  (`--success-text` and siblings), which add values without changing any, so
-  contrast fixes do not wait for the breaking release. Note the nav padding
+- **0.4.3, additive. Taken, and current.** Their component reference generator,
+  which was silently understating the size of an enum. `KeelNavBar` gaining
+  horizontal padding and moving its burger to the trailing edge. And the new ink
+  tokens (`--success-text` and siblings), which add values without changing any,
+  so contrast fixes do not wait for the breaking release. Note the nav padding
   shifts the effective container-query collapse threshold, and this app's rail
   switches at 880px keyed to keel's `Size.Lg`, which sits exactly on that
   boundary. Re-check against their corrected arithmetic rather than assuming.
+
+  **What taking it cost, which is the useful part.** 0.4.3 improved every
+  ink-against-ground ratio and degraded every ink-against-ink pair. Measured
+  across both versions rather than inferred: tertiary on `--surface-subtle` went
+  3.33 to 6.01 in light, and the *same token movement* took this app's request
+  line from 4.65 to 2.57, a 45% loss. One change, two axes, opposite signs. See
+  **the adjacent question** below; this is its cleanest quantified instance.
+
+  **No keel release can be assumed safe for a pair, because keel commits a ratio
+  for no pairs at all.** Everything it promises is ink against ground. That is
+  not an under-documented area, it is stated: a layout relying on two inks being
+  distinguishable is relying on something never promised, and 0.4.3 is the proof
+  that such reliance breaks with no check anywhere able to flag it.
+
+  The consequence for this app is a rule rather than a retune: **where colour
+  distinguishes two things a reader must tell apart, add a cue that is not
+  colour.** Picking two inks further apart is the obvious repair and the wrong
+  one, since it re-buys a guarantee that does not exist.
+
+  The discriminator, which is the part worth keeping, because no flat threshold
+  works: this app's two colour-separated pairs are 2.57 and 1.39, and **the
+  worse-looking number is the healthy one.** The 1.39 pair is mono against sans
+  with a separator and a gap, so colour contributes nothing and is not being
+  asked to. The 2.57 pair inherits family, size and weight from its parent and
+  has no separator at all, so colour is not the primary cue but the only one. A
+  pair whose colour contribution is near zero and whose non-colour cue is strong
+  is the state you want, not a defect. I nearly "fixed" the healthy one.
 - **0.5.0, breaking.** `Emphasis` gains a `Loud` rung so it becomes a real
   loudness ladder and `New` stops being the one tone that renders differently
   under `Filled`. keel's own components move onto the ink tokens. `KeelCallout`
   gains a density axis, at which point `.notes--compact` here can be deleted.
 - **Still open, no date.** A sidebar rail component, and a disclosure primitive
   (their issue 7).
+- **#26, confirmed against the shipped 0.4.3 component.** `KeelCallout` has
+  `Tone`, `Title`, `ShowIcon`, `Live` and `ChildContent`. `ShowIcon` is a bool
+  and there is no way to supply an icon. This is what gates separating the two
+  non-observed evidence grades by glyph, and keel considers it the right fix for
+  that case rather than the categorical palette in #23, since a glyph difference
+  survives a colour vision deficiency where two hues inside one tone do not.
+
+  **Do not let it block the trunk.** 535 nodes carry provenance markers, 419 of
+  which need only the observed against not-observed binary and nothing from
+  keel. Build those; add the subdivision for the remaining 115 when #26 lands.
+  keel has said explicitly they would rather this app shipped the trunk and told
+  them the branch is waiting than have 419 nodes sitting on their backlog
+  position.
+- **#42, filed by keel from this app's report.** There is no vocabulary for
+  content the system deliberately withheld: not an error, since nothing failed;
+  not a warning, since there is nothing to act on; not disabled, since it was
+  never available; and not a tone, since a tone reports a state and "refused" is
+  a permanent fact about that link in the way "required" is about a parameter.
+  The category is larger than links and covers redacted, elided and sanitised
+  content. The constraint on any naming: **the absence is the information**, and
+  a reader must not be able to confuse "nothing was here" with "something was
+  here and is not being shown". That rules out both silent dropping and
+  error-flavoured marking, and it is the same rule that forces
+  `x-probe-verified` to render both states rather than only the true one.
+
+  Until it lands, the hand-rolled textual marker in `Markdown.cs` stays. keel's
+  reasoning for taking the gap rather than saying "use `Warning`" is worth
+  keeping: reaching for a tone there would repeat the `--warning`-on-required
+  mistake in a new place a month later.
 
 **Do not pre-emptively change any tone or emphasis value ahead of 0.5.0.** A
 migration table is coming with it.
@@ -801,6 +857,30 @@ run against a synthetic violation and required to go red, including the real
 never failed is indistinguishable from a check that cannot fail*. Both are green,
 and no observation separates them except making one fail deliberately. It is the
 pattern in this document applied to the test instead of the page.
+
+**A static check cannot see "worse than it was", and some defects have no other
+symptom.** This came from keel, from the 0.4.3 contrast work, and it is a
+distinct claim from the delta rule below rather than a restatement of it. That
+rule is about *reporting* a delta honestly. This is about a whole class of defect
+that no assertion over a single state can detect.
+
+The instance: 0.4.3's ink pairs were not wrong in isolation. Every one of them
+would pass any threshold you could write down, and the release improved every
+guarantee keel had actually made. What happened is that a pair got **worse than
+it had been**, by 45%, and there is no state-at-a-point assertion that sees that,
+because nothing was violated at either end.
+
+So two artefacts are needed and they are not interchangeable:
+
+- a **static check**, which is what a party can be held to, and
+- a **release diff over two versions**, which is the only thing that catches a
+  regression whose endpoints both pass.
+
+Only the second would have caught it. Worth carrying into this repo's own
+checker, which is currently conceived entirely as the first: the conformance
+invariants all assert properties of one corpus at one moment. A corpus that
+quietly loses half its notes between two publishes satisfies every one of them.
+The fixture assertions have the same shape and the same blind spot.
 
 **Known limitation, and the fix that is NOT the answer.** The root-collision
 check compares key *names*, not meanings, so a key legitimately used at both
