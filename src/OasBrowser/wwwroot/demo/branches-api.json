@@ -1,0 +1,61 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Riverside Branches API",
+    "version": "1.0.0",
+    "description": "Where the library is. Third and last entry in specs.json."
+  },
+  "paths": {
+    "/branches/{branchId}": {
+      "get": {
+        "operationId": "getBranch",
+        "summary": "Fetch one branch",
+        "tags": [
+          "Branches"
+        ],
+        "parameters": [
+          {
+            "name": "branchId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The branch.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Branch"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Branch": {
+        "type": "object",
+        "description": "A branch. This name appears in no other spec in the catalogue.",
+        "properties": {
+          "branchId": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "openedOn": {
+            "type": "string",
+            "format": "date"
+          }
+        }
+      }
+    }
+  }
+}

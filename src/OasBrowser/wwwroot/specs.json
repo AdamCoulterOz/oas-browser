@@ -1,0 +1,28 @@
+{
+  "default": "catalogue",
+  "brand": {
+    "long": "Riverside Library APIs",
+    "short": "Riverside",
+    "description": "An invented public library, in three specs. A demo corpus for this browser, not a real API."
+  },
+  "specs": [
+    {
+      "id": "catalogue",
+      "title": "Riverside Catalogue API",
+      "url": "demo/catalogue-api.json",
+      "repo": "https://example.invalid/riverside/catalogue"
+    },
+    {
+      "id": "lending",
+      "title": "Riverside Lending API",
+      "url": "demo/lending-api.json",
+      "repo": "https://example.invalid/riverside/lending"
+    },
+    {
+      "id": "branches",
+      "title": "Riverside Branches API",
+      "url": "demo/branches-api.json",
+      "repo": "https://example.invalid/riverside/branches"
+    }
+  ]
+}

@@ -1,0 +1,200 @@
+name: pages
+
+# Publishes the app to GitHub Pages. The build half is build.yml's sequence,
+# deliberately and almost line for line, because that sequence is the part that
+# has been proven: every step in it exists because publishing this app without
+# it produced a site that looked built and could not boot. Reinventing it here
+# would mean rediscovering the same three failures on a live site.
+#
+# What this adds is the deploy, and one thing the build workflow has no reason
+# to care about: what ends up inside the uploaded directory is the whole site,
+# so anything the site needs that lives outside dist/wwwroot has to be put there
+# on purpose.
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# One deploy at a time, and in-progress runs are left to finish. Cancelling a
+# half-finished deploy is the one way to leave the live site in a state no
+# commit describes, and the cost of not cancelling is a queued run, which is
+# nothing.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    # Read-only, and specifically no pages:write. The keel credential is handled
+    # in this job, so the job that touches a token cannot deploy, and the job
+    # that deploys cannot read packages. That is why this is two jobs rather
+    # than one.
+    permissions:
+      contents: read
+      packages: read
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '11.0.x'
+          dotnet-quality: preview
+
+      - name: Configure Pages
+        # Its base_path output is deliberately unused. The base href is written
+        # into index.html and asserted below, because it is a property of the
+        # repository rather than of the run, and a value derived here would
+        # agree with the committed one right up until the day it did not.
+        #
+        # It earns its place by failing early instead: this step is what fails
+        # when Pages has not been enabled for the repository with Actions as the
+        # source, which is a settings action nobody can take from a workflow. It
+        # is placed before the build so that failure costs seconds rather than a
+        # full restore, build and publish of a site that could not be deployed.
+        uses: actions/configure-pages@v5
+
+      - name: Authenticate the keel feed
+        # The run's own GITHUB_TOKEN, no PAT. It carries packages:read from this
+        # job's permissions block, and the package grants this repository access
+        # under Manage Actions access. There is no API behind that grant, so a
+        # failure here means the grant, not the code.
+        run: >
+          dotnet nuget update source keel
+          --username AdamCoulterOz
+          --password "${{ secrets.GITHUB_TOKEN }}"
+          --store-password-in-clear-text
+
+      - name: Restore
+        # Normal verbosity so the Keel version appears in the log of the run
+        # that produced what is now live.
+        run: dotnet restore src/OasBrowser --verbosity normal
+
+      - name: Build
+        run: dotnet build src/OasBrowser -c Release --no-restore
+
+      - name: Publish
+        # rm -rf first. Publishing over an existing dist leaves the previous
+        # build's fingerprinted runtime beside this one, and the import map step
+        # then finds two candidates and refuses rather than guessing. A runner
+        # starts clean so this is free here, but this is the sequence a person
+        # copies out of the workflow and runs locally, where it is not free.
+        run: |
+          rm -rf dist
+          dotnet publish src/OasBrowser -c Release -o dist --no-restore
+
+      - name: Point the loader at the fingerprinted runtime
+        # Assets are fingerprinted, and this SDK emits _framework/dotnet.<hash>.js
+        # while leaving the loader importing ./dotnet.js with nothing mapping
+        # them. Without this step the published site 404s on its first import.
+        run: python3 fingerprint-importmap.py dist/wwwroot
+
+      - name: Put .nojekyll inside the site
+        # It exists at the repository root, which is not where it has to be. The
+        # uploaded directory is the entire site and nothing outside it is
+        # deployed, so a root file protects nothing on its own.
+        #
+        # What it protects: Jekyll drops any path beginning with an underscore,
+        # and Blazor serves its runtime from _framework/ and package assets from
+        # _content/, so without it both 404 and the app never boots. Copied
+        # rather than recreated, so the repository keeps saying this once.
+        run: cp .nojekyll dist/wwwroot/.nojekyll
+
+      - name: Check the published output can boot
+        # A publish can succeed and still produce a site that cannot start, and
+        # every one of these failures looks like a broken build rather than a
+        # missing file. This is the last point at which that is cheap to find
+        # out: after the upload it is live.
+        #
+        # It also stands in for build.yml here. That workflow runs on the same
+        # push, but the two run in parallel, so its red cannot stop this deploy.
+        # The checks that matter for a deploy are therefore repeated rather than
+        # assumed.
+        run: |
+          set -e
+          for f in dist/wwwroot/index.html dist/wwwroot/_framework/blazor.webassembly.js; do
+            [ -f "$f" ] || { echo "missing: $f"; exit 1; }
+          done
+
+          # Restoring a package and shipping it are different things. Assemblies
+          # carry a content hash, so check by pattern rather than by a fixed name.
+          ls dist/wwwroot/_framework/ | grep -qE '^Keel(\..+)?\.wasm$' \
+            || { echo 'Keel assembly missing'; exit 1; }
+
+          # The app's own assembly, named after the project file and nothing else.
+          ls dist/wwwroot/_framework/ | grep -qE '^OasBrowser(\..+)?\.wasm$' \
+            || { echo 'OasBrowser assembly missing'; exit 1; }
+
+          # Fingerprinting only helps if the loader is actually pointed at this
+          # build's runtime, so check the mapping resolves to a deployed file.
+          runtime=$(grep -oE '_framework/dotnet\.[a-z0-9]+\.js' dist/wwwroot/index.html | tail -1)
+          [ -n "$runtime" ] || { echo 'index.html does not map the fingerprinted runtime'; exit 1; }
+          [ -f "dist/wwwroot/$runtime" ] || { echo "index.html points at $runtime, which is not deployed"; exit 1; }
+          echo "loader mapped to $runtime"
+
+          # index.html holds the publish path, and this is the one other place
+          # that names it, because the path is a property of the repository
+          # rather than of the app: Pages serves this repository at
+          # /oas-browser/ and nothing in the app can know that.
+          base=$(grep -oE '<base href="[^"]+"' dist/wwwroot/index.html | sed -E 's/.*"(.*)"/\1/')
+          [ "$base" = "/oas-browser/" ] \
+            || { echo "base href is $base, but this repository publishes to /oas-browser/"; exit 1; }
+
+          # Everything downstream is then derived rather than repeated. Module
+          # map keys are resolved specifiers, so a map keyed on anything but the
+          # base href will not resolve, and the page dies on its first import.
+          grep -q "\"${base}_framework/dotnet.js\"" dist/wwwroot/index.html \
+            || { echo 'the module map is not keyed on the base href, so it will not resolve'; exit 1; }
+
+          # The .nojekyll copy above, verified rather than trusted. It is a
+          # single cp and its failure mode is a site that boots nothing, so the
+          # check costs less than the reasoning needed to rule it out later.
+          [ -f dist/wwwroot/.nojekyll ] || { echo '.nojekyll did not reach the site'; exit 1; }
+
+          # The catalogue and every spec it names. The app boots fine without
+          # them and renders an error, which is a working deployment of nothing,
+          # and no check above can tell the difference.
+          [ -f dist/wwwroot/specs.json ] || { echo 'specs.json is not published'; exit 1; }
+          python3 - <<'PY'
+          import json, pathlib, sys
+          root = pathlib.Path("dist/wwwroot")
+          doc = json.loads((root / "specs.json").read_text())
+          specs = doc["specs"] if isinstance(doc, dict) else doc
+          missing = [s["url"] for s in specs if not (root / s["url"]).is_file()]
+          if missing:
+              sys.exit(f"specs.json names files that are not published: {missing}")
+          print(f"catalogue publishes {len(specs)} specs")
+          PY
+
+          echo "published $(find dist/wwwroot/_framework -name '*.wasm' | wc -l) assemblies, $(du -sh dist/wwwroot | cut -f1)"
+
+      - name: Upload the site
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist/wwwroot
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+
+    # The only job that can write, and it holds no package credential. id-token
+    # is what deploy-pages exchanges for its deployment; without it the step
+    # fails on a permission rather than on anything about the site.
+    permissions:
+      pages: write
+      id-token: write
+
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Deploy to Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
