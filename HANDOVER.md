@@ -612,6 +612,34 @@ you.
 - **Verify a deploy with a cache bust.** Pages sets a short max-age on
   `index.html`; a post-deploy check without one reports the *previous* build as
   current. This produced a false pass once already.
+- **When you vouch for an artefact to someone else, audit the artefact they will
+  receive, through the channel they will receive it.**
+
+  A consumer's user was deciding whether to fetch and execute a checker this
+  repo publishes. I audited it — imports, no subprocess, no eval, one network
+  call, writes nothing — and sent the result as the basis for that decision. The
+  audit was **exact about the file I ran it on**, which was my uncommitted
+  working copy. What `main` served was 672 lines to my 1408, predating every
+  change in the contract they were checking against. They fetched it, ran it,
+  and got 165 findings that were all the checker being older than the format.
+
+  Every sentence I wrote was true and none of it was about the artefact anyone
+  could obtain. That is the adjacent-question failure with the highest stakes it
+  has reached here, because the answer was carried across a boundary and used by
+  somebody else to make a safety decision. Rigour is what made it feel settled.
+
+  The rule *gate before you push* has an inverse that nothing here had stated:
+  **gating without pushing leaves an artefact that only you can see, and
+  describing it to anyone else describes nothing they can run.** Verify through
+  the consumer's path — fetch the URL, check the sha, diff against what you hold
+  — because "I checked it" and "I checked what you will get" are different
+  claims and only the second is worth anything to them.
+
+  Related, found in the same minutes: `raw.githubusercontent.com` serves with
+  `cache-control: max-age=300`, so it kept serving the old file for two minutes
+  after the push. A consumer's re-run inside that window disagrees with one
+  outside it for no reason visible to them. The cache-bust rule above, arriving
+  in a distribution channel rather than in a deploy check.
 
 ### Working in a shared tree
 
