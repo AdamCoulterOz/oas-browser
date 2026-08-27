@@ -1,0 +1,112 @@
+@* The landing page for a spec: what it is, where it came from, and the shape
+   of its surface. *@
+
+<div class="page">
+    <h1 class="page__title">@Spec.Info.Title</h1>
+
+    @if (Spec.Info.Version is { } v)
+    {
+        <div class="cluster cluster--titled">
+            <KeelBadge Dot="true">@v</KeelBadge>
+        </div>
+    }
+
+    @if (Spec.Info.Description is { } d)
+    {
+        <p class="page__lead">@((MarkupString)Markdown.ToHtml(d))</p>
+    }
+
+    <div class="op-body">
+        <div class="op-split">
+            <div>
+                <section class="section">
+                    <h2 class="section__title">Resources</h2>
+                    @foreach (var tag in Tags)
+                    {
+                        <button type="button" class="op-row" style="grid-template-columns:minmax(0,1fr)"
+                                @onclick="() => OnNavigate.InvokeAsync(new Route(RouteKind.Resource, tag.Tag.Name))">
+                            <span class="op-row__body">
+                                <span class="op-row__name">
+                                    @tag.Tag.Name
+                                    <span class="prop__meta" style="margin-left:var(--space-3);font-weight:400">
+                                        @tag.Count operation@(tag.Count == 1 ? "" : "s")
+                                    </span>
+                                </span>
+                                @if (tag.Tag.Description is { } td)
+                                {
+                                    <span class="op-row__path" style="font-family:var(--font-sans);font-size:13px">@((MarkupString)Inline(td))</span>
+                                }
+                            </span>
+                        </button>
+                    }
+                </section>
+            </div>
+
+            <aside class="op-split__aside">
+                <KeelCard Variant="CardVariant.Outlined">
+                    <h2 class="section__title">At a glance</h2>
+                    <div class="prop">
+                        <div class="prop__head">
+                            <span class="prop__name">@Spec.Operations.Count</span>
+                            <span class="prop__type">operations</span>
+                        </div>
+                    </div>
+                    <div class="prop">
+                        <div class="prop__head">
+                            <span class="prop__name">@Tags.Count</span>
+                            <span class="prop__type">resources</span>
+                        </div>
+                    </div>
+                    <div class="prop">
+                        <div class="prop__head">
+                            <span class="prop__name">@Spec.Schemas.Count</span>
+                            <span class="prop__type">schemas</span>
+                        </div>
+                    </div>
+                    @if (Spec.Servers.FirstOrDefault() is { } server)
+                    {
+                        <div class="prop">
+                            <div class="prop__head">
+                                <span class="prop__type">@server</span>
+                            </div>
+                        </div>
+                    }
+                </KeelCard>
+            </aside>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter, EditorRequired] public OpenApiSpec Spec { get; set; } = default!;
+    [Parameter] public EventCallback<Route> OnNavigate { get; set; }
+
+    private sealed record TagCount(SpecTag Tag, int Count);
+
+    private List<TagCount> Tags
+    {
+        get
+        {
+            var counts = Spec.Operations
+                .GroupBy(o => o.PrimaryTag, StringComparer.Ordinal)
+                .ToDictionary(g => g.Key, g => g.Count(), StringComparer.Ordinal);
+
+            return Spec.TagsInOrder()
+                .Where(t => counts.ContainsKey(t.Name))
+                .Select(t => new TagCount(t, counts[t.Name]))
+                .ToList();
+        }
+    }
+}
+
+@code {
+    // Markdig always wraps in a block element; this row is inline, so unwrap the
+    // single paragraph it produces rather than nesting <p> inside a <span>.
+    private static string Inline(string markdown)
+    {
+        var html = Markdown.ToHtml(markdown).Trim();
+        return html.StartsWith("<p>") && html.EndsWith("</p>")
+            ? html[3..^4]
+            : html;
+    }
+}

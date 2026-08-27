@@ -1,0 +1,41 @@
+@* Doc-vs-reality findings, as their own element rather than as body prose.
+
+   One callout per evidence grade, never one mixing them. An entry verified on
+   the wire can still carry a finding only Microsoft's shipped client attests
+   to, and the two are not equally solid: the observed group is the accent
+   tone, everything weaker is the warning tone and says in its own words what
+   it rests on. Note text is markdown, rendered the same way descriptions are. *@
+
+@if (Groups.Count > 0)
+{
+    <div class="notes @(Compact ? "notes--compact" : "section")">
+        @foreach (var g in Groups)
+        {
+            <KeelCallout Tone="@ToneFor(g)" Title="@g.Title">
+                @if (g.Caveat is { } caveat)
+                {
+                    <p class="notes__caveat">@caveat</p>
+                }
+                <ul class="notes__list">
+                    @foreach (var n in g.Notes)
+                    {
+                        <li>@((MarkupString)Markdown.ToHtml(n.Text))</li>
+                    }
+                </ul>
+            </KeelCallout>
+        }
+    </div>
+}
+
+@code {
+    [Parameter, EditorRequired] public IReadOnlyList<SpecNote> Notes { get; set; } = Array.Empty<SpecNote>();
+
+    /// <summary>Tighter spacing for notes hanging off a property row rather than a page.</summary>
+    [Parameter] public bool Compact { get; set; }
+
+    private IReadOnlyList<NoteGroup> Groups => SpecNote.Group(Notes);
+
+    // Named ToneFor rather than Tone: keel's tone vocabulary is now a type
+    // called Tone, and a method of the same name would shadow it.
+    private static Tone ToneFor(NoteGroup g) => g.IsObserved ? Tone.Info : Tone.Warning;
+}

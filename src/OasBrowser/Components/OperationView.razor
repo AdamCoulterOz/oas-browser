@@ -1,0 +1,190 @@
+@* One operation. The detail and the samples sit in a container-query split,
+   so they sit side by side whenever this region is wide enough and stack when
+   it is not, independently of the window size or whether the nav is open. *@
+
+<div class="page">
+    <h1 class="page__title">@Operation.Summary</h1>
+
+    @if (Operation.Description is { } prose)
+    {
+        <p class="page__lead">@((MarkupString)Markdown.ToHtml(prose))</p>
+    }
+
+    <div class="endpoint">
+        <KeelChip Emphasis="Emphasis.Filled" Mono="true" Tone="@MethodTone.For(Operation.Method)">@Operation.Method</KeelChip>
+        <span class="endpoint__path"><span class="endpoint__host">@Server</span>@Operation.Path</span>
+    </div>
+
+    @if (Operation.IsPreview || Operation.DocsUrl is not null)
+    {
+        <div class="cluster cluster--titled">
+            @if (Operation.IsPreview)
+            {
+                <KeelBadge Tone="Tone.New" Dot="true">Preview</KeelBadge>
+            }
+            @if (Operation.DocsUrl is { } docs)
+            {
+                <KeelBadge Href="@docs" target="_blank" rel="noopener"
+                           title="Read this operation on Microsoft Learn">
+                    <svg class="badge__ms" viewBox="0 0 23 23" aria-hidden="true">
+                        <rect x="1" y="1" width="10" height="10" fill="#F25022" />
+                        <rect x="12" y="1" width="10" height="10" fill="#7FBA00" />
+                        <rect x="1" y="12" width="10" height="10" fill="#00A4EF" />
+                        <rect x="12" y="12" width="10" height="10" fill="#FFB900" />
+                    </svg>
+                    Learn
+                </KeelBadge>
+            }
+        </div>
+    }
+
+    <div class="op-body">
+        <div class="op-split">
+            <div>
+                <NotesPanel Notes="Operation.Notes" />
+
+                @if (Operation.Parameters.Count > 0 || Operation.RequestBody is not null)
+                {
+                    <section class="section">
+                        <h2 class="section__title">Request</h2>
+
+                        @foreach (var p in OrderedParameters)
+                        {
+                            <PropertyRow Property="@ToProperty(p)" Location="@p.In" OnNavigate="OnNavigate" />
+                        }
+
+                        @if (Operation.RequestBody is { Schema: { } bodySchema })
+                        {
+                            <h3 class="section__label">
+                                Body
+                                @if (Operation.RequestBody.MediaType is { } mt)
+                                {
+                                    <span class="prop__meta" style="margin-left:var(--space-3)">@mt</span>
+                                }
+                            </h3>
+                            @if (Operation.RequestBody.Description is { } bd)
+                            {
+                                <p class="prop__desc" style="margin-bottom:var(--space-4)">@((MarkupString)Markdown.ToHtml(bd))</p>
+                            }
+                            <SchemaTree Schema="bodySchema" OnNavigate="OnNavigate" />
+                        }
+                    </section>
+                }
+
+                @if (Operation.Responses.Count > 0)
+                {
+                    <section class="section">
+                        <h2 class="section__title">Responses</h2>
+                        @* Status codes are states, not modes, so they are a row
+                           of selectable chips rather than a segmented control:
+                           each one carries its own tone and announces its own
+                           pressed state. *@
+                        <div class="cluster cluster--titled">
+                            @foreach (var r in Operation.Responses)
+                            {
+                                @* Not named "code": @code is a Razor directive. *@
+                                var status = r.Code;
+                                <KeelTag Mono="true" Tone="@ToneFor(r)"
+                                         Selected="@(status == SelectedResponse?.Code)"
+                                         SelectedChanged="@(_ => _selected = status)">@status</KeelTag>
+                            }
+                        </div>
+
+                        @if (SelectedResponse is { } resp)
+                        {
+                            @if (resp.Description is { } rd)
+                            {
+                                <p class="prop__desc" style="margin-bottom:var(--space-4)">@((MarkupString)Markdown.ToHtml(rd))</p>
+                            }
+
+                            @if (resp.Headers.Count > 0)
+                            {
+                                <h3 class="section__label">Headers</h3>
+                                @foreach (var h in resp.Headers)
+                                {
+                                    <div class="prop prop--leaf">
+                                        <div class="prop__row">
+                                            <span class="prop__head">
+                                                <span class="prop__name">@h.Name</span>
+                                                <span class="prop__meta">
+                                                    <span class="prop__type">@(h.Schema?.TypeLabel ?? "string")</span>
+                                                </span>
+                                            </span>
+                                            @if (h.Description is { } hd)
+                                            {
+                                                <p class="prop__desc">@((MarkupString)Markdown.ToHtml(hd))</p>
+                                            }
+                                        </div>
+                                    </div>
+                                }
+                            }
+
+                            @if (resp.Schema is { } rs)
+                            {
+                                <h3 class="section__label">Body</h3>
+                                <SchemaTree Schema="rs" OnNavigate="OnNavigate" />
+                            }
+                        }
+                    </section>
+                }
+
+            </div>
+
+            <aside class="op-split__aside">
+                <KeelCodeBlock Tabs="SampleTabs" ShowLanguage="true" />
+            </aside>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter, EditorRequired] public OpenApiSpec Spec { get; set; } = default!;
+    [Parameter, EditorRequired] public Operation Operation { get; set; } = default!;
+    [Parameter] public EventCallback<Route> OnNavigate { get; set; }
+
+    private string? _selected;
+
+    private string Server => Spec.Servers.FirstOrDefault() ?? "";
+
+    // Path first, then query, then the rest: the same order a reader builds the
+    // call in. The location travels on each row, so this needs no headings.
+    private IEnumerable<Parameter> OrderedParameters =>
+        Operation.Parameters
+            .OrderBy(p => p.In switch { "path" => 0, "query" => 1, "header" => 2, _ => 3 })
+            .ThenBy(p => p.Required ? 0 : 1);
+
+    private static SchemaProperty ToProperty(Parameter p) => new(p.Name, p.Schema!, p.Required);
+
+    private Response? SelectedResponse =>
+        Operation.Responses.FirstOrDefault(r => r.Code == _selected)
+        ?? Operation.Responses.FirstOrDefault(r => r.IsSuccess)
+        ?? Operation.Responses.FirstOrDefault();
+
+    protected override void OnParametersSet() => _selected = null;
+
+    // keel supplies the shape, this supplies the meaning: every chip is toned
+    // whether or not it is the selected one, so the set reads as successes and
+    // failures before anyone picks from it.
+    private static Tone ToneFor(Response r) =>
+        r.IsSuccess ? Tone.Good : r.IsError ? Tone.Bad : Tone.Neutral;
+
+    // Request and response as HTTP files: the request line, the headers, then a
+    // body rendered for its own content type. That is the shape the API speaks,
+    // and it pastes straight into a .http file.
+    private IReadOnlyList<KeelCodeBlock.Tab> SampleTabs
+    {
+        get
+        {
+            var tabs = new List<KeelCodeBlock.Tab>
+            {
+                new("Request", SampleBuilder.HttpRequest(Operation, Server), CodeLanguage.Http)
+            };
+
+            if (SelectedResponse is { } resp)
+            {
+                tabs.Add(new KeelCodeBlock.Tab($"Response {resp.Code}", SampleBuilder.HttpResponse(resp), CodeLanguage.Http));
+            }
+            return tabs;
+        }
+    }
+}

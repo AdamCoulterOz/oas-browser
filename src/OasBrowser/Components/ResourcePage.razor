@@ -1,0 +1,68 @@
+@* A resource: what it is, and everything you can do to it in one list.
+
+   The nav groups by the same tag, but a group in a sidebar cannot show a path
+   or a description. This is the page for taking in a resource as a whole. *@
+
+<div class="page">
+    <h1 class="page__title">@Name</h1>
+
+    @if (Tag?.Description is { } d)
+    {
+        <p class="page__lead">@((MarkupString)Markdown.ToHtml(d))</p>
+    }
+
+    @if (Tag?.Notes is { } notes)
+    {
+        <NotesPanel Notes="notes" />
+    }
+
+    <section class="section">
+        <h2 class="section__title">@Operations.Count operation@(Operations.Count == 1 ? "" : "s")</h2>
+
+        @foreach (var op in Operations)
+        {
+            <button type="button" class="op-row" @onclick="() => OnNavigate.InvokeAsync(new Route(RouteKind.Operation, op.OperationId))">
+                <KeelChip class="op-row__method" Emphasis="Emphasis.Filled" Mono="true" Tone="@MethodTone.For(op.Method)">@op.Method</KeelChip>
+                <span class="op-row__body">
+                    <span class="op-row__name">
+                        @op.Summary
+                        @if (op.IsPreview)
+                        {
+                            <KeelBadge Tone="Tone.New">preview</KeelBadge>
+                        }
+                    </span>
+                    <span class="op-row__path">@op.Path</span>
+                </span>
+            </button>
+        }
+    </section>
+
+    @if (Namespaces.Count > 0)
+    {
+        <section class="section">
+            <h2 class="section__title">Where Microsoft files it</h2>
+            <p class="prop__desc">
+                These operations are spread across
+                @string.Join(", ", Namespaces)
+                in Microsoft's own grouping.
+            </p>
+        </section>
+    }
+</div>
+
+@code {
+    [Parameter, EditorRequired] public OpenApiSpec Spec { get; set; } = default!;
+    [Parameter, EditorRequired] public string Name { get; set; } = "";
+    [Parameter] public EventCallback<Route> OnNavigate { get; set; }
+
+    private SpecTag? Tag => Spec.TagsInOrder().FirstOrDefault(t => t.Name == Name);
+
+    private List<Operation> Operations =>
+        Spec.Operations.Where(o => o.PrimaryTag == Name).ToList();
+
+    // The point of the logical grouping is that it crosses Microsoft's own
+    // namespaces; saying which ones makes that visible rather than implied.
+    private List<string> Namespaces =>
+        Operations.Select(o => o.Namespace).Where(n => n is not null).Select(n => n!)
+                  .Distinct(StringComparer.Ordinal).OrderBy(n => n, StringComparer.Ordinal).ToList();
+}

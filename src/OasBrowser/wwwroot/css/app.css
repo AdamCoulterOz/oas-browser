@@ -1,0 +1,482 @@
+/* Layout for this app, and only for this app. It is the whole of the site it is
+   published into, so there is no host stylesheet above it and nothing else here
+   to share with.
+
+   This file is meant to stay small. keel owns how controls look; this file only
+   arranges them. Anything here that styles a control rather than placing one is
+   a keel gap that has not been reported yet, and the two that remain are marked
+   as such below.
+
+   Responsive-first: the base styles are the narrow-screen layout and every
+   wider arrangement is added on top. The operation body splits on a CONTAINER
+   query, not a viewport query, so the detail and sample panes respond to the
+   space they actually have (with the rail open or closed, on any screen) rather
+   than to the window. Every grid track is minmax(0, ...) so a long code line
+   can never force a column to overflow its share. */
+
+:root {
+  /* Layout constants for this app's shell. Spacing, colour, radius and type all
+     come from keel; these are the three measurements keel has no opinion on. */
+  --rail-w: 300px;
+  --header-h: 56px;
+  --content-max: 1120px;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background: var(--surface-base);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ---------------------------------------------------------------- shell -- */
+
+.shell {
+  display: grid;
+  grid-template-areas: "header" "main";
+  grid-template-rows: auto minmax(0, 1fr);
+  min-height: 100dvh;
+}
+
+.shell__header { grid-area: header; position: sticky; top: 0; z-index: 40; }
+.shell__main   { grid-area: main; min-width: 0; }
+
+/* The brand is this app's own identity, so its type is set here. */
+.brand {
+  font-size: 15px;
+  font-weight: var(--fw-bold);
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  color: var(--text-primary);
+  text-decoration: none;
+}
+
+/* The brand shortens rather than wrapping the bar onto two lines. */
+.brand__long { display: none; }
+@media (min-width: 560px) {
+  .brand__short { display: none; }
+  .brand__long { display: inline; }
+}
+
+/* A select fills its container by default, which in a bar means it eats the
+   whole row. Cap it at the longest API title and let it shrink below that. */
+.appbar__select { max-width: min(46vw, 17rem); }
+
+/* Everything after the brand sits to the right of the bar. */
+.appbar .keel-nav__links { margin-left: auto; }
+
+/* The rail is a drawer below this width. 880px is keel's Size.Lg, which is the
+   width KeelNavBar collapses at, so the burger and the rail change together
+   without this app inventing a breakpoint of its own. */
+@media (min-width: 880px) { .appbar__rail-toggle { display: none; } }
+
+/* ----------------------------------------------------------------- rail -- */
+
+/* KEEL GAP: reported. keel's navigation vocabulary (NavBar, NavDrawer,
+   NavMenu) is all top-of-page, so this persistent left rail is hand-rolled:
+   grouped and collapsible items, a current item, a count per group, and the
+   same tree becoming the drawer contents on narrow screens. Below the collapse
+   width the tree is handed to KeelNavDrawer, which is why only the wide case is
+   styled here. Replace the whole block when keel grows a rail. */
+
+.layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  min-height: 0;
+}
+
+.rail { display: none; }
+
+@media (min-width: 880px) {
+  .layout { grid-template-columns: var(--rail-w) minmax(0, 1fr); }
+  .rail {
+    display: flex;
+    flex-direction: column;
+    position: sticky;
+    top: var(--header-h);
+    height: calc(100dvh - var(--header-h));
+    background: var(--surface-subtle);
+    border-right: 1px solid var(--border-subtle);
+    overscroll-behavior: contain;
+  }
+}
+
+.rail__search {
+  padding: var(--space-4) var(--space-5);
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.rail__body { flex: 1 1 auto; overflow-y: auto; padding: var(--space-4) 0 var(--space-8); }
+
+/* Inside the drawer the tree is the whole content, so it scrolls on its own
+   and needs no rail chrome. */
+.rail__drawer-body { overflow-y: auto; }
+
+.rail__group-row { display: flex; align-items: stretch; }
+
+.rail__group-toggle {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  padding: 0 var(--space-2) 0 var(--space-5);
+  background: none;
+  border: 0;
+  cursor: pointer;
+}
+.rail__group-toggle:hover .rail__chev { color: var(--accent); }
+.rail__group-toggle[aria-expanded="true"] .rail__chev { transform: rotate(90deg); }
+
+.rail__group-btn {
+  flex: 1 1 auto;
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-5) var(--space-3) var(--space-2);
+  font: inherit;
+  font-size: 13px;
+  font-weight: var(--fw-semibold);
+  text-align: left;
+  color: var(--text-primary);
+  background: none;
+  border: 0;
+  cursor: pointer;
+}
+.rail__group-btn:hover { background: var(--surface-sunken); }
+.rail__group-btn[aria-current="true"] { color: var(--accent); }
+
+/* KEEL GAP #7: disclosure. This chevron and its rotate-on-aria-expanded is the
+   same control as the one in the property tree below, written twice. */
+.rail__chev {
+  flex: 0 0 auto;
+  width: 14px; height: 14px;
+  color: var(--text-tertiary);
+  transition: transform var(--dur-fast) var(--ease-out);
+}
+
+.rail__count {
+  margin-left: auto;
+  font-size: 11px;
+  color: var(--text-tertiary);
+  font-variant-numeric: tabular-nums;
+}
+
+.rail__item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  width: 100%;
+  padding: var(--space-3) var(--space-5) var(--space-3) var(--space-8);
+  font: inherit;
+  font-size: 13px;
+  text-align: left;
+  color: var(--text-secondary);
+  background: none;
+  border: 0;
+  border-left: 2px solid transparent;
+  cursor: pointer;
+}
+.rail__item:hover { background: var(--surface-sunken); color: var(--text-primary); }
+.rail__item[aria-current="true"] {
+  background: var(--accent-subtle);
+  border-left-color: var(--accent);
+  color: var(--text-primary);
+  font-weight: var(--fw-semibold);
+}
+.rail__item-label { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.rail__item-method { margin-left: auto; flex: 0 0 auto; }
+
+.rail__section-label {
+  padding: var(--space-7) var(--space-5) var(--space-3);
+  font-size: 10px;
+  font-weight: var(--fw-bold);
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+}
+
+/* ----------------------------------------------------------------- main -- */
+
+.main { min-width: 0; }
+
+.page {
+  max-width: var(--content-max);
+  margin: 0 auto;
+  padding: var(--space-7) var(--space-5) var(--space-11);
+}
+@media (min-width: 700px) { .page { padding: var(--space-8) var(--space-8) var(--space-11); } }
+
+.page__title {
+  margin: 0 0 var(--space-3);
+  font-size: clamp(24px, 4vw, 34px);
+  font-weight: var(--fw-bold);
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+}
+.page__lead { margin: 0 0 var(--space-7); color: var(--text-secondary); max-width: 68ch; }
+
+/* the request line: method plus path, wraps rather than scrolling when narrow */
+.endpoint {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  margin-bottom: var(--space-7);
+  border-radius: var(--radius-lg);
+  background: var(--surface-subtle);
+}
+.endpoint__path {
+  font-family: var(--font-mono);
+  font-feature-settings: "liga" 1, "calt" 1;
+  font-size: 13px;
+  min-width: 0;
+  overflow-wrap: anywhere;
+  color: var(--text-primary);
+}
+.endpoint__host { color: var(--text-tertiary); }
+
+/* a row of small markers: badges under a title, tags under a property */
+.cluster {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+}
+.cluster--tight { gap: var(--space-2); margin-top: var(--space-3); }
+.cluster--titled { margin-bottom: var(--space-7); }
+
+/* ------------------------------------------------- operation body split -- */
+
+/* The split is driven by the width of THIS element, not the window, so it is
+   correct at every combination of screen size and rail state. */
+.op-body { container-type: inline-size; }
+
+.op-split {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-8);
+  align-items: start;
+}
+
+@container (min-width: 880px) {
+  .op-split {
+    grid-template-columns: minmax(0, 1fr) minmax(300px, 26rem);
+  }
+  /* the samples follow the reader down the page on wide layouts */
+  .op-split__aside {
+    position: sticky;
+    top: calc(var(--header-h) + var(--space-5));
+  }
+}
+
+.section { margin-bottom: var(--space-10); }
+.section__title {
+  margin: 0 0 var(--space-5);
+  font-size: 17px;
+  font-weight: var(--fw-bold);
+  letter-spacing: -0.01em;
+  color: var(--text-primary);
+}
+/* a quieter label for a group inside a section (Body, Headers) */
+.section__label {
+  margin: var(--space-7) 0 var(--space-4);
+  font-size: 13px;
+  font-weight: var(--fw-semibold);
+  color: var(--text-secondary);
+}
+
+/* ----------------------------------------------------------------- notes - */
+
+/* Doc-vs-reality findings, one callout per evidence grade. The grouping is
+   the point: a finding read out of Microsoft's shipped client must not sit in
+   the same box as one seen on the wire, so the tone, the icon and the heading
+   all differ and the weaker group states what it rests on. */
+.notes { display: grid; gap: var(--space-4); }
+.notes__caveat {
+  margin: 0 0 var(--space-3);
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: var(--text-secondary);
+  max-width: 68ch;
+}
+.notes__list { margin: 0; padding-left: 1.15em; max-width: 68ch; }
+.notes__list li + li { margin-top: var(--space-3); }
+
+/* hanging off a property row rather than a page: quieter, and indented to the
+   same gutter the property description uses */
+.notes--compact {
+  margin: var(--space-3) 0 0;
+  gap: var(--space-3);
+  max-width: 72ch;
+}
+.notes--compact .keel-callout { padding: 10px 12px; font-size: 13px; }
+
+/* ------------------------------------------------------------ properties - */
+
+/* Rows are separated by space, not rules. A long list of hairlines reads as
+   a table nobody asked for; whitespace groups just as well and stays quiet. */
+.prop { padding: var(--space-4) 0; min-width: 0; }
+
+.prop__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-3);
+  min-width: 0;
+}
+.prop__name {
+  font-family: var(--font-mono);
+  font-feature-settings: "liga" 1, "calt" 1;
+  font-size: 13.5px;
+  font-weight: var(--fw-semibold);
+  overflow-wrap: anywhere;
+}
+
+/* one quiet meta line carries type, location and optionality, instead of
+   three separate coloured tags */
+.prop__meta {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-3);
+  font-size: 12.5px;
+  color: var(--text-tertiary);
+}
+.prop__type { font-family: var(--font-mono); color: var(--text-secondary); }
+.prop__sep { opacity: .5; }
+/* Required takes no state colour. keel's tones report what a thing IS right
+   now, and being required is not a state the property is in: it is a permanent
+   fact about the shape of the parameter, fixed by the schema and true before
+   the reader arrived. What the word is really doing on this line is standing
+   out from its siblings, which is emphasis, and emphasis is weight and
+   lightness rather than hue. That also survives greyscale and colour vision
+   deficiency, and it needs no per-theme tuning. */
+.prop__req { color: var(--text-primary); font-weight: var(--fw-semibold); }
+.prop__desc {
+  margin: var(--space-2) 0 0;
+  font-size: 13.5px;
+  line-height: 1.55;
+  color: var(--text-secondary);
+  max-width: 72ch;
+}
+
+/* disclosure: the whole header is the control, marked by a chevron in the
+   gutter. No "Show items" / "Hide items" text to read and re-read.
+
+   KEEL GAP #7: the second hand-rolled disclosure in this app. */
+.prop--expandable > .prop__row {
+  display: grid;
+  grid-template-columns: 18px minmax(0, 1fr);
+  align-items: start;
+  gap: var(--space-2);
+  width: 100%;
+  padding: 0;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  background: none;
+  border: 0;
+  cursor: pointer;
+}
+.prop__chev {
+  margin-top: 3px;
+  width: 13px; height: 13px;
+  color: var(--text-tertiary);
+  transition: transform var(--dur-fast) var(--ease-out);
+}
+.prop--expandable > .prop__row[aria-expanded="true"] .prop__chev { transform: rotate(90deg); }
+.prop--expandable > .prop__row:hover .prop__chev { color: var(--accent); }
+
+/* non-expandable rows align with expandable ones so names form a column */
+.prop--leaf > .prop__row { padding-left: calc(18px + var(--space-2)); }
+
+/* nesting uses a hairline rather than indentation alone, so deep trees stay
+   legible on narrow screens where indentation would eat the width */
+.prop__children {
+  margin: var(--space-3) 0 var(--space-4) var(--space-3);
+  padding-left: var(--space-5);
+  border-left: 1px solid var(--border-subtle);
+}
+
+/* --------------------------------------------------------------- states -- */
+
+.state {
+  padding: var(--space-11) var(--space-5);
+  text-align: center;
+  color: var(--text-secondary);
+}
+.state__spinner { margin: 0 auto var(--space-4); }
+
+/* Reduced motion. This app animates two things and both are chevrons, so the
+   rule names them rather than reaching for the universal selector. keel already
+   honours the preference for its own controls in its base layer, and it makes
+   calls this app should not second-guess: the spinner slows to 1.4s instead of
+   stopping, because a frozen loading indicator says nothing. A blanket rule
+   here overrode that from outside, which is the same boundary violation as
+   restyling a control. */
+@media (prefers-reduced-motion: reduce) {
+  .rail__chev, .prop__chev { transition: none !important; }
+}
+
+/* The Blazor boot error bar, restyled to match. This is not a keel gap: the
+   element lives in index.html and has to be on the page before Blazor starts,
+   so it cannot be a component and cannot be a KeelCallout. Leave it alone. */
+#blazor-error-ui {
+  display: none;
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  z-index: 100;
+  padding: var(--space-4) var(--space-5);
+  background: var(--danger);
+  color: var(--text-on-accent);
+  font-size: 13px;
+}
+#blazor-error-ui .dismiss { cursor: pointer; float: right; }
+
+/* ------------------------------------------------------- resource pages -- */
+
+/* The Microsoft mark inside the Learn badge. Microsoft's own brand colours, so
+   these four are literals on purpose and are not keel's to theme. */
+.badge__ms { width: 12px; height: 12px; flex: none; display: block; }
+
+/* one operation in a resource listing */
+.op-row {
+  display: grid;
+  grid-template-columns: 62px minmax(0, 1fr);
+  align-items: baseline;
+  gap: var(--space-4);
+  width: 100%;
+  padding: var(--space-4) var(--space-3);
+  margin: 0 calc(var(--space-3) * -1);
+  font: inherit;
+  text-align: left;
+  color: inherit;
+  background: none;
+  border: 0;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+}
+.op-row:hover { background: var(--surface-subtle); }
+/* The verb keeps its own width. A grid item is stretched to its track by
+   default, which would pull the chip out to the full 62px and leave the label
+   hanging off one end of it. The track stays fixed, so the names still line up
+   whatever the verb is; only the chip stops being stretched. */
+.op-row__method { justify-self: start; }
+.op-row__body { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.op-row__name {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  font-size: 14px;
+  font-weight: var(--fw-semibold);
+}
+.op-row__path {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--text-tertiary);
+  overflow-wrap: anywhere;
+}

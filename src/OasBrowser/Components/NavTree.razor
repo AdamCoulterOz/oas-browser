@@ -1,0 +1,129 @@
+@* Operations grouped by logical-resource tag, then the schemas. Filtering
+   matches operation summary, path and method, and schema names. *@
+
+<div class="rail__search">
+    <KeelInput Type="search" Placeholder="Filter operations" Size="Size.Sm"
+               Value="@_filter" ValueChanged="OnFilter" aria-label="Filter operations" />
+</div>
+
+<div class="rail__body">
+    @foreach (var group in Groups)
+    {
+        var expanded = IsExpanded(group.Tag.Name);
+        <div class="rail__group">
+            @{ var isCurrentResource = Current.Kind == RouteKind.Resource && Current.Id == group.Tag.Name; }
+            <div class="rail__group-row">
+                <button class="rail__group-toggle" aria-expanded="@(expanded ? "true" : "false")"
+                        aria-label="@(expanded ? "Collapse" : "Expand") @group.Tag.Name"
+                        @onclick="() => Toggle(group.Tag.Name)">
+                    <svg class="rail__chev" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M6 4l4 4-4 4" />
+                    </svg>
+                </button>
+                <button class="rail__group-btn" aria-current="@(isCurrentResource ? "true" : "false")"
+                        @onclick="() => OnNavigate.InvokeAsync(new Route(RouteKind.Resource, group.Tag.Name))">
+                    <span>@group.Tag.Name</span>
+                    <span class="rail__count">@group.Operations.Count</span>
+                </button>
+            </div>
+
+            @if (expanded)
+            {
+                @foreach (var op in group.Operations)
+                {
+                    var isCurrent = Current.Kind == RouteKind.Operation && Current.Id == op.OperationId;
+                    <button class="rail__item" aria-current="@(isCurrent ? "true" : "false")"
+                            @onclick="() => OnNavigate.InvokeAsync(new Route(RouteKind.Operation, op.OperationId))">
+                        <span class="rail__item-label">@op.Summary</span>
+                        @* Quiet: forty rows of filled chips would read as a
+                           column of blocks rather than a column of labels. *@
+                        <span class="rail__item-method">
+                            <KeelChip Emphasis="Emphasis.Quiet" Mono="true" Tone="@MethodTone.For(op.Method)">@op.Method</KeelChip>
+                        </span>
+                    </button>
+                }
+            }
+        </div>
+    }
+
+    @if (Schemas.Count > 0)
+    {
+        <div class="rail__section-label">Schemas</div>
+        @foreach (var name in Schemas)
+        {
+            var isCurrent = Current.Kind == RouteKind.Schema && Current.Id == name;
+            <button class="rail__item" aria-current="@(isCurrent ? "true" : "false")"
+                    @onclick="() => OnNavigate.InvokeAsync(new Route(RouteKind.Schema, name))">
+                <span class="rail__item-label">@name</span>
+            </button>
+        }
+    }
+</div>
+
+@code {
+    [Parameter, EditorRequired] public OpenApiSpec Spec { get; set; } = default!;
+    [Parameter] public Route Current { get; set; }
+    [Parameter] public EventCallback<Route> OnNavigate { get; set; }
+
+    private string _filter = "";
+
+    private sealed record Group(SpecTag Tag, List<Operation> Operations);
+
+    private List<Group> Groups
+    {
+        get
+        {
+            var byTag = Spec.Operations
+                .Where(Matches)
+                .GroupBy(o => o.PrimaryTag, StringComparer.Ordinal)
+                .ToDictionary(g => g.Key, g => g.ToList(), StringComparer.Ordinal);
+
+            return Spec.TagsInOrder()
+                .Where(t => byTag.ContainsKey(t.Name))
+                .Select(t => new Group(t, byTag[t.Name]))
+                .ToList();
+        }
+    }
+
+    private List<string> Schemas =>
+        _filter.Length == 0
+            ? new List<string>()
+            : Spec.Schemas.Keys
+                .Where(k => k.Contains(_filter, StringComparison.OrdinalIgnoreCase))
+                .OrderBy(k => k, StringComparer.Ordinal)
+                .Take(40)
+                .ToList();
+
+    private bool Matches(Operation op)
+    {
+        if (_filter.Length == 0) return true;
+        return op.Summary.Contains(_filter, StringComparison.OrdinalIgnoreCase)
+            || op.Path.Contains(_filter, StringComparison.OrdinalIgnoreCase)
+            || op.Method.Contains(_filter, StringComparison.OrdinalIgnoreCase)
+            || op.PrimaryTag.Contains(_filter, StringComparison.OrdinalIgnoreCase);
+    }
+
+    // While filtering everything is open: a hit inside a collapsed group would
+    // otherwise be invisible. Otherwise a group is open if the reader opened it,
+    // or it holds the operation currently being viewed.
+    private readonly HashSet<string> _expanded = new(StringComparer.Ordinal);
+    private string? _autoExpanded;
+
+    private bool IsExpanded(string tag) => _filter.Length > 0 || _expanded.Contains(tag);
+
+    protected override void OnParametersSet()
+    {
+        if (Current.Kind != RouteKind.Operation) return;
+        var tag = Spec.Operations.FirstOrDefault(o => o.OperationId == Current.Id)?.PrimaryTag;
+        if (tag is null || tag == _autoExpanded) return;
+        _autoExpanded = tag;
+        _expanded.Add(tag);
+    }
+
+    private void Toggle(string tag)
+    {
+        if (!_expanded.Remove(tag)) _expanded.Add(tag);
+    }
+
+    private void OnFilter(string? value) => _filter = value ?? "";
+}

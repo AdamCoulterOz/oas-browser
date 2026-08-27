@@ -1,0 +1,66 @@
+@* A named model on its own page, so schemas are deep-linkable and the nav can
+   point at them directly. *@
+
+<div class="page">
+    <h1 class="page__title">@Name</h1>
+
+    @if (Schema?.Description is { } d)
+    {
+        <p class="page__lead">@((MarkupString)Markdown.ToHtml(d))</p>
+    }
+
+    @if (Schema?.Notes is { } notes)
+    {
+        <NotesPanel Notes="notes" />
+    }
+
+    <div class="op-body">
+        <div class="op-split">
+            <div>
+                <section class="section">
+                    <h2 class="section__title">Properties</h2>
+                    <SchemaTree Schema="Schema" OnNavigate="OnNavigate" />
+                </section>
+
+                @if (UsedBy.Count > 0)
+                {
+                    <section class="section">
+                        <h2 class="section__title">Used by</h2>
+                        @foreach (var op in UsedBy)
+                        {
+                            <div class="prop">
+                                <button class="prop__head" style="background:none;border:0;padding:0;cursor:pointer;text-align:left"
+                                        @onclick="() => OnNavigate.InvokeAsync(new Route(RouteKind.Operation, op.OperationId))">
+                                    <KeelChip Emphasis="Emphasis.Filled" Mono="true" Tone="@MethodTone.For(op.Method)">@op.Method</KeelChip>
+                                    <span class="prop__name" style="color:var(--accent)">@op.Summary</span>
+                                </button>
+                            </div>
+                        }
+                    </section>
+                }
+            </div>
+
+            <aside class="op-split__aside">
+                <KeelCodeBlock Chrome="CodeChrome.Editor" Title="Example" Code="@SampleBuilder.Json(Schema)"
+                           Language="CodeLanguage.Json" ShowLanguage="true" />
+            </aside>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter, EditorRequired] public OpenApiSpec Spec { get; set; } = default!;
+    [Parameter, EditorRequired] public string Name { get; set; } = "";
+    [Parameter] public EventCallback<Route> OnNavigate { get; set; }
+
+    private SchemaRef? Schema => Spec.Schemas.TryGetValue(Name, out var s) ? s : null;
+
+    // Operations whose request or response mentions this model by name.
+    private List<Operation> UsedBy =>
+        Spec.Operations
+            .Where(op =>
+                op.RequestBody?.Schema?.Unwrapped.RefName == Name
+                || op.Responses.Any(r => r.Schema?.Unwrapped.RefName == Name))
+            .Take(25)
+            .ToList();
+}

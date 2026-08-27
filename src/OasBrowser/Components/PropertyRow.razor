@@ -1,0 +1,126 @@
+@* One property of a schema.
+
+   The whole header is the disclosure control when there is something to open,
+   marked by a chevron in the gutter rather than a "Show items" link. Type,
+   location and optionality share one quiet meta line instead of competing as
+   separate tags. *@
+
+<div class="prop @(Expandable ? "prop--expandable" : "prop--leaf")">
+    @if (Expandable)
+    {
+        <button type="button" class="prop__row" aria-expanded="@(_open ? "true" : "false")" @onclick="() => _open = !_open">
+            <svg class="prop__chev" viewBox="0 0 16 16" fill="none" stroke="currentColor"
+                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M6 4l4 4-4 4" />
+            </svg>
+            <span>
+                @Header
+            </span>
+        </button>
+    }
+    else
+    {
+        <div class="prop__row">
+            @Header
+        </div>
+    }
+
+    @if (Expandable && _open)
+    {
+        <div class="prop__children">
+            <SchemaTree Schema="Node" OnNavigate="OnNavigate" Visited="Seen" />
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter, EditorRequired] public SchemaProperty Property { get; set; } = default!;
+    [Parameter] public string? Location { get; set; }
+    [Parameter] public IReadOnlySet<string>? Seen { get; set; }
+    [Parameter] public EventCallback<Route> OnNavigate { get; set; }
+
+    private bool _open;
+
+    private SchemaRef Node => Property.Schema.Unwrapped;
+    private string? RefName => Node.RefName;
+
+    /// <summary>A named model already on the path back to the root would expand forever.</summary>
+    private bool Cyclic => RefName is { } n && Seen is not null && Seen.Contains(n);
+
+    private IReadOnlyList<string> EnumValues => Node.Target.Enum;
+
+    private bool Expandable => !Cyclic && Node.IsExpandable && EnumValues.Count == 0;
+
+    private string? Description =>
+        Property.Schema.Description ?? Node.Description ?? Node.Target.Description;
+
+    private RenderFragment Header => @<text>
+        <span class="prop__head">
+            <span class="prop__name">@Property.Name</span>
+            <span class="prop__meta">
+                @if (RefName is { } rn)
+                {
+                    <a class="prop__type" href="#/schemas/@rn"
+                       @onclick:preventDefault
+                       @onclick="() => OnNavigate.InvokeAsync(new Route(RouteKind.Schema, rn))"
+                       style="color:var(--accent)">@Node.TypeLabel</a>
+                }
+                else
+                {
+                    <span class="prop__type">@Node.TypeLabel</span>
+                }
+
+                @if (Location is { } loc)
+                {
+                    <span class="prop__sep">·</span>
+                    <span>@loc</span>
+                }
+                @if (Property.Required)
+                {
+                    <span class="prop__sep">·</span>
+                    <span class="prop__req">required</span>
+                }
+                @if (Node.Target.Nullable)
+                {
+                    <span class="prop__sep">·</span>
+                    <span>nullable</span>
+                }
+                @if (Cyclic)
+                {
+                    <span class="prop__sep">·</span>
+                    <span>recurses</span>
+                }
+            </span>
+        </span>
+
+        @if (Description is { } d)
+        {
+            <p class="prop__desc">@((MarkupString)Markdown.ToHtml(d))</p>
+        }
+
+        <NotesPanel Notes="Property.Schema.Notes" Compact="true" />
+
+        @if (EnumValues.Count > 0)
+        {
+            <div class="cluster cluster--tight">
+                @foreach (var v in EnumValues)
+                {
+                    <KeelTag Mono="true" Tone="Tone.Info">@v</KeelTag>
+                }
+            </div>
+        }
+
+        @{
+            var constraints = Node.Constraints.ToList();
+        }
+        @if (constraints.Count > 0)
+        {
+            <div class="cluster cluster--tight">
+                @foreach (var c in constraints)
+                {
+                    <KeelTag Mono="true">@c</KeelTag>
+                }
+            </div>
+        }
+    </text>;
+}

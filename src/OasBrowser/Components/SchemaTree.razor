@@ -1,0 +1,75 @@
+@* Renders a schema as an expandable property tree.
+
+   Two things make this more than a loop: schemas here are genuinely cyclic
+   (a model can reach itself through a property), so the walk carries a visited
+   set and stops when it revisits a named model; and a `$ref` to a named model
+   is a link, not an expansion, once it has been seen. *@
+
+@if (Schema is null)
+{
+    <p class="prop__desc">No schema.</p>
+}
+else
+{
+    var node = Schema.Unwrapped;
+    var target = node.Target;
+
+    @if (target.IsStub)
+    {
+        <p class="prop__desc">
+            <strong>@node.RefName</strong> is referenced by the documentation but never defined,
+            so its shape is unknown.
+        </p>
+    }
+    else if (target.Properties.Count > 0)
+    {
+        @foreach (var p in target.Properties)
+        {
+            <PropertyRow Property="p" Seen="@Seen(node)" OnNavigate="OnNavigate" />
+        }
+    }
+    else if (target.Items is { } item)
+    {
+        <p class="prop__desc">Array of <code>@item.Unwrapped.TypeLabel</code>.</p>
+        <div class="prop__children">
+            <SchemaTree Schema="item" OnNavigate="OnNavigate" Visited="Seen(node)" />
+        </div>
+    }
+    else if (target.AdditionalProperties is { } ap)
+    {
+        <p class="prop__desc">Map of string to <code>@ap.Unwrapped.TypeLabel</code>.</p>
+        <div class="prop__children">
+            <SchemaTree Schema="ap" OnNavigate="OnNavigate" Visited="Seen(node)" />
+        </div>
+    }
+    else if (target.Enum.Count > 0)
+    {
+        <div class="cluster cluster--tight">
+            @foreach (var v in target.Enum)
+            {
+                <KeelTag Mono="true" Tone="Tone.Info">@v</KeelTag>
+            }
+        </div>
+        @if (target.EnumIsOpen)
+        {
+            <p class="prop__desc">These values are known but the set is extensible.</p>
+        }
+    }
+    else
+    {
+        <p class="prop__desc"><code>@node.TypeLabel</code></p>
+    }
+}
+
+@code {
+    [Parameter] public SchemaRef? Schema { get; set; }
+    [Parameter] public EventCallback<Route> OnNavigate { get; set; }
+    [Parameter] public IReadOnlySet<string>? Visited { get; set; }
+
+    private IReadOnlySet<string> Seen(SchemaRef node)
+    {
+        var set = new HashSet<string>(Visited ?? (IReadOnlySet<string>)new HashSet<string>(), StringComparer.Ordinal);
+        if (node.RefName is { } n) set.Add(n);
+        return set;
+    }
+}
