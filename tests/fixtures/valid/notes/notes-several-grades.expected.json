@@ -1,0 +1,31 @@
+{
+  "fixture": "notes-several-grades.json",
+  "exercises": "four notes across three declared grades on a single node",
+  "validates": true,
+  "note": "x-note-sources at the document root declares the grades this document uses and the wording each one earns. The declaration is a convenience, not a precondition: the load-bearing requirement is that notes are grouped by grade and never presented as if they were all equally solid. `live` is the only grade with a fixed meaning, because it is also the grade a bare string takes.",
+  "pending": true,
+  "doNotChangeFixture": "Assertions marked pending describe correct behaviour the browser does not have yet. A failure on one of them is a backlog item, not a fixture defect. Do not edit this fixture or its expectations to match what the app currently does.",
+  "expected": [
+    {
+      "assert": "All four notes render. None is dropped for carrying an unfamiliar source.",
+      "status": "implemented"
+    },
+    {
+      "assert": "Notes are grouped by grade, not left in document order across grades: the two `live` notes appear together.",
+      "status": "implemented"
+    },
+    {
+      "assert": "The observed grade `live` is presented first. Observation outranks report.",
+      "status": "implemented"
+    },
+    {
+      "assert": "Each group is headed with the title from x-note-sources, and the non-observed grades carry their declared caveat.",
+      "status": "pending",
+      "why": "Grade wording is fixed in the browser rather than read from the document, so a document-declared title and caveat are ignored."
+    },
+    {
+      "assert": "No grade borrows another grade's authority. A reader can tell at a glance which notes were observed and which were reported.",
+      "status": "implemented"
+    }
+  ]
+}

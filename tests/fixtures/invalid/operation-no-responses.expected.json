@@ -1,0 +1,27 @@
+{
+  "fixture": "operation-no-responses.json",
+  "exercises": "an operation with no responses key, and an operation with an empty responses object",
+  "validates": false,
+  "note": "Deliberately invalid. `responses` is required on an operation in OAS 3.0, and the responses object must carry at least one code, so both forms are rejected. They are both common in a hand-written or half-generated document, which is when a browser gets pointed at one.",
+  "pending": true,
+  "doNotChangeFixture": "Assertions marked pending describe correct behaviour the browser does not have yet. A failure on one of them is a backlog item, not a fixture defect. Do not edit this fixture or its expectations to match what the app currently does.",
+  "expected": [
+    {
+      "assert": "Both operations render, listed under their paths, with their summaries.",
+      "status": "implemented"
+    },
+    {
+      "assert": "Neither form throws. An absent key and an empty object are handled the same way.",
+      "status": "implemented"
+    },
+    {
+      "assert": "Neither shows a blank or partial responses section, or a heading with nothing under it.",
+      "status": "implemented"
+    },
+    {
+      "assert": "Both say, in words, that the document describes no responses for this operation.",
+      "status": "pending",
+      "why": "The responses section is omitted entirely when there are none, so the reader cannot tell an undocumented operation from a rendering that failed."
+    }
+  ]
+}

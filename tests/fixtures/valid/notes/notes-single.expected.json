@@ -1,0 +1,20 @@
+{
+  "fixture": "notes-single.json",
+  "exercises": "a single x-notes entry written as a bare string rather than an object",
+  "validates": true,
+  "note": "A bare string is the shorthand form. It carries no source of its own, so it takes the default grade `live`, meaning someone observed the service behave this way. A document written before grades existed must therefore render unchanged.",
+  "expected": [
+    {
+      "assert": "renewLoan shows the note.",
+      "status": "implemented"
+    },
+    {
+      "assert": "The bare string is read as a note with the default grade `live`, and is not skipped for lacking a `note` key.",
+      "status": "implemented"
+    },
+    {
+      "assert": "The note is presented as an observation about the API, distinct from the operation's own description.",
+      "status": "implemented"
+    }
+  ]
+}

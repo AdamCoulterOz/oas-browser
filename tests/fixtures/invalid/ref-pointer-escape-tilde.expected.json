@@ -1,0 +1,33 @@
+{
+  "fixture": "ref-pointer-escape-tilde.json",
+  "exercises": "RFC 6901 ~0 unescaping, and the ordering rule that makes ~01 decode to ~1 rather than to a slash",
+  "validates": true,
+  "note": "Filed under invalid/ deliberately, even though it validates. OAS 3.0 restricts component keys to the character class [a-zA-Z0-9.\\-_], which excludes the tilde, so both component names here are non-conformant. openapi-spec-validator does not enforce that pattern and passes the document, which is worth knowing: passing the validator is not the same as conforming to the specification.\n\nThe pointer syntax itself is correct RFC 6901 and the browser must handle it, because the escaping rule is not specific to component names and the same unescaper serves every pointer in the document.\n\nThe ordering is the real trap. Unescaping must replace ~1 with a slash before replacing ~0 with a tilde. Do it the other way round and ~01 becomes ~1 becomes a slash, and the 202 resolves to nothing or, worse, to the wrong node.",
+  "pending": true,
+  "doNotChangeFixture": "Assertions marked pending describe correct behaviour the browser does not have yet. A failure on one of them is a backlog item, not a fixture defect. Do not edit this fixture or its expectations to match what the app currently does.",
+  "expected": [
+    {
+      "assert": "The 200 body resolves to the component named Book~Draft, showing the description that begins 'Reached by decoding ~0'.",
+      "status": "pending",
+      "why": "Schema references are resolved by stripping the #/components/schemas/ prefix and looking the remainder up as a literal component key, with no RFC 6901 unescaping. Only the generic pointer walk used for parameters, responses, bodies and headers unescapes."
+    },
+    {
+      "assert": "The 202 body resolves to the component named Book~1Draft, showing the description that begins 'Reached by decoding ~01'.",
+      "status": "pending",
+      "why": "Schema references are resolved by stripping the #/components/schemas/ prefix and looking the remainder up as a literal component key, with no RFC 6901 unescaping. Only the generic pointer walk used for parameters, responses, bodies and headers unescapes."
+    },
+    {
+      "assert": "The 202 does not resolve to Book~Draft, and does not fail. Getting that wrong is what the fixture is for.",
+      "status": "pending",
+      "why": "Schema references are resolved by stripping the #/components/schemas/ prefix and looking the remainder up as a literal component key, with no RFC 6901 unescaping. Only the generic pointer walk used for parameters, responses, bodies and headers unescapes."
+    },
+    {
+      "assert": "Neither component name is displayed with its escapes still in it: the reader sees Book~Draft, not Book~0Draft.",
+      "status": "implemented"
+    },
+    {
+      "assert": "An unresolvable schema reference is reported rather than rendered as a blank row.",
+      "status": "implemented"
+    }
+  ]
+}

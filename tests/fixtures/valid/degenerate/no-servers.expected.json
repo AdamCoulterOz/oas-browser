@@ -1,0 +1,16 @@
+{
+  "fixture": "no-servers.json",
+  "exercises": "a document with no servers key",
+  "validates": true,
+  "note": "OpenAPI says a document with no servers is treated as having a single server whose url is `/`. That default is worth stating rather than showing a blank.",
+  "expected": [
+    {
+      "assert": "The document renders with no server section, or with one that names the `/` default.",
+      "status": "implemented"
+    },
+    {
+      "assert": "No empty server row, and no error on a missing servers key.",
+      "status": "implemented"
+    }
+  ]
+}

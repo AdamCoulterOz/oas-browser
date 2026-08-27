@@ -1,0 +1,33 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Riverside Library: one note, written as a bare string",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/loans/{loanId}/renewal": {
+      "post": {
+        "operationId": "renewLoan",
+        "summary": "Renew one loan",
+        "x-notes": [
+          "Renewal is refused once another member has placed a hold on the title, even when the loan is not yet due."
+        ],
+        "parameters": [
+          {
+            "name": "loanId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The renewed loan."
+          }
+        }
+      }
+    }
+  }
+}

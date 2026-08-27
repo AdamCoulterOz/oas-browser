@@ -1,0 +1,62 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Riverside Library: notes of several grades on one node",
+    "version": "1.0.0"
+  },
+  "x-note-sources": {
+    "live": {
+      "title": "Verified against the running service",
+      "observed": true
+    },
+    "stock-take": {
+      "title": "From the annual stock take",
+      "caveat": "Recorded once a year against the physical shelves. Accurate when taken, and possibly stale now."
+    },
+    "vendor-feed": {
+      "title": "From the supplier's catalogue feed",
+      "caveat": "Supplied by a third party. Neither observed here nor checked against the shelves."
+    }
+  },
+  "paths": {
+    "/items/{itemId}": {
+      "get": {
+        "operationId": "getCatalogueItem",
+        "summary": "Fetch one catalogue item",
+        "x-notes": [
+          {
+            "note": "A withdrawn item still resolves here. It is filtered only from search.",
+            "source": "live"
+          },
+          {
+            "note": "shelfMark is absent for items held in closed stack.",
+            "source": "stock-take"
+          },
+          {
+            "note": "The publisher field follows the supplier's spelling, which is not normalised.",
+            "source": "vendor-feed"
+          },
+          {
+            "note": "Requesting an item id from a branch that has closed returns 410, not 404.",
+            "source": "live"
+          }
+        ],
+        "parameters": [
+          {
+            "name": "itemId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The item."
+          }
+        }
+      }
+    }
+  }
+}

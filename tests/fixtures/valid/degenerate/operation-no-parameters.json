@@ -1,0 +1,20 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Riverside Library: an operation with no parameters",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/opening-hours": {
+      "get": {
+        "operationId": "getOpeningHours",
+        "summary": "Opening hours for every branch",
+        "responses": {
+          "200": {
+            "description": "Opening hours."
+          }
+        }
+      }
+    }
+  }
+}

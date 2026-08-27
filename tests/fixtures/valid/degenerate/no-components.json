@@ -1,0 +1,40 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Riverside Library: a document with no components",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/opening-hours": {
+      "get": {
+        "operationId": "getOpeningHours",
+        "responses": {
+          "200": {
+            "description": "Opening hours.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "branch": {
+                        "type": "string"
+                      },
+                      "opensAt": {
+                        "type": "string"
+                      },
+                      "closesAt": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

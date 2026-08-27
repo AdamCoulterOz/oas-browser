@@ -1,0 +1,32 @@
+{
+  "fixture": "notes-undeclared-grade.json",
+  "exercises": "a note carrying a grade that is neither built in nor declared by the document, and a note carrying an empty grade",
+  "validates": true,
+  "note": "This is the degradation case. An unrecognised grade must render under its own heading, named from the raw source string, with wording that says the browser has no basis for it. It must not be dropped, must not be folded into a known grade, and must not throw. The empty-string source is the same requirement one step further: an empty value is still a value, and must not be mistaken for an absent key.",
+  "expected": [
+    {
+      "assert": "The `live` and `stock-take` notes render under their own headings.",
+      "status": "implemented"
+    },
+    {
+      "assert": "The front-desk-hearsay note renders. It is not dropped for being unrecognised.",
+      "status": "implemented"
+    },
+    {
+      "assert": "It appears under its own heading naming the raw source, after the recognised grades, and never under the observed grade's heading.",
+      "status": "implemented"
+    },
+    {
+      "assert": "Its heading carries wording that says the browser has no basis for this grade, rather than silently implying it is as good as an observation.",
+      "status": "implemented"
+    },
+    {
+      "assert": "The empty-source note renders too, distinguishably, rather than being folded into the default grade as though it had been written as a bare string.",
+      "status": "implemented"
+    },
+    {
+      "assert": "Adding a new grade to a document requires no change to the browser.",
+      "status": "implemented"
+    }
+  ]
+}

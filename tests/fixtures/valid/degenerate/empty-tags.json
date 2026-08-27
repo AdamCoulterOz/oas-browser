@@ -1,0 +1,21 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Riverside Library: empty tags arrays",
+    "version": "1.0.0"
+  },
+  "tags": [],
+  "paths": {
+    "/opening-hours": {
+      "get": {
+        "operationId": "getOpeningHours",
+        "tags": [],
+        "responses": {
+          "200": {
+            "description": "Opening hours."
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,32 @@
+{
+  "fixture": "ref-dangling.json",
+  "exercises": "three references that resolve to nothing: a parameter, a response body schema and a whole response",
+  "validates": false,
+  "note": "Deliberately invalid. openapi-spec-validator rejects it, because an unresolvable reference is a document defect. The browser must still render it: a specification that fails validation is exactly when a reader most needs to see what is wrong, and a browser that renders a blank row is indistinguishable from one that is broken itself.",
+  "expected": [
+    {
+      "assert": "The operation renders. One bad reference does not cost the reader the whole page.",
+      "status": "implemented"
+    },
+    {
+      "assert": "The unresolved parameter still produces a row, naming the pointer that failed, rather than vanishing.",
+      "status": "implemented"
+    },
+    {
+      "assert": "The unresolved response body says the pointer could not be resolved, rather than showing an empty schema.",
+      "status": "implemented"
+    },
+    {
+      "assert": "The 404 still appears as a status, with text saying the document does not define what it references.",
+      "status": "implemented"
+    },
+    {
+      "assert": "The failure is attributed to the document, not presented as if the API documents nothing.",
+      "status": "implemented"
+    },
+    {
+      "assert": "The intact parts, the bookId parameter and the 200 status, render normally.",
+      "status": "implemented"
+    }
+  ]
+}

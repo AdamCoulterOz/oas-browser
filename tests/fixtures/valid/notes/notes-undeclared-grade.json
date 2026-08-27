@@ -1,0 +1,58 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Riverside Library: a note whose grade the document does not declare",
+    "version": "1.0.0"
+  },
+  "x-note-sources": {
+    "live": {
+      "title": "Verified against the running service",
+      "observed": true
+    },
+    "stock-take": {
+      "title": "From the annual stock take",
+      "caveat": "Recorded once a year against the physical shelves."
+    }
+  },
+  "paths": {
+    "/branches/{branchId}": {
+      "get": {
+        "operationId": "getBranch",
+        "summary": "Fetch one branch",
+        "x-notes": [
+          {
+            "note": "A closed branch is still returned, with closedOn set.",
+            "source": "live"
+          },
+          {
+            "note": "The stated shelf capacity is a count of bays, not of items.",
+            "source": "stock-take"
+          },
+          {
+            "note": "Sunday hours are said to vary by branch, but no branch has ever returned them.",
+            "source": "front-desk-hearsay"
+          },
+          {
+            "note": "This entry has an empty source.",
+            "source": ""
+          }
+        ],
+        "parameters": [
+          {
+            "name": "branchId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The branch."
+          }
+        }
+      }
+    }
+  }
+}

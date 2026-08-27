@@ -1,0 +1,20 @@
+{
+  "fixture": "path-no-operations.json",
+  "exercises": "a path item with a summary and description but no HTTP methods, beside a path that does have one",
+  "validates": true,
+  "note": "The second path is the assertion that matters. An empty path item must contribute nothing, and must not take its neighbours with it.",
+  "expected": [
+    {
+      "assert": "/opening-hours renders normally.",
+      "status": "implemented"
+    },
+    {
+      "assert": "/reading-room contributes no operations, and produces no blank entry in any operation list.",
+      "status": "implemented"
+    },
+    {
+      "assert": "Nothing throws on a path item with no method keys.",
+      "status": "implemented"
+    }
+  ]
+}

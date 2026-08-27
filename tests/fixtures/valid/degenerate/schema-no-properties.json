@@ -1,0 +1,49 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Riverside Library: schemas with no properties",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/items/{itemId}/annotations": {
+      "get": {
+        "operationId": "getItemAnnotations",
+        "parameters": [
+          {
+            "name": "itemId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Whatever the cataloguer attached.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Annotations"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Annotations": {
+        "type": "object",
+        "description": "Free-form. The service does not constrain the shape."
+      },
+      "EmptyAnnotations": {
+        "type": "object",
+        "description": "The same thing written with an explicit empty properties map.",
+        "properties": {}
+      }
+    }
+  }
+}

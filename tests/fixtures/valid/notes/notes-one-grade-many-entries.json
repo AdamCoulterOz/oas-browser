@@ -1,0 +1,56 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Riverside Library: several notes of one grade on one node",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/holds": {
+      "post": {
+        "operationId": "placeHold",
+        "summary": "Place a hold on a title",
+        "x-notes": [
+          {
+            "note": "A member may hold at most eight titles at once. The ninth request is refused with 409, not 400.",
+            "source": "live"
+          },
+          {
+            "note": "The queue position returned is advisory. It is recomputed nightly and can move either way.",
+            "source": "live"
+          },
+          {
+            "note": "Placing a hold on a title the member already has on loan succeeds and does nothing.",
+            "source": "live"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "titleId",
+                  "memberId"
+                ],
+                "properties": {
+                  "titleId": {
+                    "type": "string"
+                  },
+                  "memberId": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Hold placed."
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,80 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Riverside Library: notes on every kind of node",
+    "version": "1.0.0"
+  },
+  "tags": [
+    {
+      "name": "Lending",
+      "description": "Issuing, renewing and returning items.",
+      "x-notes": [
+        "Every lending operation is refused while the branch is closed."
+      ]
+    }
+  ],
+  "paths": {
+    "/loans/{loanId}": {
+      "get": {
+        "operationId": "getLoan",
+        "tags": [
+          "Lending"
+        ],
+        "summary": "Fetch one loan",
+        "x-notes": [
+          "A returned loan stays readable here for ninety days."
+        ],
+        "parameters": [
+          {
+            "name": "loanId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "x-notes": [
+              "Loan ids are not reused, but they are not sequential either."
+            ]
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The loan.",
+            "x-notes": [
+              "The body is returned even when the loan has been written off."
+            ],
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Loan"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Loan": {
+        "type": "object",
+        "x-notes": [
+          "Loans of periodicals carry no dueOn: they are reference only."
+        ],
+        "properties": {
+          "loanId": {
+            "type": "string"
+          },
+          "dueOn": {
+            "type": "string",
+            "format": "date",
+            "x-notes": [
+              "Always a date, never a date-time. The service has no concept of a due hour."
+            ]
+          }
+        }
+      }
+    }
+  }
+}

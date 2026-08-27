@@ -1,0 +1,19 @@
+{
+  "fixture": "notes-one-grade-many-entries.json",
+  "exercises": "three x-notes entries on one node, all sharing the same grade",
+  "validates": true,
+  "expected": [
+    {
+      "assert": "All three notes render, in document order.",
+      "status": "implemented"
+    },
+    {
+      "assert": "They appear under a single heading for the grade, not three repeated headings.",
+      "status": "implemented"
+    },
+    {
+      "assert": "Each note is separately readable. They are not run together into one paragraph.",
+      "status": "implemented"
+    }
+  ]
+}

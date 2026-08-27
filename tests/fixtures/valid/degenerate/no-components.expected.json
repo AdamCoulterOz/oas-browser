@@ -1,0 +1,19 @@
+{
+  "fixture": "no-components.json",
+  "exercises": "a document with no components key, where every schema is inline",
+  "validates": true,
+  "expected": [
+    {
+      "assert": "The operation renders with its inline array-of-object body fully expandable.",
+      "status": "implemented"
+    },
+    {
+      "assert": "Any schemas listing is empty or absent, rather than erroring on a missing components key.",
+      "status": "implemented"
+    },
+    {
+      "assert": "Nothing assumes components exists before reading it.",
+      "status": "implemented"
+    }
+  ]
+}

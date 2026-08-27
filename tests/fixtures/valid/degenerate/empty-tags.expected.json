@@ -1,0 +1,19 @@
+{
+  "fixture": "empty-tags.json",
+  "exercises": "an empty tags array at the document root and an empty tags array on an operation",
+  "validates": true,
+  "expected": [
+    {
+      "assert": "getOpeningHours renders and is reachable, even though it belongs to no tag.",
+      "status": "implemented"
+    },
+    {
+      "assert": "No empty tag group, no group with a blank name, and no group containing nothing.",
+      "status": "implemented"
+    },
+    {
+      "assert": "An untagged operation is grouped somewhere sensible rather than being hidden. An operation that renders nowhere is the same as an operation that was dropped.",
+      "status": "implemented"
+    }
+  ]
+}

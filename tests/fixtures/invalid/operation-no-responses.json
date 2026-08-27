@@ -1,0 +1,22 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Riverside Library: operations with no responses",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/opening-hours": {
+      "get": {
+        "operationId": "getOpeningHours",
+        "summary": "No responses key at all"
+      }
+    },
+    "/branches": {
+      "get": {
+        "operationId": "listBranches",
+        "summary": "An empty responses object",
+        "responses": {}
+      }
+    }
+  }
+}

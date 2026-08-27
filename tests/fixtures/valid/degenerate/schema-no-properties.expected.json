@@ -1,0 +1,24 @@
+{
+  "fixture": "schema-no-properties.json",
+  "exercises": "an object schema with no properties key, and one with an explicitly empty properties map",
+  "validates": true,
+  "note": "Both forms mean the same thing and must render the same way. The second is the one that catches an implementation that tests for the key's presence rather than for its contents.",
+  "expected": [
+    {
+      "assert": "Annotations renders as an object with its description and no property rows.",
+      "status": "implemented"
+    },
+    {
+      "assert": "EmptyAnnotations renders identically to Annotations.",
+      "status": "implemented"
+    },
+    {
+      "assert": "Neither offers an expander that opens onto nothing.",
+      "status": "implemented"
+    },
+    {
+      "assert": "Neither is dropped from the schema listing for having no properties.",
+      "status": "implemented"
+    }
+  ]
+}

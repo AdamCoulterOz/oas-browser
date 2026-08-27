@@ -1,0 +1,15 @@
+{
+  "fixture": "operation-no-parameters.json",
+  "exercises": "an operation with no parameters key at all",
+  "validates": true,
+  "expected": [
+    {
+      "assert": "getOpeningHours renders, with no parameters section, or with one that says there are none.",
+      "status": "implemented"
+    },
+    {
+      "assert": "There is no empty table, no stray heading over nothing, and no error.",
+      "status": "implemented"
+    }
+  ]
+}

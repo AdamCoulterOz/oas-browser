@@ -1,0 +1,19 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Riverside Library: a document with no servers",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/opening-hours": {
+      "get": {
+        "operationId": "getOpeningHours",
+        "responses": {
+          "200": {
+            "description": "Opening hours."
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,37 @@
+{
+  "fixture": "notes-node-coverage.json",
+  "exercises": "one x-notes entry on each of: a tag, an operation, a parameter, a response, a schema and a schema property",
+  "validates": true,
+  "note": "x-notes is defined on any node, so this fixture asks each node type for its notes in turn. The failures here are all the same shape and each one loses a note silently, which is the worst way to lose one.",
+  "pending": true,
+  "doNotChangeFixture": "Assertions marked pending describe correct behaviour the browser does not have yet. A failure on one of them is a backlog item, not a fixture defect. Do not edit this fixture or its expectations to match what the app currently does.",
+  "expected": [
+    {
+      "assert": "The Lending tag shows its note.",
+      "status": "implemented"
+    },
+    {
+      "assert": "getLoan shows its note.",
+      "status": "implemented"
+    },
+    {
+      "assert": "The Loan schema shows its note.",
+      "status": "implemented"
+    },
+    {
+      "assert": "The loanId parameter shows its note.",
+      "status": "pending",
+      "why": "Notes are read from operations, tags and schema nodes only. No other node type is asked for them."
+    },
+    {
+      "assert": "The 200 response shows its note.",
+      "status": "pending",
+      "why": "Notes are read from operations, tags and schema nodes only. No other node type is asked for them."
+    },
+    {
+      "assert": "The dueOn property shows its note.",
+      "status": "pending",
+      "why": "Notes are read from operations, tags and schema nodes only. No other node type is asked for them."
+    }
+  ]
+}
