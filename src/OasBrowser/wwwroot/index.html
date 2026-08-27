@@ -3,8 +3,16 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    <title>Power Platform APIs</title>
-    <meta name="description" content="Browsable OpenAPI reference for the Power Platform admin APIs, reverse-engineered from Microsoft's own documentation and client code." />
+    <!-- The app's own name, not any corpus's. Which corpus this copy shows is
+         decided at runtime by the catalogue it loads, and a static tag cannot
+         know that, so this is what a reader sees while the app boots and what a
+         crawler that does not run the WASM sees for good. Once the catalogue
+         arrives, Shell.razor's PageTitle replaces the title with the brand the
+         catalogue declared; nothing replaces the description, because Blazor
+         appends head content rather than merging it and a second description
+         tag is worse than a generic one. -->
+    <title>API browser</title>
+    <meta name="description" content="Browsable reference for an OpenAPI catalogue." />
     <!-- Where this app is published: GitHub Pages serves this repository under
          /oas-browser/. Every path the app resolves hangs off this, and so does
          the import map fingerprint-importmap.py writes after publish, because

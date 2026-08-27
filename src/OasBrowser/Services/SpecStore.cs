@@ -1,5 +1,7 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using Microsoft.AspNetCore.Components;
+using System.Web;
 using OasBrowser.Model;
 
 namespace OasBrowser.Services;
@@ -7,14 +9,57 @@ namespace OasBrowser.Services;
 /// <summary>
 /// The object form of specs.json. A corpus declares things about itself here
 /// that a bare array has nowhere to put: which spec a bare link resolves
-/// against today, and the grade vocabulary, docs provider and branding that are
-/// still to come.
+/// against today, what it calls itself, and the grade vocabulary and docs
+/// provider that are still to come.
 /// </summary>
 public sealed class CatalogueDocument
 {
     [JsonPropertyName("default")] public string? Default { get; set; }
     [JsonPropertyName("index")] public string? Index { get; set; }
+    [JsonPropertyName("brand")] public CatalogueBrand? Brand { get; set; }
     [JsonPropertyName("specs")] public List<SpecEntry> Specs { get; set; } = [];
+}
+
+/// <summary>
+/// What a corpus calls itself, as the catalogue declares it. This is the only
+/// place a corpus name can enter the app: the browser is general and its source
+/// carries no corpus's branding, so a catalogue that declares none gets the
+/// neutral default rather than the last corpus this app happened to grow up
+/// beside.
+/// </summary>
+public sealed class CatalogueBrand
+{
+    [JsonPropertyName("long")] public string? Long { get; set; }
+    [JsonPropertyName("short")] public string? Short { get; set; }
+    [JsonPropertyName("description")] public string? Description { get; set; }
+}
+
+/// <summary>
+/// Branding with every field resolved, so the shell renders it without deciding
+/// anything. Fallbacks belong here rather than in the markup: there are three
+/// sites that show a name and they must all fall back the same way.
+/// </summary>
+public sealed record Branding(string Long, string Short, string? Description)
+{
+    /// <summary>
+    /// Says what the app is, not what any corpus is. The one wrong answer for a
+    /// general OpenAPI browser with no catalogue loaded is somebody's product
+    /// name, so this string is deliberately about the tool.
+    /// </summary>
+    public static readonly Branding Neutral = new("API browser", "API browser", null);
+
+    public static Branding From(CatalogueBrand? brand)
+    {
+        var full = brand?.Long is { Length: > 0 } declared ? declared : Neutral.Long;
+
+        // Short falls back to long rather than to the neutral short. A corpus
+        // that named itself and did not abbreviate wants its own name in the
+        // narrow bar, and the alternative is a bar that says "API browser" on a
+        // phone and something else on a laptop.
+        var abbreviated = brand?.Short is { Length: > 0 } shortened ? shortened : full;
+
+        return new Branding(full, abbreviated, brand?.Description is { Length: > 0 } about ? about : null);
+    }
 }
 
 /// <summary>One entry of the specs.json served alongside the app.</summary>
@@ -31,17 +76,18 @@ public sealed class SpecEntry
 /// for the session: they are static files and re-parsing a 350-schema document
 /// on every navigation would be wasteful.
 /// </summary>
-public sealed class SpecStore(HttpClient http)
+public sealed class SpecStore(HttpClient http, NavigationManager nav)
 {
     private readonly Dictionary<string, OpenApiSpec> _cache = new(StringComparer.Ordinal);
 
-    // Everything the app reads is served beside index.html: specs.json at the
-    // app's base href, and each spec at the relative url that catalogue gives.
-    // So the prefix is empty and the base href does the work. Whoever assembles
-    // the site owes it that layout; this app expresses it in one constant.
-    private const string SiteRoot = "";
+    private const string CatalogueParameter = "catalogue";
+
+    private Uri? _catalogueUri;
 
     public IReadOnlyList<SpecEntry> Catalogue { get; private set; } = Array.Empty<SpecEntry>();
+
+    /// <summary>Branding for the corpus on screen, neutral until one is loaded.</summary>
+    public Branding Brand { get; private set; } = Branding.Neutral;
 
     /// <summary>
     /// The spec a link with no spec in it resolves against, declared by the
@@ -54,6 +100,52 @@ public sealed class SpecStore(HttpClient http)
     /// </summary>
     public string? DefaultSpecId { get; private set; }
 
+    /// <summary>
+    /// Where the catalogue lives. specs.json beside index.html by default, which
+    /// is what every deploy has done so far and stays exactly today's behaviour,
+    /// overridden by ?catalogue=&lt;url&gt; so one published copy of the browser
+    /// can read a corpus it was not served with.
+    ///
+    /// A URL and not a corpus name, because the alternative is a registry, and a
+    /// general browser that has to be told about a corpus before it can show one
+    /// is not general. Cross-origin values are allowed and need CORS from
+    /// whoever serves them, which is a fact about that host and not something
+    /// this app can arrange.
+    /// </summary>
+    private Uri CatalogueUri => _catalogueUri ??= ResolveCatalogueUri();
+
+    private Uri ResolveCatalogueUri()
+    {
+        var appBase = new Uri(nav.BaseUri);
+
+        // The query survives the hash router: a query sits before the fragment,
+        // so ?catalogue=... and #/athena/schemas/Foo coexist in one URL and each
+        // is read by the part that owns it.
+        //
+        // HttpUtility rather than the ASP.NET QueryHelpers I reached for first,
+        // because Microsoft.AspNetCore.WebUtilities is not on the WebAssembly
+        // package's reference set and this app has no reason to take a package
+        // for one line. The decode matters: an absolute catalogue url arrives
+        // percent-encoded and Uri.Query hands it back that way.
+        var declared = HttpUtility.ParseQueryString(new Uri(nav.Uri).Query)[CatalogueParameter];
+
+        if (string.IsNullOrWhiteSpace(declared)) return new Uri(appBase, "specs.json");
+
+        // Resolved against the app's base href, so a relative value names a
+        // sibling of index.html and an absolute one replaces the location whole.
+        var wanted = new Uri(appBase, declared.Trim());
+
+        // http(s) only. A data: URL is fetchable, so without this a crafted link
+        // could carry an entire catalogue in itself and nothing in the address
+        // bar would name a server to hold responsible for it. Pointing the
+        // browser at another host is the feature; pointing it at the link is not.
+        if (wanted.Scheme is not ("http" or "https"))
+            throw new InvalidOperationException(
+                $"The {CatalogueParameter} parameter must be an http or https URL.");
+
+        return wanted;
+    }
+
     public async Task<IReadOnlyList<SpecEntry>> LoadCatalogueAsync()
     {
         if (Catalogue.Count > 0) return Catalogue;
@@ -62,17 +154,22 @@ public sealed class SpecStore(HttpClient http)
         // field. A bare array is the original catalogue and keeps its original
         // meaning exactly, first entry as the default. An object carries the
         // corpus-level declarations that an array has nowhere to put.
-        using var doc = JsonDocument.Parse(await http.GetStringAsync(SiteRoot + "specs.json"));
+        using var doc = JsonDocument.Parse(await http.GetStringAsync(CatalogueUri));
 
         if (doc.RootElement.ValueKind == JsonValueKind.Array)
         {
             Catalogue = doc.RootElement.Deserialize<List<SpecEntry>>() ?? [];
             DefaultSpecId = Catalogue.FirstOrDefault()?.Id;
+            // An array has nowhere to declare a brand, so the neutral default
+            // stands. That is the correct outcome and not a gap to fill later:
+            // the legacy shape says nothing about branding, so the app must not
+            // invent an answer on its behalf.
         }
         else
         {
             var read = doc.RootElement.Deserialize<CatalogueDocument>() ?? new CatalogueDocument();
             Catalogue = read.Specs;
+            Brand = Branding.From(read.Brand);
             DefaultSpecId = read.Default is { Length: > 0 } declared
                             && Catalogue.Any(s => s.Id == declared)
                 ? declared
@@ -94,7 +191,15 @@ public sealed class SpecStore(HttpClient http)
     public async Task<OpenApiSpec> LoadSpecAsync(SpecEntry entry)
     {
         if (_cache.TryGetValue(entry.Id, out var cached)) return cached;
-        var json = await http.GetStringAsync(SiteRoot + entry.Url);
+
+        // Entry urls resolve against the catalogue's own location, not against
+        // the app's. The catalogue is the document that names them, so it is the
+        // only thing they can sensibly be relative to. Resolve them against the
+        // app instead and a remote catalogue can only ever name specs on this
+        // origin, which is nobody's catalogue. Unchanged for the default case,
+        // where the catalogue sits at the base href and its siblings are the
+        // app's siblings too.
+        var json = await http.GetStringAsync(new Uri(CatalogueUri, entry.Url));
         var spec = OpenApiSpec.Parse(json);
         _cache[entry.Id] = spec;
         return spec;

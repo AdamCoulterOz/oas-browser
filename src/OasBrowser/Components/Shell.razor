@@ -6,14 +6,27 @@
 @* The rail and the drawer show the same tree. Above keel's Lg width it is a
    sticky column; below it, KeelNavDrawer carries it. *@
 
+@* The tab title is the corpus's, so it has to be written after the catalogue
+   loads rather than in index.html. PageTitle is how that happens without any
+   JS of ours: Program.cs already mounts HeadOutlet, and this re-renders with
+   the brand once Store.Brand stops being the neutral default. *@
+<PageTitle>@Brand.Long</PageTitle>
+
 <div class="shell">
     <header class="shell__header">
         <KeelNavBar class="appbar" Collapse="Size.Lg" DrawerOpen="_navOpen"
                     OnOpenDrawer="ToggleNav" MenuLabel="Open navigation">
             <Brand>
-                <a class="brand" href="#/" @onclick:preventDefault @onclick="GoOverview">
-                    <span class="brand__long">Power Platform APIs</span>
-                    <span class="brand__short">PP APIs</span>
+                @* Both names are the catalogue's. The long/short pair is the
+                   bar's way of not wrapping onto two lines on a phone, which
+                   is why a corpus gets to declare its own abbreviation rather
+                   than have one truncated for it. The description is the
+                   corpus's one-line account of itself and there is nowhere
+                   else on screen for it, so it becomes the tooltip. *@
+                <a class="brand" href="#/" title="@Brand.Description"
+                   @onclick:preventDefault @onclick="GoOverview">
+                    <span class="brand__long">@Brand.Long</span>
+                    <span class="brand__short">@Brand.Short</span>
                 </a>
 
                 @if (_catalogue.Count > 1)
@@ -52,7 +65,7 @@
             </nav>
 
             <KeelNavDrawer @bind-Open="_navOpen" Side="Side.Left" Title="API navigation">
-                <Header>Power Platform APIs</Header>
+                <Header>@Brand.Long</Header>
                 <ChildContent>
                     @if (_spec is not null)
                     {
@@ -103,6 +116,11 @@
 </div>
 
 @code {
+    // Read through rather than copied, so the neutral default before the
+    // catalogue arrives and the corpus's own name after it are the same
+    // expression and no render can show a stale one.
+    private Branding Brand => Store.Brand;
+
     private List<SpecEntry> _catalogue = new();
     private SpecEntry? _current;
     private OpenApiSpec? _spec;
