@@ -347,6 +347,24 @@ pattern already in the format rather than adding a concept.
   and the producer has no reason to think it matters, so **it lands on whoever
   owns the format.**
 
+- **Path matching absorbs a spelling convention and surfaces a defect, and the
+  rule has to tell them apart.** A call naming `{method, path}` matches a spec
+  operation when a **templated** spec segment matches any single literal call
+  segment, and every other segment matches exactly, **including case**.
+
+  Both halves came from real rows. A corpus templating its version as
+  `/api/data/{apiVersion}/EntityDefinitions` against a caller pinning
+  `/api/data/v9.2/...` is one operation spelled two ways, and 22 operations in
+  that corpus are versioned so — treating it as a mismatch reports false gaps by
+  the dozen. A caller sending `/licensing/BillingPolicies` where the spec says
+  `billingPolicies` is a defect in the caller, and matching it loosely would
+  hide a real bug inside the file whose entire job is describing what the code
+  does.
+
+  So: a templated segment matching a literal is a convention to absorb; a case
+  difference is a defect to surface. Prefer `operation` by id anyway, which
+  sidesteps the whole question.
+
 **And an axis that was asked for and should not be added, because a different
 decision dissolved it.** The producer proposed a declared vocabulary for *why*
 coverage is partial, having found three reasons in their extractor rather than in
@@ -1175,6 +1193,28 @@ that silently drops `readOnly`; the original `$ref` resolver handled exactly one
 target bucket; and the fifth is inside the checker built to prevent the other
 four. Nobody is careless five times about the same thing, which is what makes it
 structural.
+
+**Duplication is a liability for correctness and an asset for detection, and
+this document leans hard on only the first half.** Worth stating because the two
+pull opposite ways and the tension is real.
+
+Everywhere above, two sources for one fact is a defect: an explicit `order`
+beside array position, a remembered list beside the data it describes. They can
+disagree, and nothing says which wins.
+
+But a corpus owner's normaliser reported three operations as missing that had
+been in their corpus all along — it collapsed `{param}` to `{}` while leaving a
+literal `v9.2` alone, so a templated path and a pinned one could never match.
+What caught it was that a **README advertised a tag covering those very
+operations**, and the two accounts could not both be true. Not review, not care:
+a second independent description of one fact, disagreeing.
+
+So the rule is not "never say a thing twice". It is: **two sources for one fact
+are a liability when nothing compares them and an asset when something does.**
+Redundancy with a check over it is corroboration. Redundancy without one is a
+pair of claims waiting to drift, and the drift is silent. If you find yourself
+keeping a second description, the question is not whether to delete it but
+whether anything would notice if it stopped agreeing.
 
 **A sixth, and it is the one that shows the shape is not about lists.** A
 mapping producer bound query parameters *positionally*, on the assumption that
