@@ -3,21 +3,40 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    <title>OAS Browser</title>
-    <base href="/" />
+    <title>Power Platform APIs</title>
+    <meta name="description" content="Browsable OpenAPI reference for the Power Platform admin APIs, reverse-engineered from Microsoft's own documentation and client code." />
+    <!-- Where this app is published: GitHub Pages serves this repository under
+         /oas-browser/. Every path the app resolves hangs off this, and so does
+         the module map the post-publish fingerprint script writes, because
+         module-map keys are resolved specifiers and one keyed on anything else
+         will not resolve. The build workflow asserts this value, since the
+         publish path belongs to the repository and not to the app.
+
+         Do not write the fingerprint script's own file name in this file: it
+         decides whether it has already run by looking for that word here. -->
+    <base href="/oas-browser/" />
+    <link rel="icon" href="favicon.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700;800&family=Fira+Code:wght@400;500;600;700&display=swap" />
     <link rel="stylesheet" href="_content/Keel/keel.css" />
-    <style>
-        body {
-            margin: 0;
-            padding: 2rem;
-            background: var(--surface-base);
-            color: var(--text-primary);
-            font: var(--text-body);
-        }
-    </style>
+    <link rel="stylesheet" href="css/app.css" />
 </head>
 <body>
-    <div id="app">Loading…</div>
-    <script src="_framework/blazor.webassembly.js"></script>
+    <div id="app">
+        <div class="state">
+            <div class="state__spinner"></div>
+            Loading the API browser…
+        </div>
+    </div>
+
+    <div id="blazor-error-ui">
+        Something went wrong. Reload the page to try again.
+        <a href="" class="reload">Reload</a>
+        <span class="dismiss">&times;</span>
+    </div>
+
+    <script src="js/app.js"></script>
+    <script src="_framework/blazor.webassembly#[.{fingerprint}].js"></script>
 </body>
 </html>

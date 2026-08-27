@@ -7,9 +7,13 @@
     <TargetFramework>net11.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
-    <!-- Off for now. Fingerprinting is a deploy concern and this project does
-         not deploy yet; the real setting arrives with the app. -->
-    <WasmFingerprintAssets>false</WasmFingerprintAssets>
+    <OverrideHtmlAssetPlaceholders>true</OverrideHtmlAssetPlaceholders>
+    <!-- Fingerprinted asset names. Stable names break returning visitors on
+         every deploy: the browser keeps a cached copy of the one assembly that
+         changed, its hash no longer matches, and the app fails to boot until a
+         hard refresh. -->
+    <WasmFingerprintAssets>true</WasmFingerprintAssets>
+    <StaticWebAssetSpaFallbackEnabled>true</StaticWebAssetSpaFallbackEnabled>
   </PropertyGroup>
 
   <ItemGroup>
