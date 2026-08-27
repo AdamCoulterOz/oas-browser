@@ -255,6 +255,20 @@ Designed as a contract first, before any producer serialised anything. The
 counterpart is a live session owning the mapping *content* for a fork of
 `terraform-provider-power-platform`.
 
+**Where a declared vocabulary lives: at the level of the thing it describes.**
+`kinds` and `entrypoints` describe artifacts, so they sit inside `artifacts`.
+`grades` describes calls, and calls have no top-level container, so it sits at
+the root. `uncatalogued` reasons describe uncatalogued entries, so the root as
+well.
+
+Written down because it existed in the design and nowhere in the words. A
+producer put the `uncatalogued` vocabulary inside `artifacts`, following a
+sentence of mine that said "alongside `kinds` and `entrypoints`", and the
+checker rejected it. Both readings were available and the placement looked
+arbitrary from outside. They asked what would make the asymmetry necessary
+rather than accepting it, which is the near-uniformity rule pointed at a format,
+and the answer was a real rule nobody had stated.
+
 ```json
 {
   "artifacts": { "kind": "provider component",
@@ -1171,6 +1185,20 @@ are they the ones I named*. More is a defect in the checker or the format; fewer
 means something resolved that should not have. **Write the expected set down
 before running, so the run cannot talk you into a number** — a count you read
 first is very hard to disagree with afterwards.
+
+**It paid on first use, twice.** The first run was against a stale published
+checker that could not perform the operation-level check at all, and reported
+zero catalogue findings. Their words: without the written expectation they would
+have read that as their rows resolving cleanly. **Zero findings from a check
+that did not run is indistinguishable from zero findings from a check that
+passed.** Nothing in the output separates them.
+
+And when the real run came back, they compared the **multiset** rather than the
+total — ten finding shapes at the expected multiplicities, not just 21 against
+21. A count is a hash of the thing you care about with a very high collision
+rate, and twenty-one findings that happen to number twenty-one while being
+different findings is a completely available outcome. Pre-register the shapes,
+not the number.
 
 **A static check cannot see "worse than it was", and some defects have no other
 symptom.** This came from keel, from the 0.4.3 contrast work, and it is a
