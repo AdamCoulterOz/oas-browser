@@ -47,6 +47,22 @@ jobs:
           dotnet-version: '11.0.x'
           dotnet-quality: preview
 
+      - name: Test before deploying anything
+        # These run in build.yml too, and repeating them is deliberate rather
+        # than sloppy. Both workflows fire on the same push and run in
+        # parallel, so a red build.yml cannot stop this one: without this step
+        # a broken router deploys to the live site while another tab shows the
+        # failure that should have prevented it. A gate in a workflow that
+        # cannot block the thing it gates is not a gate.
+        #
+        # Ahead of the keel feed for the same reason build.yml puts them there.
+        # The package grant is the most fragile external thing here, and if it
+        # lapses the job must fail saying so rather than failing before the
+        # tests have said anything.
+        run: |
+          python3 -m unittest discover -s tests -v
+          dotnet test tests/OasBrowser.Tests
+
       - name: Configure Pages
         # Its base_path output is deliberately unused. The base href is written
         # into index.html and asserted below, because it is a property of the
