@@ -2161,6 +2161,31 @@ Open, in priority order:
    See the live defect in item 8, which is the part of this that is actually
    broken.
 
+   **A third instance, and the sharpest, because it arrived inside a single
+   component.** The coverage view needs four states: called fully, called
+   conditionally, not called, and called-but-absent-from-the-spec. I asked keel
+   for a grid that could show four states, having counted them and not looked at
+   them. keel's reading:
+
+       called fully / conditionally / not called   an ordered ramp
+       called but absent from the spec             not on that ramp at all
+
+   **A set of states is not automatically one axis.** Three are positions on a
+   scale and the fourth is a different kind of claim — an anomaly, not a further
+   position. Putting all four on one visual channel collapses that, and it is
+   exactly the ordered-versus-unordered problem above arriving one level down.
+
+   Their answer is worth carrying as a technique: **fill level carries the
+   ordered scale** (filled, half, empty — ordered by construction, survives
+   greyscale, needs no legend), **a shape overlay carries the anomaly**, and
+   colour is redundant reinforcement on both. That satisfies the
+   colour-must-not-be-the-sole-cue rule *by construction rather than by
+   discipline*, which is the difference between a rule that holds and a rule
+   everyone remembers to follow.
+
+   The test before mapping N states onto one channel: **are these all on one
+   axis, or have I counted them rather than looked at them?**
+
 5. **Three ink uses of `--accent` fail AA in dark** (4.42:1 and 4.24:1): the
    schema type link, the operation summary on a schema page, and the current rail
    item. Reported, and keel is fixing it: `--accent` was outside the original
@@ -2374,6 +2399,20 @@ Three constraints, the first two load-bearing:
    meaningful*, so it has to be positively rendered. Getting this wrong would be
    the pattern in this document self-inflicted: the marker renders, the meaning
    does not.
+
+   **This rule has now been derived independently three times in this project,
+   on three unrelated surfaces**, which is why it is worth stating as a rule
+   rather than as three observations. A refused link must say it was refused
+   rather than becoming plain prose. An unverified operation must be marked
+   unverified rather than left blank. A coverage grid must draw the uncalled
+   operations rather than only the called ones. In each case the same sentence
+   is the test: **a reader must not be able to confuse "nothing here" with
+   "something here and not shown."**
+
+   keel filed the first of those as a vocabulary gap and has linked the three,
+   which is the correct home for it: the reason it keeps recurring is that no
+   design system has a word for *deliberately withheld*, so every consumer
+   invents absence-handling separately and half of them invent nothing.
 3. **Reuse the grade vocabulary.** `x-source` is the same axis as note
    provenance: verified live / from Microsoft's shipped client / provider-derived
    is exactly the `live` / `pac-cli` / `provider` triple. Node-level and
