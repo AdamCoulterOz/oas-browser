@@ -70,6 +70,59 @@ public class RouteTests
         Assert.Null(r.Id);
     }
 
+    // ---- kinds that take no id ---------------------------------------------
+
+    [Fact]
+    public void A_kind_with_no_id_parses_under_its_spec()
+    {
+        // Coverage is a page about a whole spec, so it has a kind and no id.
+        // Parse required three segments and ToHash dropped the segment when Id
+        // was null, so #/<spec>/coverage silently resolved to that spec's
+        // overview: the right spec, the wrong page, and nothing failing.
+        //
+        // It was found by building the page and clicking the link, after this
+        // file's own reserved-id test had gone green on `coverage` joining the
+        // segment table. That test proves the word is spoken for. It says
+        // nothing about the route working, and I read it as though it did.
+        var r = Route.Parse("#/ppapi/coverage");
+        Assert.Equal("ppapi", r.SpecId);
+        Assert.Equal(RouteKind.Coverage, r.Kind);
+        Assert.Null(r.Id);
+    }
+
+    [Theory]
+    [InlineData("#/ppapi/coverage")]
+    [InlineData("#/athena/coverage")]
+    public void A_kind_with_no_id_round_trips(string hash)
+    {
+        Assert.Equal(hash, Route.Parse(hash).ToHash());
+    }
+
+    [Fact]
+    public void A_bare_kind_with_no_id_is_still_the_overview()
+    {
+        // #/coverage has no spec to be the coverage of. It stays the overview,
+        // the same as #/operations, and this is pinned because the fix above
+        // was one plausible edit away from making it a coverage page for the
+        // default spec, which is a page nobody asked for at a URL somebody may
+        // already have published.
+        var r = Route.Parse("#/coverage");
+        Assert.Equal(RouteKind.Overview, r.Kind);
+        Assert.Null(r.SpecId);
+        Assert.Null(r.Id);
+    }
+
+    [Fact]
+    public void A_kind_taking_an_id_still_needs_one()
+    {
+        // The fix made an absent id legal. It must not have made it legal
+        // everywhere: an operation with no id is not an operation.
+        var r = Route.Parse("#/ppapi/operations");
+        Assert.Equal("ppapi", r.SpecId);
+        Assert.Equal(RouteKind.Operation, r.Kind);
+        Assert.Null(r.Id);
+    }
+
     [Fact]
     public void A_spec_followed_by_a_non_kind_keeps_the_spec()
     {
