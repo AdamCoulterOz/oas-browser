@@ -541,7 +541,7 @@
 
         var candidates = Spec.Operations
             .Where(o => string.Equals(o.Method, identity.Method, StringComparison.OrdinalIgnoreCase)
-                        && PathMatches(o.Path, identity.Path!))
+                        && OperationMatch.PathMatches(o.Path, identity.Path!))
             .ToList();
 
         if (candidates.Count == 0)
@@ -550,77 +550,13 @@
         // Most specific wins: a path spending a literal where another spends a
         // template is the one the caller meant. Without this a catch-all
         // shadows every specific path beside it.
-        var best = candidates.Max(o => LiteralSegments(o.Path));
-        var top = candidates.Where(o => LiteralSegments(o.Path) == best).ToList();
+        var top = OperationMatch.MostSpecific(candidates, o => o.Path);
 
         return top.Count == 1
             ? (top[0], null)
             : (null, "several paths in this spec match it equally well: "
                      + string.Join(", ", top.Select(o => o.Path).OrderBy(p => p, StringComparer.Ordinal)));
     }
-
-    private static readonly Regex Template = new(@"\{[^{}]*\}");
-
-    /// <summary>
-    /// Whether a spec path matches a call path, by the contract's rule: a
-    /// templated part of a spec segment matches any run of characters within
-    /// one call segment, and everything else matches exactly, INCLUDING case.
-    ///
-    /// <para>
-    /// Both halves are load-bearing and they pull opposite ways. A spec
-    /// templating its version where the caller pins one is a spelling
-    /// convention, and refusing it reports false gaps by the dozen. A caller
-    /// spelling a path segment in the wrong case is a defect in the caller, and
-    /// absorbing it would hide a real bug inside the one file whose whole job
-    /// is saying what the code does.
-    /// </para>
-    ///
-    /// <para>
-    /// Templates are matched WITHIN a segment and not only as whole segments,
-    /// because an OData path spells one out as
-    /// <c>{entitySetName}({recordId})</c>. Two implementations of the sentence
-    /// "a templated segment matches any single literal segment" split on
-    /// exactly that, which is how the sentence was found to have two readings.
-    /// </para>
-    /// </summary>
-    private static bool PathMatches(string specPath, string callPath)
-    {
-        var spec = specPath.Split('/');
-        var call = callPath.Split('/');
-        if (spec.Length != call.Length) return false;
-
-        for (var i = 0; i < spec.Length; i++)
-        {
-            if (!Template.IsMatch(spec[i]))
-            {
-                if (!string.Equals(spec[i], call[i], StringComparison.Ordinal)) return false;
-            }
-            else if (!Regex.IsMatch(call[i], SegmentPattern(spec[i])))
-            {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    private static string SegmentPattern(string segment)
-    {
-        var pattern = new StringBuilder("^");
-        var last = 0;
-
-        foreach (Match match in Template.Matches(segment))
-        {
-            pattern.Append(Regex.Escape(segment[last..match.Index])).Append("[^/]+");
-            last = match.Index + match.Length;
-        }
-
-        return pattern.Append(Regex.Escape(segment[last..])).Append('$').ToString();
-    }
-
-    /// <summary>How specific a path is: the segments it spells out rather than templates.</summary>
-    private static int LiteralSegments(string path) =>
-        path.Split('/').Count(segment => !Template.IsMatch(segment));
 
     // ---- words -------------------------------------------------------------
 

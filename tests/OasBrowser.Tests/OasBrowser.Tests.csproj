@@ -30,6 +30,7 @@
     <Compile Include="../../src/OasBrowser/Services/Route.cs" />
     <Compile Include="../../src/OasBrowser/Rendering/Markdown.cs" />
     <Compile Include="../../src/OasBrowser/Model/CoverageMap.cs" />
+    <Compile Include="../../src/OasBrowser/Model/OperationMatch.cs" />
   </ItemGroup>
 
 </Project>
