@@ -62,7 +62,18 @@ public readonly record struct Route(RouteKind Kind, string? Id, string? SpecId =
     /// #/&lt;specId&gt;                 that spec's overview
     /// #/&lt;kind&gt;/&lt;id&gt;              bare: resolved against the default spec
     /// #/&lt;specId&gt;/&lt;kind&gt;/&lt;id&gt;     fully qualified
+    /// #/&lt;specId&gt;/&lt;kind&gt;          a kind with no id: the whole spec seen that way
     /// </code>
+    ///
+    /// <para>
+    /// The last form is what the coverage view is addressed by. Every other kind
+    /// names one thing in a spec, so an id is what it is about; coverage is
+    /// about the spec entire, and there is nothing for it to carry. It parses
+    /// only in the qualified form: <c>#/coverage</c> was already pinned as the
+    /// overview before this existed, because the first segment being a kind is
+    /// what the bare form means, and a published link resolving somewhere else
+    /// today than it did yesterday is worse than an asymmetry.
+    /// </para>
     ///
     /// The first segment is a spec id unless it names a kind, which is why a
     /// spec may not be called <c>operations</c>, <c>schemas</c>,
@@ -87,8 +98,8 @@ public readonly record struct Route(RouteKind Kind, string? Id, string? SpecId =
         // `spec:<id>` cross-spec reference resolves to.
         if (parts.Length == 1) return new Route(RouteKind.Overview, null, specId);
 
-        if (KindOf(parts[1]) is { } kind && parts.Length > 2)
-            return new Route(kind, Uri.UnescapeDataString(parts[2]), specId);
+        if (KindOf(parts[1]) is { } kind)
+            return new Route(kind, parts.Length > 2 ? Uri.UnescapeDataString(parts[2]) : null, specId);
 
         // A spec followed by something that is not a kind is not a route this
         // app writes. Land on that spec's overview rather than the default's:
@@ -103,15 +114,26 @@ public readonly record struct Route(RouteKind Kind, string? Id, string? SpecId =
         var segment = Segments.FirstOrDefault(s => s.Kind == kind).Segment;
         var spec = SpecId is null ? null : Uri.EscapeDataString(SpecId);
 
+        // A kind with no id only has a URL when a spec is named, because the
+        // bare "#/coverage" parses as the overview. Writing it anyway would emit
+        // a link that lands somewhere other than where it was written from,
+        // which is the one failure this whole type exists to stop.
+        var tail = (segment, Id) switch
+        {
+            (null, _) => null,
+            (var s, { } id) => $"{s}/{Uri.EscapeDataString(id)}",
+            (var s, null) => spec is null ? null : s,
+        };
+
         // One spelling per route. An overview carrying a spec is "#/athena",
         // not "#/athena/": both parse the same, and emitting the second would
         // put two spellings of one location into other people's links.
-        return (spec, segment is null || Id is null ? null : $"{segment}/{Uri.EscapeDataString(Id)}") switch
+        return (spec, tail) switch
         {
             (null, null) => "#/",
-            (null, var tail) => $"#/{tail}",
+            (null, var t) => $"#/{t}",
             (var s, null) => $"#/{s}",
-            var (s, tail) => $"#/{s}/{tail}",
+            var (s, t) => $"#/{s}/{t}",
         };
     }
 }

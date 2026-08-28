@@ -524,3 +524,211 @@ a.prop__type { color: var(--text-link); }
   color: var(--text-tertiary);
   overflow-wrap: anywhere;
 }
+
+/* ------------------------------------------------------- coverage page --- */
+
+/* Arrangement only. Every control on that page is keel's; what is here is
+   where they sit, and the two typographic decisions the page makes for itself,
+   both of which are the .prop__req argument again: an operation nothing calls
+   takes weight rather than a tone, because "not called" is a permanent fact
+   about an operation relative to a mapping and not a state it entered. */
+
+/* Where the mapping was fetched from. Unlike .brand-origin this is the whole
+   url rather than an origin, so the rule is the opposite one: it must never
+   run off the side of a phone, and there is nothing here worth protecting from
+   a line break, so it wraps. Provenance the reader cannot see all of is the
+   failure in both cases; only the way out differs. */
+.cov-provenance {
+  white-space: normal;
+  overflow-wrap: anywhere;
+  text-align: left;
+}
+.cov-provenance__label { font-size: 12.5px; color: var(--text-tertiary); }
+
+.cov-headline { margin-bottom: var(--space-8); }
+.cov-headline__bar { margin-bottom: var(--space-5); }
+.cov-headline__line {
+  margin: 0 0 var(--space-5);
+  font-size: 16px;
+  color: var(--text-secondary);
+  max-width: 68ch;
+}
+.cov-headline__line strong { color: var(--text-primary); font-variant-numeric: tabular-nums; }
+
+.cov-grade {
+  margin: var(--space-4) 0 0;
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--text-secondary);
+  max-width: 72ch;
+}
+.cov-grade--absent { color: var(--text-primary); }
+
+/* The meter in a group's heading row. keel pushes the trailing slot to the end
+   and refuses to shrink it, so the bar takes a fixed width and the resource
+   name gets everything else; at 375px that is the difference between a name
+   that ellipses and a row that scrolls the page sideways. */
+.cov-group { margin-bottom: var(--space-2); }
+.cov-meter { width: 56px; flex: none; }
+.cov-meter__count {
+  margin-left: var(--space-3);
+  font-size: 11.5px;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+@media (min-width: 560px) { .cov-meter { width: 96px; } }
+
+/* One operation inside an opened resource. The glyph sits in a gutter so the
+   names form a column whatever the state is. */
+.cov-op {
+  display: grid;
+  grid-template-columns: 16px minmax(0, 1fr);
+  gap: var(--space-3);
+  align-items: start;
+  padding: var(--space-3) var(--space-3) var(--space-3) var(--space-5);
+}
+.cov-glyph { width: 12px; height: 12px; margin-top: 4px; color: var(--text-tertiary); }
+.cov-op__body { min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.cov-op__link {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+  min-width: 0;
+  text-decoration: none;
+  color: inherit;
+}
+.cov-op__link:hover .cov-op__id { text-decoration: underline; }
+.cov-op__id {
+  font-family: var(--font-mono);
+  font-feature-settings: "liga" 1, "calt" 1;
+  font-size: 13px;
+  overflow-wrap: anywhere;
+}
+.cov-op__path {
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  color: var(--text-tertiary);
+  overflow-wrap: anywhere;
+}
+.cov-op__state { font-size: 11.5px; color: var(--text-tertiary); }
+
+/* The one place this page raises its voice, and it raises it for an absence.
+   No hue: weight and ink, which survive greyscale and need no per-theme
+   tuning, and the glyph beside it is a hollow ring where a called one is
+   filled, so the state is legible three ways over. */
+.cov-op--unrecorded .cov-op__id { font-weight: var(--fw-semibold); color: var(--text-primary); }
+.cov-op--unrecorded .cov-op__state { font-weight: var(--fw-semibold); color: var(--text-primary); }
+.cov-op--unrecorded .cov-glyph { color: var(--text-secondary); }
+.cov-op--called .cov-op__id { color: var(--text-secondary); }
+
+/* The absence gets a line of its own rather than a third chip in the row
+   above, because it is not a third point on that scale. The chip carries the
+   count and the sentence beside it says whose record the count is an absence
+   from, which is the whole of the correction: one mapping, one publisher, and
+   an operation missing from it is short of evidence rather than known to be
+   unused. */
+.cov-absence {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-3);
+  margin: var(--space-4) 0 0;
+  max-width: 72ch;
+}
+.cov-absence__gloss {
+  flex: 1 1 22ch;
+  min-width: 0;
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--text-secondary);
+}
+
+.cov-callers { margin-top: var(--space-3); }
+.cov-caller { padding: var(--space-3) 0 var(--space-3) var(--space-5); min-width: 0; }
+.cov-caller + .cov-caller { border-top: 1px solid var(--border-subtle); }
+.cov-caller__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+  min-width: 0;
+}
+.cov-caller__name {
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  font-weight: var(--fw-semibold);
+  overflow-wrap: anywhere;
+}
+.cov-caller__source {
+  margin: var(--space-2) 0 0;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-tertiary);
+  overflow-wrap: anywhere;
+}
+
+/* One entrypoint of one artifact: which phase reached the operation, and
+   whether that phase always does. */
+.cov-entry {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+  margin-top: var(--space-2);
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+.cov-entry__where { font-weight: var(--fw-semibold); color: var(--text-primary); }
+.cov-entry__how { color: var(--text-tertiary); }
+.cov-entry__note {
+  margin: var(--space-2) 0 0;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--text-tertiary);
+  max-width: 72ch;
+}
+
+/* Calls the spec cannot account for. A list rather than a table: the identity
+   is the long part and it has to be allowed to wrap. */
+.cov-miss__lead { margin: 0 0 var(--space-4); max-width: 72ch; }
+.cov-miss { margin: 0; padding-left: 1.15em; max-width: 72ch; }
+.cov-miss li { margin-bottom: var(--space-4); }
+.cov-miss__wanted {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  font-weight: var(--fw-semibold);
+  overflow-wrap: anywhere;
+}
+.cov-miss__why, .cov-miss__who { display: block; font-size: 12px; }
+
+.cov-uncat { padding: var(--space-3) 0; }
+.cov-uncat__count {
+  margin-left: var(--space-3);
+  font-size: 12px;
+  color: var(--text-tertiary);
+  font-variant-numeric: tabular-nums;
+}
+
+/* The way in to the page, in the bar beside the repository link. */
+.appbar__coverage {
+  font-size: 13px;
+  font-weight: var(--fw-semibold);
+  color: var(--text-secondary);
+  text-decoration: none;
+  white-space: nowrap;
+}
+.appbar__coverage:hover { color: var(--accent-text); }
+
+/* The same link inside the drawer, where the bar's links go on a phone. */
+.rail__drawer-link {
+  display: block;
+  padding: var(--space-4) var(--space-5);
+  font-size: 13px;
+  font-weight: var(--fw-semibold);
+  color: var(--text-secondary);
+  text-decoration: none;
+  border-bottom: 1px solid var(--border-subtle);
+}
+.rail__drawer-link:hover { color: var(--accent-text); }

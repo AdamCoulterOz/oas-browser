@@ -1,5 +1,6 @@
 @implements IAsyncDisposable
 @inject SpecStore Store
+@inject CoverageStore Coverage
 @inject HashRouter Router
 @inject IJSRuntime Js
 
@@ -83,6 +84,19 @@
             </Brand>
 
             <ChildContent>
+                @* The way in to the coverage view, and only when something has
+                   named a mapping. A link to a page that would say "no mapping"
+                   on every corpus in the world is chrome; a link that appears
+                   because somebody published a claim about this corpus is the
+                   notice that the claim exists. Shown for a refusal too: a
+                   mapping that was named and is being refused is exactly the
+                   thing a reader most needs to be able to go and read. *@
+                @if (Coverage.Declared && _current is not null)
+                {
+                    <a class="appbar__coverage" href="@CoverageHash"
+                       @onclick:preventDefault @onclick="GoCoverage">Coverage</a>
+                }
+
                 @if (_current is not null)
                 {
                     <a href="@_current.Repo" target="_blank" rel="noopener"
@@ -108,6 +122,16 @@
             <KeelNavDrawer @bind-Open="_navOpen" Side="Side.Left" Title="API navigation">
                 <Header>@Brand.Long</Header>
                 <ChildContent>
+                    @* The bar hides its links behind the burger below keel's Lg
+                       width, so a link that lives only there is a link a phone
+                       cannot reach. Repeated here rather than moved, because on
+                       a wide screen the bar is where it belongs. *@
+                    @if (Coverage.Declared && _current is not null)
+                    {
+                        <a class="rail__drawer-link" href="@CoverageHash"
+                           @onclick:preventDefault @onclick="GoCoverage">Coverage</a>
+                    }
+
                     @if (_spec is not null)
                     {
                         <div class="rail__drawer-body">
@@ -146,6 +170,13 @@
                         case RouteKind.Schema when _route.Id is { } id && _spec.Schemas.ContainsKey(id):
                             <SchemaPage Spec="_spec" Name="@id" OnNavigate="NavigateAsync" />
                             break;
+                        case RouteKind.Coverage when _current is not null:
+                            @* The catalogue id, not the spec's own title. A
+                               mapping's `spec` field names a catalogue entry,
+                               and the title inside the document is a different
+                               string chosen by a different person. *@
+                            <CoveragePage Spec="_spec" SpecId="@_current.Id" OnNavigate="NavigateAsync" />
+                            break;
                         default:
                             <OverviewPage Spec="_spec" OnNavigate="NavigateAsync" />
                             break;
@@ -175,6 +206,16 @@
         try
         {
             _catalogue = (await Store.LoadCatalogueAsync()).ToList();
+
+            // After the catalogue, because the catalogue is one of the two
+            // places a mapping url comes from, the thing a relative one
+            // resolves against, and the other half of the agreement check.
+            // Awaited rather than left running: nothing is fetched at all
+            // unless a mapping was named, and when one was, it was named by
+            // the reader or by the corpus and the whole app is about to want
+            // to know whether it loaded.
+            await Coverage.LoadAsync();
+
             await Router.InitialiseAsync();
             await ApplyRouteAsync(Router.Current);
         }
@@ -243,6 +284,14 @@
     }
 
     private Task GoOverview() => NavigateAsync(new Route(RouteKind.Overview, null, _current?.Id));
+
+    // Coverage is about the whole spec rather than one thing in it, so the
+    // route carries no id. Route writes the hash; the anchor carries it so the
+    // link behaves like a link for middle-click and copy, and the click handler
+    // keeps it in-app.
+    private string CoverageHash => new Route(RouteKind.Coverage, null, _current?.Id).ToHash();
+
+    private Task GoCoverage() => NavigateAsync(new Route(RouteKind.Coverage, null, _current?.Id));
 
     private Task OnSpecChanged(string? id) =>
         id is null || id == _current?.Id

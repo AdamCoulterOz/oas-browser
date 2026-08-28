@@ -30,7 +30,14 @@ public sealed class CoverageStore(HttpClient http, NavigationManager nav, SpecSt
 {
     private const string CoverageParameter = "coverage";
 
-    private bool _loaded;
+    /// <summary>
+    /// The read, held as the task rather than as a "have I started" flag. Two
+    /// callers now await this, the shell and the coverage view, and a boolean
+    /// would hand the second one a store whose fetch is still in flight: it
+    /// would return immediately, see a null map, and render "no mapping" over a
+    /// mapping that arrives a moment later.
+    /// </summary>
+    private Task? _read;
 
     /// <summary>
     /// The mapping, or null when there is none to show. Null covers three
@@ -49,6 +56,21 @@ public sealed class CoverageStore(HttpClient http, NavigationManager nav, SpecSt
 
     /// <summary>Whether anything named a mapping for this corpus at all.</summary>
     public bool Declared { get; private set; }
+
+    /// <summary>
+    /// Where the mapping was actually fetched from, once one has been resolved.
+    ///
+    /// <para>
+    /// This is the browser's own record of the fetch and never anything the
+    /// document says about itself, which is the whole reason a view shows it.
+    /// A mapping is somebody else's claim about this corpus and every word
+    /// inside it is that somebody's to write, including any url it might carry;
+    /// the address it was served from is the one fact about it that its author
+    /// does not get to choose. Same argument as the catalogue origin in the nav
+    /// bar, one document further out.
+    /// </para>
+    /// </summary>
+    public Uri? Source { get; private set; }
 
     /// <summary>
     /// Reads the mapping, at most once per session.
@@ -70,11 +92,10 @@ public sealed class CoverageStore(HttpClient http, NavigationManager nav, SpecSt
     /// still gets their spec.
     /// </para>
     /// </summary>
-    public async Task LoadAsync()
-    {
-        if (_loaded) return;
-        _loaded = true;
+    public Task LoadAsync() => _read ??= ReadAsync();
 
+    private async Task ReadAsync()
+    {
         var (source, refusal) = ResolveCoverageUri();
         Declared = source is not null || refusal is not null;
 
@@ -85,6 +106,8 @@ public sealed class CoverageStore(HttpClient http, NavigationManager nav, SpecSt
         }
 
         if (source is null) return;
+
+        Source = source;
 
         try
         {

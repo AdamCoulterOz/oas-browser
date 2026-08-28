@@ -1,0 +1,712 @@
+@* Which parts of this API does nothing use.
+
+   That is the question this page exists to answer, and everything on it is
+   arranged around the fact that the answer is an ABSENCE. An absence has no
+   row of its own to read: nothing renders for the operation nobody calls, so a
+   view that lists what is called reports the good news and leaves the reader
+   to notice the silence. So the resource list is sorted by coverage ASCENDING,
+   the state tally always shows the not-called count even when it is zero, the
+   calls that fail to resolve get a callout rather than a filter, and the
+   uncatalogued section is here at all.
+
+   The mapping is somebody else's claim about this corpus. The page says where
+   it was fetched from before it says anything the document claims, for the
+   same reason the nav bar shows the catalogue's origin: a document can write
+   any word inside itself, and the address it came from is the one thing about
+   it its author does not get to choose. *@
+
+@using System.Text
+@using System.Text.RegularExpressions
+@inject CoverageStore Coverage
+
+<div class="page">
+    <h1 class="page__title">Coverage</h1>
+
+    @if (Coverage.Source is { } from)
+    {
+        <div class="cluster cluster--titled">
+            <span class="cov-provenance__label">Mapping fetched from</span>
+            <KeelChip class="cov-provenance" Mono="true" Emphasis="Emphasis.Quiet"
+                      title="@($"Every figure on this page comes from the document served at {from}. Nothing here is read from what that document says about itself.")">@from</KeelChip>
+        </div>
+    }
+
+    @if (Coverage.Refusal is { } refusal)
+    {
+        @* Verbatim, and on its own. The refusal already explains itself at
+           length, and the whole point of it is that nothing behind it renders:
+           partial coverage over a refusal is the failure the refusal exists to
+           stop, wearing a warning label. *@
+        <KeelCallout Tone="Tone.Bad" Live="LiveRegion.Off" Title="Coverage is not shown">
+            @refusal
+        </KeelCallout>
+    }
+    else if (Map is null)
+    {
+        <KeelCallout Tone="Tone.Neutral" Live="LiveRegion.Off" Title="No coverage mapping">
+            Nothing has published a mapping for this catalogue, so there is no claim
+            here about what calls these operations. A mapping can be pointed at with
+            <code>?coverage=</code>, or named by the catalogue itself.
+        </KeelCallout>
+    }
+    else if (_view is not { } view)
+    {
+        <div class="state">
+            <KeelSpinner class="state__spinner" Diameter="22" Label="Reading the coverage mapping" />
+            Reading the coverage mapping…
+        </div>
+    }
+    else
+    {
+        <section class="section cov-headline">
+            <KeelProgressBar class="cov-headline__bar" Value="@Percent(view.Recorded, view.Total)"
+                             aria-label="@($"{view.Recorded} of {view.Total} operations have a caller recorded in this mapping")" />
+
+            <p class="cov-headline__line">
+                <strong>@view.Recorded</strong> of <strong>@view.Total</strong>
+                operation@(view.Total == 1 ? "" : "s")
+                @(view.Recorded == 1 ? "has" : "have") a caller recorded in this mapping,
+                <strong>@view.Artifacts</strong> @(Kinds(view.Artifacts) + " in all.")
+            </p>
+
+            @* Every count, including the zeroes: a state with no members that
+               is simply omitted is indistinguishable from a state this view
+               does not know about, and the reader cannot tell which they are
+               looking at.
+
+               No tones. These are not states an operation entered; they are
+               facts about it relative to one mapping, and the words already
+               tell them apart in greyscale.
+
+               And the third is deliberately NOT in the same row as the other
+               two. Full and conditional are two points on one scale; an
+               absence of any record is not a third point further along it, and
+               three chips in a row would assert that it was. So the scale is a
+               row and the absence is a sentence, which is also the only shape
+               with room to say whose record it is an absence from. *@
+            <div class="cluster cluster--tight">
+                <KeelChip Emphasis="Emphasis.Outlined">@view.Full called in full</KeelChip>
+                <KeelChip Emphasis="Emphasis.Outlined">@view.Conditional called conditionally</KeelChip>
+            </div>
+
+            <p class="cov-absence">
+                <KeelChip Emphasis="Emphasis.Outlined">@view.Unrecorded with no caller recorded in this mapping</KeelChip>
+                <span class="cov-absence__gloss">
+                    That is a fact about this one mapping, published by one consumer of this
+                    API. An operation with no row here may still have callers nobody has
+                    mapped, so it is short of evidence rather than known to be unused.
+                </span>
+            </p>
+
+            @* What the claims rest on, in the mapping's own declared words. A
+               page of counts with no provenance on the counts reads as
+               measurement; most mappings are read out of source rather than off
+               the wire, and the difference is the reader's to weigh. *@
+            @foreach (var grade in view.Grades)
+            {
+                <p class="cov-grade">
+                    <strong>@grade.Calls</strong> of the @view.Calls calls shown here
+                    @(grade.Calls == 1 ? "is" : "are") graded
+                    <strong>@(grade.Title ?? grade.Id)</strong>@Caveat(grade)
+                </p>
+            }
+            @if (view.ObservedTitle is { } observed)
+            {
+                <p class="cov-grade cov-grade--absent">
+                    Nothing here is graded <strong>@observed</strong>, the grade this mapping
+                    declares as its attested one.
+                </p>
+            }
+        </section>
+
+        <KeelSeparator />
+
+        <section class="section">
+            <h2 class="section__title">Resources, least covered first</h2>
+            <p class="prop__desc">
+                Sorted by the proportion of each resource this mapping records a caller
+                for, ascending, so a resource with nothing recorded against it at all is at
+                the top. Open one for its operations and, for each that is called, who
+                calls it.
+            </p>
+
+            @foreach (var group in view.Groups)
+            {
+                <KeelDisclosure class="cov-group" Label="@group.Name">
+                    <Trailing>
+                        <KeelProgressBar class="cov-meter" Value="@Percent(group.Called, group.Rows.Count)"
+                                         aria-label="@($"{group.Called} of {group.Rows.Count} operations have a caller recorded in this mapping")" />
+                        <span class="cov-meter__count">@group.Called of @group.Rows.Count</span>
+                    </Trailing>
+                    <ChildContent>
+                        @foreach (var row in group.Rows)
+                        {
+                            <div class="cov-op @(row.State == OpState.Unrecorded ? "cov-op--unrecorded" : "cov-op--called")">
+                                @* Shape and words, never colour alone: a filled,
+                                   half-filled and hollow ring are one glyph in
+                                   three weights, which says "ordered, same
+                                   thing" the way three unrelated marks would
+                                   not, and the label beside it says the same in
+                                   text for a reader who cannot see either. *@
+                                @switch (row.State)
+                                {
+                                    case OpState.Full:
+                                        <svg class="cov-glyph" viewBox="0 0 16 16" aria-hidden="true">
+                                            <circle cx="8" cy="8" r="6" fill="currentColor" />
+                                        </svg>
+                                        break;
+                                    case OpState.Conditional:
+                                        <svg class="cov-glyph" viewBox="0 0 16 16" aria-hidden="true">
+                                            <circle cx="8" cy="8" r="6" fill="none" stroke="currentColor" stroke-width="2" />
+                                            <path d="M8 2a6 6 0 0 0 0 12z" fill="currentColor" />
+                                        </svg>
+                                        break;
+                                    default:
+                                        <svg class="cov-glyph" viewBox="0 0 16 16" aria-hidden="true">
+                                            <circle cx="8" cy="8" r="6" fill="none" stroke="currentColor" stroke-width="2" />
+                                        </svg>
+                                        break;
+                                }
+
+                                <div class="cov-op__body">
+                                    <a class="cov-op__link" href="@OperationHash(row.Op)"
+                                       @onclick:preventDefault @onclick="() => Go(row.Op)">
+                                        <KeelChip Emphasis="Emphasis.Quiet" Mono="true"
+                                                  Tone="@MethodTone.For(row.Op.Method)">@row.Op.Method</KeelChip>
+                                        <span class="cov-op__id">@row.Op.OperationId</span>
+                                    </a>
+                                    <span class="cov-op__path">@row.Op.Path</span>
+                                    <span class="cov-op__state">@Words(row.State)</span>
+
+                                    @if (row.Callers.Count > 0)
+                                    {
+                                        @* Grouped by artifact, with the
+                                           entrypoints under it. The producer's
+                                           row is (artifact, entrypoint,
+                                           operation), so a flat list counts one
+                                           component five times for reading an
+                                           operation from five lifecycle phases;
+                                           the number of components is the fact,
+                                           and which phases is the detail. *@
+                                        <KeelDisclosure class="cov-callers"
+                                                        Label="@($"{row.Callers.Count} {Kinds(row.Callers.Count)}")">
+                                            @foreach (var caller in row.Callers)
+                                            {
+                                                <div class="cov-caller">
+                                                    <div class="cov-caller__head">
+                                                        <span class="cov-caller__name">@Named(caller.Item)</span>
+                                                        @if (KindLabel(caller.Item.Kind) is { } kindLabel)
+                                                        {
+                                                            <KeelTag>@kindLabel</KeelTag>
+                                                        }
+                                                    </div>
+                                                    @foreach (var call in caller.Calls)
+                                                    {
+                                                        <div class="cov-entry">
+                                                            <span class="cov-entry__where">@EntrypointLabel(call)</span>
+                                                            <span class="cov-entry__how">@(call.Coverage == "partial" ? "conditionally" : "in full")</span>
+                                                            @if (call.ApiVersion is { Length: > 0 } apiVersion)
+                                                            {
+                                                                <KeelChip Emphasis="Emphasis.Quiet" Mono="true"
+                                                                          title="The api-version this caller pins">@apiVersion</KeelChip>
+                                                            }
+                                                            @if (call.Approximate == true)
+                                                            {
+                                                                <KeelTag Tone="Tone.Warning"
+                                                                         title="The producer could not resolve this row with certainty">approximate</KeelTag>
+                                                            }
+                                                        </div>
+                                                        @if (call.Note is { Length: > 0 } note)
+                                                        {
+                                                            <p class="cov-entry__note">@note</p>
+                                                        }
+                                                    }
+                                                    @if (caller.Item.Source?.Path is { Length: > 0 } path)
+                                                    {
+                                                        <p class="cov-caller__source">@path@(caller.Item.Source?.Line is { } line ? $":{line}" : "")</p>
+                                                    }
+                                                </div>
+                                            }
+                                        </KeelDisclosure>
+                                    }
+                                </div>
+                            </div>
+                        }
+                    </ChildContent>
+                </KeelDisclosure>
+            }
+        </section>
+
+        @if (view.Misses.Count > 0)
+        {
+            @* A finding, not an error and not a thing to hide. Every one of
+               these is a call the mapping makes that this spec cannot account
+               for, so the coverage above is measured against a slightly smaller
+               claim than the mapping actually made, and a reader who cannot see
+               that will read the numbers as complete. *@
+            <section class="section">
+                <KeelCallout Tone="Tone.Warning" Live="LiveRegion.Off" Title="@MissTitle(view.MissedCalls)">
+                    <p class="cov-miss__lead">
+                        These are counted in nothing above. Each one names an operation and
+                        this spec has none to match it, so the mapping and the spec disagree
+                        about what exists.
+                    </p>
+                    <ul class="cov-miss">
+                        @foreach (var miss in view.Misses)
+                        {
+                            <li>
+                                <span class="cov-miss__wanted">@miss.Wanted</span>
+                                <span class="cov-miss__why">@miss.Why</span>
+                                <span class="cov-miss__who">
+                                    @miss.Calls call@(miss.Calls == 1 ? "" : "s") from @string.Join(", ", miss.Artifacts)
+                                </span>
+                            </li>
+                        }
+                    </ul>
+                </KeelCallout>
+            </section>
+        }
+
+        @if (view.Uncatalogued.Count > 0)
+        {
+            @* Calls no operation names. Not scoped to this spec, and they
+               cannot be: a call with no operation has no spec either, which is
+               what "uncatalogued" means. They are on every spec's coverage page
+               for that reason, and the section says so rather than letting a
+               reader take them for this spec's. *@
+            <section class="section">
+                <h2 class="section__title">Calls no operation names</h2>
+                <p class="prop__desc">
+                    @view.UncataloguedCalls call@(view.UncataloguedCalls == 1 ? "" : "s")
+                    from @view.UncataloguedArtifacts @Kinds(view.UncataloguedArtifacts)
+                    that no operation in this catalogue can name, so they are attributed to
+                    no spec and appear on every spec's coverage page. They are counted in
+                    nothing above; without them the figures would read as a fuller account
+                    of this code than the mapping claims to be.
+                </p>
+
+                @foreach (var reason in view.Uncatalogued)
+                {
+                    <h3 class="section__label">
+                        @reason.Label
+                        <span class="prop__meta">@reason.Calls call@(reason.Calls == 1 ? "" : "s")</span>
+                    </h3>
+                    @foreach (var row in reason.Rows)
+                    {
+                        <div class="cov-uncat">
+                            <span class="cov-caller__name">@row.Artifact</span>
+                            <span class="cov-uncat__count">@row.Count call@(row.Count == 1 ? "" : "s")</span>
+                            @if (row.Note is { Length: > 0 } note)
+                            {
+                                <p class="cov-entry__note">@note</p>
+                            }
+                        </div>
+                    }
+                }
+            </section>
+        }
+    }
+</div>
+
+@code {
+    [Parameter, EditorRequired] public OpenApiSpec Spec { get; set; } = default!;
+
+    /// <summary>
+    /// The catalogue id of the spec on screen. Not derivable from the spec
+    /// itself: a mapping's <c>spec</c> field is a catalogue id, and the
+    /// document's own title is a different string chosen by a different person.
+    /// </summary>
+    [Parameter, EditorRequired] public string SpecId { get; set; } = "";
+
+    [Parameter] public EventCallback<Route> OnNavigate { get; set; }
+
+    private CoverageMap? Map => Coverage.Map;
+
+    private View? _view;
+
+    // The store hands back the same task to every caller, so awaiting it here
+    // is correct whether the shell got there first or not.
+    protected override Task OnInitializedAsync() => Coverage.LoadAsync();
+
+    // Runs after OnInitializedAsync has completed, so the map is present by the
+    // time the join is built. Built once per parameter set rather than per
+    // render: the join walks every operation in the spec against every called
+    // identity, and a render is not the place for that.
+    protected override void OnParametersSet() => _view = Map is { } map ? Build(map) : null;
+
+    // ---- the model this page renders --------------------------------------
+
+    /// <summary>
+    /// What this mapping records about one operation.
+    ///
+    /// <para>
+    /// <b>Three members, but not three points on one scale.</b> Full and
+    /// Conditional are positive claims with a call site behind them, ordered
+    /// against each other. <see cref="OpState.Unrecorded"/> is not further down
+    /// that scale, it is the absence of a row in ONE mapping published by ONE
+    /// consumer of this API, and the page has to keep those apart in its words
+    /// and in its layout. A call to an operation this spec does not carry is a
+    /// fourth thing again, an anomaly rather than a state, which is why it is
+    /// not in here and gets a callout of its own.
+    /// </para>
+    /// </summary>
+    private enum OpState { Unrecorded, Conditional, Full }
+
+    private sealed record Caller(CoverageItem Item, IReadOnlyList<CoverageCall> Calls);
+
+    private sealed record OpRow(Operation Op, OpState State, IReadOnlyList<Caller> Callers);
+
+    private sealed record Group(string Name, int Called, IReadOnlyList<OpRow> Rows);
+
+    private sealed record Miss(string Wanted, string Why, IReadOnlyList<string> Artifacts, int Calls);
+
+    private sealed record GradeTally(string Id, string? Title, string? Caveat, int Calls);
+
+    private sealed record UncatRow(string Artifact, int Count, string? Note);
+
+    private sealed record UncatReason(string Label, int Calls, IReadOnlyList<UncatRow> Rows);
+
+    private sealed record View(
+        int Total, int Recorded, int Full, int Conditional, int Artifacts, int Calls,
+        IReadOnlyList<Group> Groups,
+        IReadOnlyList<Miss> Misses, int MissedCalls,
+        IReadOnlyList<GradeTally> Grades, string? ObservedTitle,
+        IReadOnlyList<UncatReason> Uncatalogued, int UncataloguedCalls, int UncataloguedArtifacts)
+    {
+        public int Unrecorded => Total - Recorded;
+    }
+
+    // ---- building it -------------------------------------------------------
+
+    private View Build(CoverageMap map)
+    {
+        var byId = new Dictionary<string, List<Operation>>(StringComparer.Ordinal);
+        foreach (var op in Spec.Operations)
+        {
+            if (!byId.TryGetValue(op.OperationId, out var same)) byId[op.OperationId] = same = new();
+            same.Add(op);
+        }
+
+        var citations = new Dictionary<Operation, List<CoverageCitation>>();
+        var misses = new List<Miss>();
+
+        foreach (var identity in map.CalledOperations(SpecId))
+        {
+            var claims = map.Callers(SpecId, identity);
+            var (op, why) = Resolve(identity, byId);
+
+            if (op is null)
+            {
+                misses.Add(new Miss(
+                    identity.ToString(),
+                    why ?? "it does not resolve",
+                    claims.Select(c => Named(c.Item)).Distinct(StringComparer.Ordinal).OrderBy(n => n, StringComparer.Ordinal).ToList(),
+                    claims.Count));
+                continue;
+            }
+
+            // Two identities can land on one operation: the same operation
+            // named by id in one artifact and by path in another is one
+            // operation with two sets of callers, and counting it twice would
+            // put the called total above the spec's own.
+            if (!citations.TryGetValue(op, out var all)) citations[op] = all = new();
+            all.AddRange(claims);
+        }
+
+        // Calls with no identity at all. CoverageMap indexes by identity, so
+        // these are invisible to every query on it; they are still calls this
+        // mapping makes against this spec, and silently dropping them is the
+        // failure this page is arranged against.
+        var identityless = map.Items
+            .SelectMany(item => item.Calls.Select(call => (item, call)))
+            .Where(x => string.Equals(x.call.Spec, SpecId, StringComparison.Ordinal) && x.call.Identity is null)
+            .ToList();
+
+        if (identityless.Count > 0)
+            misses.Add(new Miss(
+                "no operation named",
+                "the call names its operation in neither form, or in both, so there is nothing to look up",
+                identityless.Select(x => Named(x.item)).Distinct(StringComparer.Ordinal).OrderBy(n => n, StringComparer.Ordinal).ToList(),
+                identityless.Count));
+
+        var rows = Spec.Operations.ToDictionary(
+            op => op,
+            op => citations.TryGetValue(op, out var claims)
+                ? new OpRow(op, claims.Any(c => c.Call.Coverage != "partial") ? OpState.Full : OpState.Conditional, ByArtifact(claims))
+                : new OpRow(op, OpState.Unrecorded, Array.Empty<Caller>()));
+
+        // Grouped by primary tag, in the spec's declared tag order, exactly as
+        // the nav tree and the resource page group it. One grouping in this app
+        // or the coverage of a resource would be measured over a set the reader
+        // cannot see anywhere else.
+        var byTag = Spec.Operations
+            .GroupBy(o => o.PrimaryTag, StringComparer.Ordinal)
+            .ToDictionary(g => g.Key, g => g.ToList(), StringComparer.Ordinal);
+
+        var groups = Spec.TagsInOrder()
+            .Where(t => byTag.ContainsKey(t.Name))
+            .Select(t => t.Name)
+            .Distinct(StringComparer.Ordinal)
+            .Select(name =>
+            {
+                var members = byTag[name].Select(op => rows[op]).ToList();
+                return new Group(name, members.Count(r => r.State != OpState.Unrecorded), members);
+            })
+            // ASCENDING, and this is the whole design of the page. The reader's
+            // first question is which parts of the API nothing uses, and an
+            // ascending sort answers it with the ORDER of the list rather than
+            // asking them to read every row and notice the small numbers. A
+            // resource nothing touches is at the top before anything is read.
+            // The tie-break is size descending, because among resources that
+            // are equally untouched the biggest one is the biggest finding.
+            .OrderBy(g => (double)g.Called / g.Rows.Count)
+            .ThenByDescending(g => g.Rows.Count)
+            .ThenBy(g => g.Name, StringComparer.Ordinal)
+            .ToList();
+
+        var shown = citations.Values.SelectMany(c => c).ToList();
+
+        var grades = shown
+            .GroupBy(c => c.Call.Grade ?? "", StringComparer.Ordinal)
+            .OrderBy(g => map.RankOf(g.Key) ?? int.MaxValue)
+            .Select(g => new GradeTally(g.Key, map.Grade(g.Key)?.Title, map.Grade(g.Key)?.Caveat, g.Count()))
+            .ToList();
+
+        var uncatalogued = map.Items
+            .SelectMany(item => item.Uncatalogued.Select(u => (item, u)))
+            .GroupBy(x => x.u.Reason ?? "", StringComparer.Ordinal)
+            .Select(g => new UncatReason(
+                ReasonLabel(map, g.Key),
+                g.Sum(x => x.u.Count ?? 0),
+                g.Select(x => new UncatRow(Named(x.item), x.u.Count ?? 0, x.u.Note)).ToList()))
+            .OrderByDescending(r => r.Calls)
+            .ThenBy(r => r.Label, StringComparer.Ordinal)
+            .ToList();
+
+        return new View(
+            Total: Spec.Operations.Count,
+            Recorded: citations.Count,
+            Full: rows.Values.Count(r => r.State == OpState.Full),
+            Conditional: rows.Values.Count(r => r.State == OpState.Conditional),
+            Artifacts: shown.Select(c => c.Item).Distinct().Count(),
+            Calls: shown.Count,
+            Groups: groups,
+            Misses: misses,
+            MissedCalls: misses.Sum(m => m.Calls),
+            Grades: grades,
+            // Said only when the mapping declares an attested grade and nothing
+            // here carries it. That is a fact about the evidence worth reading,
+            // and it is exactly the fact a page of confident figures hides.
+            ObservedTitle: map.ObservedGradeId is { Length: > 0 } observed
+                           && !shown.Any(c => map.IsObserved(c.Call.Grade))
+                ? map.Grade(observed)?.Title ?? observed
+                : null,
+            Uncatalogued: uncatalogued,
+            UncataloguedCalls: uncatalogued.Sum(r => r.Calls),
+            UncataloguedArtifacts: map.Items.Count(i => i.Uncatalogued.Count > 0));
+    }
+
+    private static List<Caller> ByArtifact(IReadOnlyList<CoverageCitation> claims) =>
+        claims.GroupBy(c => c.Item)
+              .Select(g => new Caller(g.Key, g.Select(c => c.Call).ToList()))
+              .ToList();
+
+    // ---- resolving a call's operation identity against this spec -----------
+
+    /// <summary>
+    /// The operation one identity names, or why this spec has none.
+    ///
+    /// <para>
+    /// This is where the contract's path-matching rule is applied, and it has
+    /// to be here rather than in <see cref="CoverageMap"/>: ranking candidates
+    /// by how many segments they match literally needs the spec's whole path
+    /// set, which the mapping is not and cannot become.
+    /// </para>
+    ///
+    /// <para>
+    /// A tie is reported rather than resolved. Two paths matching a call
+    /// equally well is the corpus and the mapping failing to determine an
+    /// answer between them, and picking one would make this page's figures
+    /// depend on which implementation read them.
+    /// </para>
+    /// </summary>
+    private (Operation? Op, string? Why) Resolve(OperationIdentity identity, Dictionary<string, List<Operation>> byId)
+    {
+        if (identity.OperationId is { } id)
+            return byId.TryGetValue(id, out var found)
+                ? found.Count == 1
+                    ? (found[0], null)
+                    : (null, $"{found.Count} operations in this spec carry that operationId")
+                : (null, "no operation in this spec has that operationId");
+
+        var candidates = Spec.Operations
+            .Where(o => string.Equals(o.Method, identity.Method, StringComparison.OrdinalIgnoreCase)
+                        && PathMatches(o.Path, identity.Path!))
+            .ToList();
+
+        if (candidates.Count == 0)
+            return (null, "no path in this spec matches it, at that method and that spelling");
+
+        // Most specific wins: a path spending a literal where another spends a
+        // template is the one the caller meant. Without this a catch-all
+        // shadows every specific path beside it.
+        var best = candidates.Max(o => LiteralSegments(o.Path));
+        var top = candidates.Where(o => LiteralSegments(o.Path) == best).ToList();
+
+        return top.Count == 1
+            ? (top[0], null)
+            : (null, "several paths in this spec match it equally well: "
+                     + string.Join(", ", top.Select(o => o.Path).OrderBy(p => p, StringComparer.Ordinal)));
+    }
+
+    private static readonly Regex Template = new(@"\{[^{}]*\}");
+
+    /// <summary>
+    /// Whether a spec path matches a call path, by the contract's rule: a
+    /// templated part of a spec segment matches any run of characters within
+    /// one call segment, and everything else matches exactly, INCLUDING case.
+    ///
+    /// <para>
+    /// Both halves are load-bearing and they pull opposite ways. A spec
+    /// templating its version where the caller pins one is a spelling
+    /// convention, and refusing it reports false gaps by the dozen. A caller
+    /// spelling a path segment in the wrong case is a defect in the caller, and
+    /// absorbing it would hide a real bug inside the one file whose whole job
+    /// is saying what the code does.
+    /// </para>
+    ///
+    /// <para>
+    /// Templates are matched WITHIN a segment and not only as whole segments,
+    /// because an OData path spells one out as
+    /// <c>{entitySetName}({recordId})</c>. Two implementations of the sentence
+    /// "a templated segment matches any single literal segment" split on
+    /// exactly that, which is how the sentence was found to have two readings.
+    /// </para>
+    /// </summary>
+    private static bool PathMatches(string specPath, string callPath)
+    {
+        var spec = specPath.Split('/');
+        var call = callPath.Split('/');
+        if (spec.Length != call.Length) return false;
+
+        for (var i = 0; i < spec.Length; i++)
+        {
+            if (!Template.IsMatch(spec[i]))
+            {
+                if (!string.Equals(spec[i], call[i], StringComparison.Ordinal)) return false;
+            }
+            else if (!Regex.IsMatch(call[i], SegmentPattern(spec[i])))
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private static string SegmentPattern(string segment)
+    {
+        var pattern = new StringBuilder("^");
+        var last = 0;
+
+        foreach (Match match in Template.Matches(segment))
+        {
+            pattern.Append(Regex.Escape(segment[last..match.Index])).Append("[^/]+");
+            last = match.Index + match.Length;
+        }
+
+        return pattern.Append(Regex.Escape(segment[last..])).Append('$').ToString();
+    }
+
+    /// <summary>How specific a path is: the segments it spells out rather than templates.</summary>
+    private static int LiteralSegments(string path) =>
+        path.Split('/').Count(segment => !Template.IsMatch(segment));
+
+    // ---- words -------------------------------------------------------------
+
+    private static double Percent(int part, int whole) => whole == 0 ? 0 : part * 100.0 / whole;
+
+    private static string Caveat(GradeTally grade) =>
+        grade.Caveat is { Length: > 0 } caveat ? $": {caveat}" : ".";
+
+    private static string MissTitle(int calls) =>
+        calls == 1
+            ? "1 call names an operation this spec does not carry"
+            : $"{calls} calls name operations this spec does not carry";
+
+    /// <summary>
+    /// How a state reads on a row.
+    ///
+    /// <para>
+    /// <b>"no recorded caller", never "not called", and the wordiness is the
+    /// point.</b> The first two say what a call site in this mapping shows. The
+    /// third would be saying that nothing anywhere calls the operation, and
+    /// this page has read exactly one mapping, published by one consumer of an
+    /// API that may have many. An operation with no row here can perfectly well
+    /// have callers nobody has mapped.
+    /// </para>
+    ///
+    /// <para>
+    /// With one mapping loaded the two readings look identical on screen, which
+    /// is exactly why the overclaiming one is easy to ship and hard to notice.
+    /// A page whose whole purpose is making an absence legible is the last
+    /// place that should assert more than its data earned. The longer form
+    /// naming the mapping is used where the states are introduced and where
+    /// they are counted; this short one is for the dense rows.
+    /// </para>
+    /// </summary>
+    private static string Words(OpState state) => state switch
+    {
+        OpState.Full => "called in full",
+        OpState.Conditional => "called conditionally",
+        _ => "no recorded caller",
+    };
+
+    /// <summary>
+    /// What one artifact is, in the mapping's own prose, or a neutral word when
+    /// it declares none.
+    /// </summary>
+    private string Kind => Map?.ArtifactKind is { Length: > 0 } kind ? kind : "artifact";
+
+    /// <summary>
+    /// The format declares the kind in the singular, which is right: a producer
+    /// should not have to spell an English plural for readers it has never met.
+    /// The plural is needed in this app and nowhere else, so the naive rule
+    /// lives here rather than in the contract.
+    /// </summary>
+    private string Kinds(int count) => count == 1 ? Kind : Kind + "s";
+
+    private static string Named(CoverageItem item) =>
+        item.Name is { Length: > 0 } name ? name : item.Id ?? "an unnamed artifact";
+
+    /// <summary>The declared label for a kind, or null when the mapping declares none.</summary>
+    private string? KindLabel(string? kind) =>
+        kind is { Length: > 0 } id && Map?.Kinds.TryGetValue(id, out var label) == true ? label : kind;
+
+    /// <summary>
+    /// Which entrypoint a call was reached from, in the mapping's declared
+    /// words. An undeclared id is shown as written rather than dropped: it is
+    /// still what the producer said, and dropping it would leave two calls to
+    /// one operation looking like a duplicate row.
+    /// </summary>
+    private string EntrypointLabel(CoverageCall call) =>
+        call.Entrypoint is { Length: > 0 } id
+            ? Map?.Entrypoints.TryGetValue(id, out var label) == true ? label : id
+            : "no entrypoint declared";
+
+    private static string ReasonLabel(CoverageMap map, string reason) =>
+        map.UncataloguedReasons.TryGetValue(reason, out var label) ? label
+            : reason.Length > 0 ? reason
+            : "no reason declared";
+
+    // ---- navigation --------------------------------------------------------
+
+    // Through Route, never by hand. A hash built from a format string here is a
+    // second spelling of the URL contract, and the first thing that goes wrong
+    // with one is an id that needed escaping.
+    private string OperationHash(Operation op) =>
+        new Route(RouteKind.Operation, op.OperationId, SpecId).ToHash();
+
+    private Task Go(Operation op) =>
+        OnNavigate.InvokeAsync(new Route(RouteKind.Operation, op.OperationId, SpecId));
+}
