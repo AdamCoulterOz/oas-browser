@@ -1099,6 +1099,27 @@ check under the keel rules is the same idea applied to a family rather than a
 pair, which is probably why it works. It forces a comparison rather than an
 inspection.
 
+**And the stronger version, where it is available: build the constraint into the
+shape of the thing so the violation is unsayable.**
+
+> A rule that holds because the design cannot express the violation is a
+> different class of thing from a rule everyone remembers to follow.
+
+The evidence is this repo's own. *Colour must not be the sole cue* was written
+down, understood by both parties, and violated twice this week in a file both
+were editing while discussing it. More documentation would have changed nothing,
+because nobody involved was unaware of the rule. What fixed it was keel
+designing a component whose ordered states are carried by fill and whose
+anomalous state is carried by shape, so a consumer *cannot* express the
+distinction in hue alone — the discipline is discharged by the type rather than
+by the author.
+
+The same move appears elsewhere in this document without being named: naming the
+observed grade once on the set rather than as a boolean per member makes "two
+observed grades" unrepresentable rather than merely invalid, and requiring
+`calls` to be present makes an empty one a claim rather than an omission. Reach
+for it whenever a rule has already been broken by somebody who knew it.
+
 Every instance this week has this shape, and in each one the thing under review
 was genuinely fine: a token that passed in light while dark was not the subject;
 a chip whose label was fixed while *why it was off-centre* was not the subject;
@@ -2185,6 +2206,15 @@ Open, in priority order:
 
    The test before mapping N states onto one channel: **are these all on one
    axis, or have I counted them rather than looked at them?**
+
+   A footnote on how that was found, because it is a distinction worth keeping.
+   The page had already put the anomaly in its own callout rather than as a
+   fourth mark, so the design was right before the reasoning was stated, and I
+   called that luck. keel's correction: the reasoning was present *in the design
+   decision* and absent from *the description I gave them*. That is a gap
+   between what you knew and what you said, which is a far smaller problem than
+   a gap between what you knew and what was true — but it is the one that makes
+   a reviewer unable to help, because they can only see the description.
 
 5. **Three ink uses of `--accent` fail AA in dark** (4.42:1 and 4.24:1): the
    schema type link, the operation summary on a schema page, and the current rail
