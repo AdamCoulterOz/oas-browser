@@ -216,6 +216,22 @@ public class RouteTests
             Route.ReservedIds.OrderBy(x => x));
     }
 
+    [Fact]
+    public void Every_reserved_id_is_a_segment_a_route_actually_writes()
+    {
+        // The reserved set is only worth enforcing on a corpus if every member
+        // is genuinely unreachable, so this walks the other way: for each
+        // reserved word, a spec id equal to it must fail to round trip. A word
+        // reserved that no route claims would be this app taking a name from a
+        // corpus for nothing, which is a cost with no benefit and exactly the
+        // kind of rule that survives long after its reason.
+        foreach (var reserved in Route.ReservedIds)
+        {
+            var wanted = new Route(RouteKind.Overview, null, reserved);
+            Assert.NotEqual(wanted, Route.Parse(wanted.ToHash()));
+        }
+    }
+
     [Theory]
     [InlineData("operations")]
     [InlineData("schemas")]

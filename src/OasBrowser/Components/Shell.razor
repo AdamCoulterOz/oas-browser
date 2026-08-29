@@ -142,6 +142,32 @@
             </KeelNavDrawer>
 
             <main class="main">
+                @* A spec whose id collides with a route segment has no URL that
+                   can name it, so it cannot be linked to and the picker sends a
+                   reader somewhere else. That is a defect in the catalogue and
+                   the browser is the only party that can detect it, because the
+                   reserved set is derived from this app's route table and grows
+                   when a route kind is added.
+
+                   On the page rather than in a console, because the person who
+                   can fix it is whoever publishes the catalogue and they are
+                   more likely to be reading this than a devtools panel. Above
+                   the content rather than instead of it: the other specs work
+                   and taking them away would be punishing a reader for someone
+                   else's naming. *@
+                @if (Store.CollidingSpecIds.Count > 0)
+                {
+                    <KeelCallout Tone="Tone.Warning" Title="This catalogue names a spec the URL cannot reach">
+                        <p>
+                            @string.Join(", ", Store.CollidingSpecIds)
+                            @(Store.CollidingSpecIds.Count == 1 ? " is" : " are")
+                            also the name of a route segment, so
+                            <code>#/@(Store.CollidingSpecIds[0])</code> is read as a page
+                            rather than as a spec. Rename it in the catalogue.
+                        </p>
+                    </KeelCallout>
+                }
+
                 @if (_error is not null)
                 {
                     <div class="state">

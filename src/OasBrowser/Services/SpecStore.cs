@@ -295,8 +295,45 @@ public sealed class SpecStore(HttpClient http, NavigationManager nav)
                 : Catalogue.FirstOrDefault()?.Id;
         }
 
+        CollidingSpecIds = FindCollisions(Catalogue);
         return Catalogue;
     }
+
+    /// <summary>
+    /// Spec ids the URL cannot express, because they collide with a route
+    /// segment. Empty in a conforming catalogue.
+    ///
+    /// <para>
+    /// The first path segment is read as a spec id unless it names a kind, so a
+    /// spec called <c>coverage</c> or <c>operations</c> has no reachable URL.
+    /// That is an ambiguity rather than a style rule.
+    /// </para>
+    ///
+    /// <para>
+    /// <b>The assertion belongs here rather than in a corpus's own checker</b>,
+    /// and the corpus owner made the argument better than I did. A corpus check
+    /// can only enforce the set it knows; when this app adds a route kind, that
+    /// check keeps passing, correctly by its own definition, while the routing
+    /// it protects breaks. Its green would be accurate and useless. Only the
+    /// party that owns the route table can derive the set, so only it can hold
+    /// the check that cannot go stale. A corpus keeping a literal copy for fast
+    /// feedback is the right complement and not a substitute.
+    /// </para>
+    ///
+    /// <para>
+    /// Reported rather than thrown. One unreachable spec does not stop the
+    /// other nine rendering, and refusing the whole catalogue would take a
+    /// reader's working page away to tell them about a page they were not on.
+    /// </para>
+    /// </summary>
+    public IReadOnlyList<string> CollidingSpecIds { get; private set; } = Array.Empty<string>();
+
+    private static IReadOnlyList<string> FindCollisions(IReadOnlyList<SpecEntry> catalogue) =>
+        catalogue
+            .Select(s => s.Id)
+            .Where(id => Route.ReservedIds.Contains(id, StringComparer.Ordinal))
+            .Distinct(StringComparer.Ordinal)
+            .ToArray();
 
     public SpecEntry? Resolve(string? specId) =>
         Catalogue.FirstOrDefault(s => s.Id == (specId ?? DefaultSpecId));
