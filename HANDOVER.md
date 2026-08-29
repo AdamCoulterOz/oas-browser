@@ -703,6 +703,19 @@ you assign, review and communicate.
   "review this" delegated is worthless; a specific criterion delegated is as good
   as doing it yourself. Each criterion should name *the specific thing that would
   be missing*, so it is a pass/fail someone without your context can apply.
+
+  **And when briefing, transfer the gotchas this document already holds.** Two
+  briefs of mine told an agent to publish and serve the app and omitted
+  `rm -rf dist` and the import-map step, both of which are in *Practical
+  gotchas* and both of which cost the agent a broken run it had to diagnose.
+  Owning a list of hard-won failures is worth nothing if it is not consulted at
+  the moment somebody is about to hit them, and the moment is the brief.
+
+  Likewise **state expected numbers as of when, or leave them out.** A brief of
+  mine quoted a corpus total that had grown by eight operations since I wrote it
+  down. The agent measured, disagreed, and was right — but the safe outcome
+  depended on it checking rather than trusting me, which is the wrong way round
+  for a figure I supplied as ground truth.
 - **The go/no-go on release.**
 - **Cross-boundary communication.** Requests and responses to keel and the
   content repos stay on your thread. Do not delegate a relationship.
@@ -1314,6 +1327,25 @@ So the fixtures want a second catalogue, not because anyone needs two corpora
 but because **one is the count at which these checks cannot fail.** The same
 argument as proving an invariant by making it fail, applied to the shape of the
 fixture set rather than to the assertion.
+
+**Behaviour encoded in a container comes along unnoticed, or is lost unnoticed,
+when you lift the code out of it.**
+
+A resolution rule looked up operations in a `Dictionary` built with
+`StringComparer.Ordinal`. That comparer was the rule "an operationId differing
+only in case is a different operationId" — a real decision, stated nowhere, held
+by the container rather than by the code. Lifting the logic to a linear scan
+preserved it only because whoever typed the comparison happened to write
+`Ordinal`, and **a mutation folding case survived the whole suite**, because
+nothing had ever written the rule down.
+
+So when you move code out of a structure, ask what the structure was deciding.
+A comparer, a key type, an ordered collection, a set that silently deduplicates:
+each is a behavioural claim wearing a data structure. The lift either drops it
+or reproduces it by luck, and both look identical afterwards.
+
+The mutation is what found it. A survivor is not always a hole in the tests; it
+can be a rule that was never anywhere but in a type argument.
 
 **Prove each invariant by making it fail.** Every check in the first version was
 run against a synthetic violation and required to go red, including the real
