@@ -2170,6 +2170,70 @@ along exactly that seam.
 `_content/` start with an underscore, which Jekyll excludes. Omit it from a fresh
 repo and the failure looks like a broken build rather than a missing file.
 
+## Where this was left, 2026-08-29
+
+Written at a stopping point rather than at a finishing point, because the next
+session may be days away and everything below otherwise lives only in a
+conversation that will not survive.
+
+**Nothing is in flight.** Working tree clean, nothing unpushed, `main` at
+`1a422eb`. Every sub-agent committed before finishing. The checkout at
+`/Users/adam/Code/GitHub/AdamCoulterOz/oas-browser` is tens of commits behind:
+it is stale, not divergent, and wants a pull rather than a merge.
+
+**Live and working:** `https://adamcoulteroz.github.io/oas-browser/`. The corpus
+redirects into it carrying the fragment, the catalogue loads cross-origin, deep
+links resolve into non-default specs, and the coverage view renders a real
+mapping. 127 tests, 4 warnings, all pre-existing.
+
+### Owed to somebody, in the order they will notice
+
+1. **A second catalogue in the fixtures.** The corpus owner's point and it is
+   the sharpest testing observation anyone made: *one is the number at which
+   cross-corpus mistakes cannot occur.* The mapping-declaration refusal, the
+   origin display and the reserved-id check are all exercised against a single
+   corpus, which is the configuration where each of them is unfalsifiable.
+2. **The two colour-only cues**, claimed as mine and unfixed: the request line
+   (`endpoint__host` against `endpoint__path`, 2.57:1 and colour is the only
+   cue) and the property meta line. keel's `#41` is the general case; these two
+   are the app's own and do not wait on it.
+3. **The validator's `$ref` path-item blindness.** Operations behind a `$ref`
+   path item are reported missing. Over-firing, on the one check whose subject
+   is in somebody else's repository, and the weakest thing shipped.
+4. **Table semantics.** There is no table markup anywhere in this app: property
+   and response rows are `div` grids with no roles. keel has taken it as `#52`;
+   adopting it is this app's.
+
+### Not owed, but next by value
+
+`x-probe-verified` rendering is the largest settled piece: 419 of 535 nodes need
+only the observed/not-observed binary and nothing from keel. Corpus-declared
+grades come next and are a correctness fix rather than a tidy-up, because
+`SpecNote.cs` still hardcodes `live`/`pac-cli`/`provider` and lands every other
+corpus in the unverified fallback. Then the six ranked defects, then
+issue-backed comments, which remain undesigned and still need an auth model a
+static page can hold.
+
+### What the other boundaries are holding
+
+**keel** is building the projection control — `#51` became part of `#52` after
+Adam reframed table, matrix and unit chart as one thing: records projected onto
+zero, one or two dimensions with a composed cell. Also open: `#42` deliberately
+withheld content, `#53` the navigable list row, `#54` progress-bar naming and
+disclosure label composition, `#55` chip wrapping versus a never-truncate
+guarantee. The coverage view ships with chips meanwhile and swaps later.
+
+**The specs corpus** carries the object catalogue, the id index, `coverage` in
+its reserved union, and the seven connectivity and governance operations the
+provider's call graph found. Its conformance check keeps a literal copy of the
+reserved set as fast feedback; this repo now holds the authoritative one.
+
+**The provider mapping** is on a branch, not merged, at
+`AdamCoulterOz/terraform-provider-power-platform`. When it merges the raw URL
+moves to a `main` path and the coverage view's default should point at it. Five
+calls remain unresolved by design: two are a casing defect awaiting `#1257`,
+three are an approximate branch-tracking limit.
+
 ## State
 
 The extraction is done. `oas-browser` exists, builds in CI against the keel
