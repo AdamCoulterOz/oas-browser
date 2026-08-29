@@ -100,6 +100,80 @@ public static partial class OperationMatch
         return all.Where(c => LiteralSegments(pathOf(c)) == best).ToList();
     }
 
+    /// <summary>
+    /// The operation one identity names, or why this spec has none.
+    ///
+    /// <para>
+    /// The decision procedure the two rules above compose into, and the thing a
+    /// reader's numbers actually depend on. It has to see the spec's whole
+    /// operation set rather than one candidate at a time, because ranking by
+    /// literal segments is a comparison between candidates; that is why it
+    /// cannot live in <see cref="CoverageMap"/>, which holds the mapping and
+    /// not the spec.
+    /// </para>
+    ///
+    /// <para>
+    /// A tie is reported rather than resolved, at both steps. Two operations
+    /// carrying one operationId, or two paths matching a call equally well, is
+    /// the corpus and the mapping failing to determine an answer between them,
+    /// and picking one would make this page's figures depend on which
+    /// implementation read them.
+    /// </para>
+    ///
+    /// <para>
+    /// <b>The seam.</b> This takes an interface over three strings rather than
+    /// the app's <c>Operation</c>. Not because <c>OpenApiModel.cs</c> cannot be
+    /// compiled into the test project: it can, it is System.Text.Json and
+    /// nothing else. It is because an <c>Operation</c> can only be reached
+    /// through <c>OpenApiSpec.Parse</c>, so every case below would have to be
+    /// written as a spec document, and a rule that reads three strings would be
+    /// pinned by tests that also exercise the parser and drag SchemaRef and
+    /// SpecNote in behind it. The narrower type is what the rule reads, so it
+    /// is what the rule asks for, and <c>Operation</c> satisfies it as it
+    /// already stands without an adapter. Generic rather than returning the
+    /// interface, so the caller gets its own type back and needs no cast.
+    /// </para>
+    /// </summary>
+    public static (T? Op, string? Why) Resolve<T>(OperationIdentity identity, IEnumerable<T> operations)
+        where T : class, ISpecOperation
+    {
+        // Ordinal, matching the identity: two operationIds differing in case
+        // are two operationIds, for the same reason a path segment's case is
+        // significant a few lines down.
+        if (identity.OperationId is { } id)
+        {
+            var found = operations.Where(o => string.Equals(o.OperationId, id, StringComparison.Ordinal)).ToList();
+            return found.Count switch
+            {
+                1 => (found[0], null),
+                0 => (null, "no operation in this spec has that operationId"),
+                _ => (null, $"{found.Count} operations in this spec carry that operationId"),
+            };
+        }
+
+        // The method is compared case-insensitively and the path is not. A
+        // method is a fixed token of the protocol that a spec spells lower case
+        // and this model uppercases, so its case carries no information; a path
+        // segment's case is the caller's own spelling and carries a defect.
+        var candidates = operations
+            .Where(o => string.Equals(o.Method, identity.Method, StringComparison.OrdinalIgnoreCase)
+                        && PathMatches(o.Path, identity.Path!))
+            .ToList();
+
+        if (candidates.Count == 0)
+            return (null, "no path in this spec matches it, at that method and that spelling");
+
+        // Most specific wins: a path spending a literal where another spends a
+        // template is the one the caller meant. Without this a catch-all
+        // shadows every specific path beside it.
+        var top = MostSpecific(candidates, o => o.Path);
+
+        return top.Count == 1
+            ? (top[0], null)
+            : (null, "several paths in this spec match it equally well: "
+                     + string.Join(", ", top.Select(o => o.Path).OrderBy(p => p, StringComparer.Ordinal)));
+    }
+
     private static string SegmentPattern(string segment)
     {
         var pattern = new StringBuilder("^");
@@ -113,4 +187,20 @@ public static partial class OperationMatch
 
         return pattern.Append(Regex.Escape(segment[last..])).Append('$').ToString();
     }
+}
+
+/// <summary>
+/// An operation of a spec, reduced to the three strings resolving a call reads
+/// off it. The whole abstraction: a rule that compares an id, a method and a
+/// path should say so in its signature, and the app's <c>Operation</c>
+/// implements this as it already stands.
+/// </summary>
+public interface ISpecOperation
+{
+    string OperationId { get; }
+
+    /// <summary>Whatever case the spec or the model spells it in; compared case-insensitively.</summary>
+    string Method { get; }
+
+    string Path { get; }
 }

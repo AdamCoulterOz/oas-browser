@@ -380,20 +380,18 @@
 
     private View Build(CoverageMap map)
     {
-        var byId = new Dictionary<string, List<Operation>>(StringComparer.Ordinal);
-        foreach (var op in Spec.Operations)
-        {
-            if (!byId.TryGetValue(op.OperationId, out var same)) byId[op.OperationId] = same = new();
-            same.Add(op);
-        }
-
         var citations = new Dictionary<Operation, List<CoverageCitation>>();
         var misses = new List<Miss>();
 
         foreach (var identity in map.CalledOperations(SpecId))
         {
             var claims = map.Callers(SpecId, identity);
-            var (op, why) = Resolve(identity, byId);
+
+            // The rule itself is in Model/OperationMatch.cs, with tests. It
+            // needs the spec's whole operation set rather than one candidate at
+            // a time, which is why the page hands it Spec.Operations and why it
+            // cannot live in CoverageMap: the mapping is not the spec.
+            var (op, why) = OperationMatch.Resolve(identity, Spec.Operations);
 
             if (op is null)
             {
@@ -510,53 +508,6 @@
         claims.GroupBy(c => c.Item)
               .Select(g => new Caller(g.Key, g.Select(c => c.Call).ToList()))
               .ToList();
-
-    // ---- resolving a call's operation identity against this spec -----------
-
-    /// <summary>
-    /// The operation one identity names, or why this spec has none.
-    ///
-    /// <para>
-    /// This is where the contract's path-matching rule is applied, and it has
-    /// to be here rather than in <see cref="CoverageMap"/>: ranking candidates
-    /// by how many segments they match literally needs the spec's whole path
-    /// set, which the mapping is not and cannot become.
-    /// </para>
-    ///
-    /// <para>
-    /// A tie is reported rather than resolved. Two paths matching a call
-    /// equally well is the corpus and the mapping failing to determine an
-    /// answer between them, and picking one would make this page's figures
-    /// depend on which implementation read them.
-    /// </para>
-    /// </summary>
-    private (Operation? Op, string? Why) Resolve(OperationIdentity identity, Dictionary<string, List<Operation>> byId)
-    {
-        if (identity.OperationId is { } id)
-            return byId.TryGetValue(id, out var found)
-                ? found.Count == 1
-                    ? (found[0], null)
-                    : (null, $"{found.Count} operations in this spec carry that operationId")
-                : (null, "no operation in this spec has that operationId");
-
-        var candidates = Spec.Operations
-            .Where(o => string.Equals(o.Method, identity.Method, StringComparison.OrdinalIgnoreCase)
-                        && OperationMatch.PathMatches(o.Path, identity.Path!))
-            .ToList();
-
-        if (candidates.Count == 0)
-            return (null, "no path in this spec matches it, at that method and that spelling");
-
-        // Most specific wins: a path spending a literal where another spends a
-        // template is the one the caller meant. Without this a catch-all
-        // shadows every specific path beside it.
-        var top = OperationMatch.MostSpecific(candidates, o => o.Path);
-
-        return top.Count == 1
-            ? (top[0], null)
-            : (null, "several paths in this spec match it equally well: "
-                     + string.Join(", ", top.Select(o => o.Path).OrderBy(p => p, StringComparer.Ordinal)));
-    }
 
     // ---- words -------------------------------------------------------------
 

@@ -224,7 +224,7 @@ public sealed class SpecInfo
     public string? Description { get; }
 }
 
-public sealed class Operation
+public sealed class Operation : ISpecOperation
 {
     private readonly JsonElement _e;
 
