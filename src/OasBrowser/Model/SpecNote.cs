@@ -83,7 +83,23 @@ public sealed record NoteGroup(string Source, string Title, string? Caveat, IRea
         SpecNote.Provider => new NoteGroup(source, "From the Terraform provider's client",
             "Modelled by a third-party client, neither observed on the wire nor attested by "
             + "Microsoft's own client.", notes),
-        _ => new NoteGroup(source, $"Reported by {source}",
-            "An evidence grade this browser has no wording for. Treat it as unverified.", notes),
+        // The fallback says what this browser does not know, and stops. It used
+        // to add "Treat it as unverified", which is a claim about the evidence
+        // that nothing here can support: an unrecognised grade is a gap in this
+        // renderer, not a weakness in the finding.
+        //
+        // That wording was written when the only unrecognised grades were
+        // hypothetical. Two are now live and one of them, `ppac-spa`, is the
+        // most-used grade in the corpus at 133 operations. So the browser was
+        // instructing readers to distrust the corpus's strongest structural
+        // evidence, on the authority of not having heard of it.
+        //
+        // The real fix is corpus-declared grades, which retires this branch.
+        // Until then this must not assert more than "I have no wording", and a
+        // reader is better served by an honest gap than by a confident
+        // downgrade.
+        _ => new NoteGroup(source, $"Graded {source} by this corpus",
+            "This browser has no wording for that grade, so it is shown as the corpus "
+            + "recorded it. What the grade means is the corpus's to say.", notes),
     };
 }
