@@ -580,12 +580,21 @@ returns your own address, which you need in order to tell anyone else yours.
   Codex `Keel` project. The Claude session that held it was `sch-9d`, then
   `keel-4b`; neither is the owner now.
 
-**Addresses shift on every session restart**, by a suffix rather than wholesale:
-`sch-9d` became `keel-4b`, `provider-api-client-libraries-827c35-d3` became
-`...-9f`. So look the address up immediately before sending rather than reusing
-one from earlier in a conversation, which is a stronger version of the
-derive-do-not-remember rule already stated here: the remembered value does not
-merely rot slowly, it is stale after any restart at either end.
+**An address is valid only for the exchange it was observed in.** Not derived,
+not remembered. Re-look it up per conversation.
+
+That is stronger than this section's original advice and stronger than my own
+first correction of it. I wrote that addresses shift *by a suffix*, having seen
+`provider-api-client-libraries-827c35-d3` become `...-9f`. keel pointed out
+their own name went `sch-9d` to `keel-4b`: **the prefix changed too, because the
+project changed rather than only the session.** So the repo-matching derivation
+this section endorses fails as well — it works only while a session name still
+carries its repo, and keel's stopped doing so.
+
+The failure mode is silent: messages simply do not land, and the sender has no
+signal distinguishing a wrong address from a peer that is busy. Looking the
+address up immediately before sending is the only thing that worked, and it is
+what got this exchange through.
 - Specs: peer name `provider-api-client-libraries-827c35-d3`, session title
   "Provider API client library separation".
 - The session that wrote this document: `Power Platform Provider`, session id
@@ -2244,14 +2253,27 @@ white-space override and the 59 splatted `aria-label`s, and `Label` becomes
 **Two changes coming in 0.5.0 break this app rather than improving it, and both
 are single-site.**
 
-1. **`--text-on-accent` is being removed for `--accent-on`, and it is not an
-   alias.** In dark the new token is near-black where the old one is white. This
-   app reads `--text-on-accent` in exactly one place, `#blazor-error-ui`
-   (`app.css:479`), the banner shown when the app fails to boot. That site is
-   already recorded above as failing AA in both themes, so the rename is the fix
-   arriving rather than a migration to absorb — but it is a rename that silently
-   inverts a colour, so a mechanical find-and-replace is the right move and a
-   mechanical *ignore* is not.
+1. **`--text-on-accent` is being removed. This app's one use of it wants
+   `--danger-on`, NOT `--accent-on`.**
+
+   `#blazor-error-ui` (`app.css:479`) paints a **danger** fill. `--accent-on` is
+   ink for the **accent** fill. The two resolve identically today — white in
+   light, near-black in dark — so replacing with `--accent-on` would look
+   correct and be correct *by coincidence*. That is the token-chosen-by-
+   appearance failure this document already has a worked example of, and keel
+   has not promised the two stay equal. I wrote `--accent-on` here first and
+   keel corrected it; the wrong token in a handover is worse than no note,
+   because it is the instruction a successor follows without checking.
+
+   Measured by keel, in dark against `--danger` `#ff8178`: near-black **8.12:1**,
+   white **2.42:1**. In light against `#d12a22`, white **5.17:1**. So
+   `--danger-on` fixes the site in *both* themes rather than only dark.
+
+   Related, and the reason the light figure improved: `--danger` itself moved in
+   0.4.3 from `#e5322a` to `#d12a22`, because at the old value nothing was
+   legible on it in either direction — white 4.36, black 4.82 as the ceiling.
+   **A fill nothing can be written on is broken whichever ink a component
+   reaches for, so the fill moved rather than the ink.**
 2. **The nav bar gains horizontal padding, shifting its container-query collapse
    threshold by 32px of window.** This app's rail switches at 880px keyed to
    keel's `Size.Lg` and **sits exactly on that boundary** — `app.css:100`, `119`
