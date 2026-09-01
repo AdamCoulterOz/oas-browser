@@ -710,10 +710,57 @@ and assuming it holds. The party asserting a rule is usually better placed to
 check it than the party receiving it, and neither treats the join as theirs by
 default.
 
+### The operating model: owner, children, peers
+
+Set by Adam on 2026-08-29 and it governs everything below, which was written
+before it.
+
+**This session is the top-level Owner of `oas-browser`**: product owner,
+architect, orchestrator, integrator, final reviewer, and the sole line to the
+user. Spawned agents are children, not owners. A child executes a bounded
+assignment and reports to its immediate parent only.
+
+**Delegation.** At most four active direct children. **At most one child at the
+parent's capability tier; every other must be lower.** No child exceeds its
+parent's model or effort ceiling. **Delegation depth defaults to zero** — a
+child may only sub-delegate when explicitly granted positive depth, and depth
+decreases every generation. Never delegate a whole assignment, never create a
+manager-only child, never delegate something trivial, never duplicate work.
+
+**Every brief states**: the root owner, the immediate parent, tree depth, role,
+scope and write set, capability ceiling, delegation allowance, required
+evidence, and only the upstream context the child actually needs.
+
+**Communication.** A worker talks to its immediate parent and its own children.
+Not to the user, not to siblings, not to higher ancestors, not to other sessions
+or other repositories' owners. **Cross-repository needs bubble up one parent at
+a time to the top-level Owner, and only Owners talk peer-to-peer.** Decisions
+and evidence come back down the same chain. The Owner alone accepts work,
+coordinates peers, and presents to the user.
+
+**Where the briefs in this repo's history do not meet it, so nobody copies
+them as templates.** The delegation done on 2026-08-28 complied on the parts
+this document already argued for — criteria authored by the owner, explicit
+write sets, evidence required as mutation results rather than assertions, all
+cross-boundary contact kept on the owner's thread, every child's work reviewed
+and pushed by the owner. It failed on the structural parts, which were not
+stated anywhere at the time:
+
+- **No brief named a capability tier**, so every child inherited the parent's.
+  Four concurrent children at the owner's tier is three more than the model
+  permits.
+- **No brief stated a delegation allowance.** One child spawned a follow-up task
+  chip, which is a sub-delegation nobody had authorised, and the fact that it
+  was a good suggestion is beside the point.
+- **No brief stated root owner, parent, depth or role**, because the tree was
+  one level deep and it felt obvious. It is obvious to the parent and invisible
+  to the child, which is the same audience error this document records about
+  failure messages and about statements of state.
+
 ### Delegate implementation. Keep judgement.
 
-Delegate freely, including review and release mechanics. Sub-agents do the work;
-you assign, review and communicate.
+Delegate freely within the model above. Sub-agents do the work; you assign,
+review and communicate.
 
 **Non-delegable:**
 
