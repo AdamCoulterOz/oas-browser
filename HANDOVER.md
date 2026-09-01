@@ -576,7 +576,16 @@ returns your own address, which you need in order to tell anyone else yours.
 
 **Snapshot as at 2026-08-28, correct then and quite possibly wrong now:**
 
-- keel: peer name `sch-9d`, session title "keel design system".
+- keel: **owned by a Codex agent from 2026-08-29**, addressed as `Keel` in the
+  Codex `Keel` project. The Claude session that held it was `sch-9d`, then
+  `keel-4b`; neither is the owner now.
+
+**Addresses shift on every session restart**, by a suffix rather than wholesale:
+`sch-9d` became `keel-4b`, `provider-api-client-libraries-827c35-d3` became
+`...-9f`. So look the address up immediately before sending rather than reusing
+one from earlier in a conversation, which is a stronger version of the
+derive-do-not-remember rule already stated here: the remembered value does not
+merely rot slowly, it is stale after any restart at either end.
 - Specs: peer name `provider-api-client-libraries-827c35-d3`, session title
   "Provider API client library separation".
 - The session that wrote this document: `Power Platform Provider`, session id
@@ -2213,6 +2222,49 @@ grades come next and are a correctness fix rather than a tidy-up, because
 corpus in the unverified fallback. Then the six ranked defects, then
 issue-backed comments, which remain undesigned and still need an auth model a
 static page can hold.
+
+### keel changed hands, and two of its changes land on this code
+
+**keel is owned by a Codex agent now**, addressed as `Keel` in the Codex `Keel`
+project. Send gaps to the tracker rather than to the session this document names
+elsewhere. Everything the previous owner knew and had not written down is in
+their issue **#64**.
+
+**0.4.4 is published and this app is on 0.4.3.** 0.4.3 was announced; 0.4.4 went
+out without notice, which the outgoing owner named as theirs. Taking it is
+cheap and unblocks removing two local overrides.
+
+Four gaps filed from this repo shipped in it: `KeelChip` gained an overflow axis
+(`Wrap` / `Ellipsis` / `NeverTruncate`), `KeelProgressBar` gained `Label`,
+`KeelDisclosure` gained `LabelContent` and a trailing slot that can grow, and
+`KeelCodeBlock` gained copy-button labels. Adopting them deletes the chip
+white-space override and the 59 splatted `aria-label`s, and `Label` becomes
+`EditorRequired` in 0.5.0, so adopting now avoids a warning later.
+
+**Two changes coming in 0.5.0 break this app rather than improving it, and both
+are single-site.**
+
+1. **`--text-on-accent` is being removed for `--accent-on`, and it is not an
+   alias.** In dark the new token is near-black where the old one is white. This
+   app reads `--text-on-accent` in exactly one place, `#blazor-error-ui`
+   (`app.css:479`), the banner shown when the app fails to boot. That site is
+   already recorded above as failing AA in both themes, so the rename is the fix
+   arriving rather than a migration to absorb — but it is a rename that silently
+   inverts a colour, so a mechanical find-and-replace is the right move and a
+   mechanical *ignore* is not.
+2. **The nav bar gains horizontal padding, shifting its container-query collapse
+   threshold by 32px of window.** This app's rail switches at 880px keyed to
+   keel's `Size.Lg` and **sits exactly on that boundary** — `app.css:100`, `119`
+   and a container query at `290`. The outgoing owner flagged it as mine to
+   re-check, and it was already flagged in the 0.4.3 notes for the same reason.
+   Re-check against their corrected arithmetic rather than assuming the two
+   still coincide; the failure mode is a burger and a rail both showing, or
+   neither, in a 32px band.
+
+**Also decided and not built, with this app as the named case in two of three:**
+`KeelWithheld` for the refused-link gap (#42), the categorical palette (#23,
+this app's verb map is the case), and the pivot control (#51 and #52), whose
+margin-not-matrix shape was decided by this repo's sparsity measurements.
 
 ### What the other boundaries are holding
 
