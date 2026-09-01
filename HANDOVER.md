@@ -2269,15 +2269,65 @@ mapping. 127 tests, 4 warnings, all pre-existing.
    and response rows are `div` grids with no roles. keel has taken it as `#52`;
    adopting it is this app's.
 
-### Not owed, but next by value
+### Do corpus-declared grades first. It stopped being a generality concern.
 
-`x-probe-verified` rendering is the largest settled piece: 419 of 535 nodes need
-only the observed/not-observed binary and nothing from keel. Corpus-declared
-grades come next and are a correctness fix rather than a tidy-up, because
-`SpecNote.cs` still hardcodes `live`/`pac-cli`/`provider` and lands every other
-corpus in the unverified fallback. Then the six ranked defects, then
-issue-backed comments, which remain undesigned and still need an auth model a
-static page can hold.
+**This app knows three grades. The corpus uses five.** `ps-admin` (54
+operations) and `ppac-spa` (133 operations, 22 notes) both fall to the unknown
+fallback, and `ppac-spa` is **the most-used grade in the corpus** — the admin
+centre's own JavaScript bundles, and the only first-party evidence for the
+admin, analytics and athena hosts, since no shipped SDK or PowerShell module
+touches them.
+
+Until `f913078` the fallback rendered *"Treat it as unverified"*, so the browser
+was instructing readers to discount the corpus's strongest structural evidence
+on the authority of not having heard of it. That sentence is gone; the branch
+now says what it does not know and leaves the meaning to the corpus. **It is a
+stopgap. Corpus-declared grades retires the branch.**
+
+This section previously ranked this below `x-probe-verified` on the reasoning
+that it is a correctness fix *for some other corpus*. That was wrong in a way
+worth keeping: the argument elsewhere in this file says a hardcoded triple
+*"lands every group in the fallback and the whole panel reads as unverified,
+including grades that corpus considers observed"* — written as a prediction
+about a hypothetical future corpus, and it has landed on the corpus it was
+written about. The general-browser argument and the this-corpus argument are the
+same argument.
+
+**The grade the corpus owner suggested, in their words rather than my summary,
+so it goes into their declaration and not into a `switch` here:** title *"From
+the admin centre's own client"*; `IsObserved` false, so it renders with the
+other client grades; caveat in the shape of `pac-cli`'s, noting that a bundle
+contains every route the client *can* call including branches nobody exercised,
+so its **coverage is wider than a capture while its confirmation is weaker**.
+They offered to rename the grade to suit this app and were told not to: the
+vocabulary is theirs, the renderer's ignorance is mine, and a corpus editing its
+terms to fit a consumer's hardcoded list is the failure the split exists to
+prevent.
+
+**Two failures produced one symptom, and only an audit found either.** Theirs:
+`ppac-spa` was added mid-flow, registered in `conform.py`, and never raised as a
+contract question, because the check went green and green read as done — a check
+correct about its own layer while the layer it cannot see broke in the same
+commit. Mine: `ps-admin` *was* announced and I never wired it, so the
+announcement channel failed independently.
+
+**Also**: the three-grade stacking case this document says not to pre-solve has
+moved from hypothetical to possible. `bapi` and `ppapi` now have four grades
+available within one spec, so an entity attested by a probe, a shipped client
+and the admin bundle is reachable. Nobody has gone looking for one. Remeasure
+before designing for it.
+
+### Then, next by value
+
+`x-probe-verified` rendering: 419 of 535 nodes need only the
+observed/not-observed binary and nothing from keel. Then the six ranked defects,
+then issue-backed comments, which remain undesigned and still need an auth model
+a static page can hold.
+
+The corpus is now **11 specs, 564 paths, 662 operations** — `flow` (Power
+Automate) was added. Every count quoted elsewhere in this file is behind. The
+coverage view resolves live and picks new specs up on its own; the prose does
+not.
 
 ### keel changed hands, and two of its changes land on this code
 
