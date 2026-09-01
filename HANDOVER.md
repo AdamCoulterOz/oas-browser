@@ -1655,6 +1655,21 @@ this kind: **an assertion carrying a remembered value should say so in its own
 failure message** ("either this value is wrong or this checker is out of date").
 Derived assertions need no such hedge, because there is nothing to be stale.
 
+**And when you retire the remembered value, retire the hedge with it.** The
+corpus's own checker held the grade set as a literal — the fifth instance
+counted below, and the one sitting inside the mechanism built to prevent the
+other four. When it moved to reading the declaration at run time, its failure
+message still named two suspects: the value is wrong, *or* the checker predates
+a grade the corpus now declares. The second suspect cannot exist once the set is
+read live, so the message was sending a reader to look for a cause the fix had
+just made impossible.
+
+A stale hedge is a small thing that behaves like a large one: it survives the
+defect it described, keeps pointing at it, and is read by whoever meets the
+failure knowing least. The corpus owner found it by testing the new behaviour
+with a made-up grade rather than by rereading the message, which is the only way
+it was going to surface.
+
 Two reasons that rule is better than it first looks:
 
 - **It is self-limiting.** Writing "this checker may be out of date" is mildly
@@ -2269,7 +2284,28 @@ mapping. 127 tests, 4 warnings, all pre-existing.
    and response rows are `div` grids with no roles. keel has taken it as `#52`;
    adopting it is this app's.
 
-### Do corpus-declared grades first. It stopped being a generality concern.
+### Do corpus-declared grades first. The declaration already exists.
+
+**The corpus declares its vocabulary in `specs.json` as of `b3b7559`, so this is
+a read rather than a design.** Verified live: five entries, ordered strongest
+first, each with `id`, `title`, `observed`, `caveat` and `description`.
+`observed` is exactly the flag `NoteGroup.IsObserved` wants, and it is true on
+`live` alone.
+
+```
+live       observed=true   Verified against the live API
+ppac-spa   observed=false  From the admin centre's own client
+pac-cli    observed=false  From Microsoft's own client
+ps-admin   observed=false  From Microsoft's PowerShell admin module
+provider   observed=false  From a third-party client
+```
+
+The work is therefore: read `grades` from the catalogue, drop the three
+constants and the `Order` array in `SpecNote.cs`, drop the `switch` in
+`NoteGroup.For`, and take order from array position as the coverage format
+already does. A corpus that declares none keeps the current fallback. **Do not
+reintroduce a default set**: a browser that knows some grades is the failure
+being retired, not a smaller version of it.
 
 **This app knows three grades. The corpus uses five.** `ps-admin` (54
 operations) and `ppac-spa` (133 operations, 22 notes) both fall to the unknown
@@ -2303,6 +2339,13 @@ They offered to rename the grade to suit this app and were told not to: the
 vocabulary is theirs, the renderer's ignorance is mine, and a corpus editing its
 terms to fit a consumer's hardcoded list is the failure the split exists to
 prevent.
+
+**A message that arrives is not a change that lands.** `ps-admin` was announced
+to this session and never wired, so the announcement channel worked perfectly
+and produced nothing. That is worth separating from the check-cannot-see-your-
+layer failure it sits beside: one is a channel that could not carry the news,
+the other is news that arrived and died in the reader. Only an audit found
+either, and the second is the one no protocol between the parties can fix.
 
 **Two failures produced one symptom, and only an audit found either.** Theirs:
 `ppac-spa` was added mid-flow, registered in `conform.py`, and never raised as a
